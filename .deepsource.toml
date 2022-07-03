@@ -1,0 +1,9 @@
+version = 1
+
+exclude_patterns = [
+  "core/libs/**"
+]
+
+[[analyzers]]
+name = "javascript"
+enabled = true

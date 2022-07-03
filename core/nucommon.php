@@ -246,11 +246,15 @@ function nuObjKey($o, $k, $d = null) {
 
 function nuSetHashList($p){
 
+	$A 			= array();
+	$r			= array();
+	$h			= array();
+
 	if (! is_null($p)) {
 
 		$fid		= addslashes(nuObjKey($p,'form_id'));
 		$rid		= addslashes(nuObjKey($p,'record_id'));
-		$r			= array();
+
 		$A			= nuGetUserAccess();
 
 		if ($fid != '' && $rid != '' && $fid != 'doesntmatter') {
@@ -261,7 +265,6 @@ function nuSetHashList($p){
 			if (db_num_rows($t) > 0) {
 
 				$R			= db_fetch_object($t);
-				$h			= array();
 
 				if($p['call_type'] == 'getform'){
 
@@ -352,24 +355,6 @@ function nuRunReport($report_id){
 	$_POST['nuHash']['sre_layout']		= nuReplaceHashVariables($ob->sre_layout);
 	$_POST['nuHash']['parentID']		= $ob->sre_zzzzsys_php_id;
 	$_POST['nuHash']['nuInstall']		= '0';
-	$j									= json_encode($_POST['nuHash']);
-
-	nuSetJSONData($id, $j);
-
-	return $id;
-
-}
-
-function nuInstall(){
-
-	$id									= nuID();
-	$s									= "SELECT zzzzsys_php_id, sph_code, sph_description  FROM zzzzsys_php WHERE sph_code = '$procedure_code'";
-	$t									= nuRunQuery($s);
-	$ob									= db_fetch_object($t);
-	$_POST['nuHash']['code']			= $ob->sph_code;
-	$_POST['nuHash']['description']		= $ob->sph_description;
-	$_POST['nuHash']['parentID']		= $ob->zzzzsys_php_id;
-	$_POST['nuHash']['nuInstall']		= '1';
 	$j									= json_encode($_POST['nuHash']);
 
 	nuSetJSONData($id, $j);

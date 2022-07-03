@@ -529,7 +529,7 @@ class nuSECTION{
 
 			}
 
-			$pages							= Max($pages, count($objectParts[$OID]));
+			$pages							= max($pages, count($objectParts[$OID]));
 
 		}
 
@@ -772,6 +772,7 @@ class nuSECTION{
 
 		$type			= '';
 		$value			= '';
+		$field			= '';
 
 		if(strtoupper(substr($O->fieldName,0,4)) == 'SUM('){
 			$type		= 's';
@@ -1016,6 +1017,7 @@ function nuMakeSummaryTable($REPORT, $TABLE_ID){
 
 	$sum		= array();
 	$field		= array();
+	$groups		= array();
 
 	for($i = 3 ; $i < 8 ; $i++){
 

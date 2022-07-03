@@ -106,7 +106,6 @@ function nuBeforeEdit($FID, $RID){
 
 	}
 
-
 	if ($recordID != '') {
 		$p = nuProcedure('nuBeforeEdit');
 		if($p != '') { eval($p); }
@@ -283,11 +282,12 @@ function nuGetFormObject($F, $R, $OBJS, $tabs = null){
 				}else{
 
 					$o->html		= '';
-					$htmljs			= addSlashes($r->sob_html_javascript);
+					$htmljs			= addslashes($r->sob_html_javascript);
 
 					$v = isset($r->sob_html_vertictal_label) ? $r->sob_html_vertictal_label : '';
 					$h = isset($r->sob_html_horizontal_label) ? $r->sob_html_horizontal_label : '';
 					$title = isset($r->sob_html_title) ? $r->sob_html_title : '';
+					$htmlj = "";
 
 					if($r->sob_html_chart_type == 'p'){
 						$htmlj	= "\nnuChart('$r->sob_all_id', 'PieChart', '$htmljs', '$title', '$h', '$v', 'bars', false);";
@@ -393,7 +393,7 @@ function nuGetFormObject($F, $R, $OBJS, $tabs = null){
 				$f->primary_key_name	= $o->primary_key_name;
 				$o->add					= $r->sob_subform_add;
 				$o->dimensions			= nuFormDimensions($r->sob_subform_zzzzsys_form_id);
-				$o->forms				= nuGetSubformRecords($r, $o->add, $R);
+				$o->forms				= nuGetSubformRecords($r, $o->add);
 				$o->sf_form_id			= $r->sob_subform_zzzzsys_form_id;
 				$o->browse_columns		= array();
 
@@ -510,7 +510,7 @@ function nuGetSrc($i){
 
 	if (db_num_rows($t) == 1) {
 		$r		= db_fetch_object($t);
-		$json	= JSON_decode($r->sfi_json);
+		$json	= json_decode($r->sfi_json);
 		$j		= $json->file;
 	} else {
 		$j	= null;
@@ -887,7 +887,7 @@ function nuSetFormValue($f, $v){
 
 }
 
-function nuDatalistOptions($sql) {
+function nuDataListOptions($sql) {
 
 	$a				= array();
 
@@ -1277,6 +1277,7 @@ function nuBrowseWhereClause($searchFields, $searchString, $returnArray = false)
 
 	$wordSearches			= explode(' ', $searchString);
 	$quo					= '"';
+	$task					= array();
 
 	$countWordSearches = count($wordSearches);
 	for ($i = 0; $i < $countWordSearches; $i++) {
@@ -1301,14 +1302,14 @@ function nuBrowseWhereClause($searchFields, $searchString, $returnArray = false)
 	}
 
 	$countS = count($SEARCHES);
-	for ($i = 0; $i < $countS; $i++) {															//-- search for (or exclude) these strings
+	for ($i = 0; $i < $countS; $i++) {																	//-- search for (or exclude) these strings
 
 		$include = array();
 		$exclude = array();
 
 		for ($SF = 0; $SF < count($searchFields); $SF++) {												//-- loop through searchable fields
 
-			if ($task[$i] == 'include') {																	//-- changed by KEE
+			if ($task[$i] == 'include') {																//-- changed by KEE
 				$include[] = 'CONVERT(' . $searchFields[$SF] . ' USING utf8) LIKE ' . $SEARCHES[$i];
 			} else {
 				$exclude[] = 'CONVERT(' . $searchFields[$SF] . ' USING utf8) NOT LIKE ' . $SEARCHES[$i];
@@ -1388,8 +1389,8 @@ function nuGatherFormAndSessionData($home){
 
 
 
-				$nuT					= nuRunQuery("SELECT sph_code FROM zzzzsys_report WHERE zzzzsys_report_id = ?");
-				$nuR					= db_fetch_object($nuT, array($formAndSessionData->record_id));
+				$nuT					= nuRunQuery("SELECT sph_code FROM zzzzsys_report WHERE zzzzsys_report_id = ?", array($formAndSessionData->record_id));
+				$nuR					= db_fetch_object($nuT);
 
 				nuDisplayError("Access To Report Denied... ($nuR->sre_code)");
 
@@ -1403,8 +1404,8 @@ function nuGatherFormAndSessionData($home){
 
 			if(!in_array($formAndSessionData->record_id, $p)) { //form_id is record_id for getphp
 
-				$nuT					= nuRunQuery("SELECT sph_code FROM zzzzsys_php WHERE zzzzsys_php_id = ?");
-				$nuR					= db_fetch_object($nuT, array($formAndSessionData->record_id));
+				$nuT					= nuRunQuery("SELECT sph_code FROM zzzzsys_php WHERE zzzzsys_php_id = ?", array($formAndSessionData->record_id));
+				$nuR					= db_fetch_object($nuT);
 
 				nuDisplayError("Access To Procedure Denied... ($nuR->sph_code)");
 			}

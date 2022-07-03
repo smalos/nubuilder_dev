@@ -3250,9 +3250,9 @@ function nuSetStartingTab(p, w) {
 	if (w.tabs.length == 0) {
 		nuFORMHELP[p] = '';
 		return;
-	} else {
-		nuFORMHELP[p] = nuTABHELP[w.tabs[0].id];
 	}
+
+	nnuFORMHELP[p] = nuTABHELP[w.tabs[0].id];
 
 	for (var i = 0; i < t.length; i++) {
 
@@ -4486,14 +4486,10 @@ function nuChange(e) {
 function nuChooseEventList() {
 
 	if ($('#sob_all_type').val() == 'subform') {
-
 		return ['beforeinsertrow', 'afterinsertrow', 'clickdelete'];
-
-	} else {
-
-		return ['onchange', 'oninput', 'onclick', 'onblur', 'onnuload', 'onfocus', 'onkeydown'];
-
 	}
+
+	return ['onchange', 'oninput', 'onclick', 'onblur', 'onnuload', 'onfocus', 'onkeydown'];
 
 }
 
@@ -6135,12 +6131,11 @@ function nuGetFirstObject(objects, tabNr) {
 			let obj0Code = $('#' + obj0Id + 'code');
 			if (obj0Code.length !== 0) {
 				return obj0Code;
-			} else {
-
-				let select2 = $('#' + obj0Id + '_select2');
-				return select2.length == 0 ? $('#' + obj0Id) : select2.children(":first").children(":first");
-
 			}
+
+			let select2 = $('#' + obj0Id + '_select2');
+			return select2.length == 0 ? $('#' + obj0Id) : select2.children(":first").children(":first");
+
 		}
 
 	}

@@ -2022,7 +2022,7 @@ function nuFormatDateTime($d, $format){
 
 }
 
-function nuGetProperty($p) {
+function nuGetPropertiesArray() {
 
 	$a = nuObjKey($_POST, 'nuHash', null);
 	if ($a != null) {
@@ -2037,6 +2037,16 @@ function nuGetProperty($p) {
 				$a = array_merge($j, $a);
 			}
 		}
+	}
+
+	return $a;
+
+}
+
+function nuGetProperty($p, $a = null) {
+
+	if ($a == null) {
+		$a = nuGetPropertiesArray();
 	}
 
 	return array_key_exists($p, $a) ? $a[$p] : null;

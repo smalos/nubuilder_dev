@@ -1543,12 +1543,12 @@ var nuPrettyPrint = (function () {
 									'[EXPAND]',
 									'Click to show items from this slice',
 									function () {
-										var obj = {};
+										let obj = {};
 										for (var j = i; j < until; j++) {
 											obj[j] = arr[j];
 										}
 										try {
-											var child = prettyPrintThis(obj, { maxDepth: 1 });
+											const child = prettyPrintThis(obj, { maxDepth: 1 });
 											child.getElementsByTagName('th')[0].style.display = 'none';
 											this.parentNode.appendChild(child);
 										} catch (e) {
@@ -1562,9 +1562,9 @@ var nuPrettyPrint = (function () {
 							isEmpty = false;
 						})(i);
 				} else {
-					util.forEach(arr, function (item, i) {
+					util.forEach(arr, function (item, index) {
 						isEmpty = false;
-						table.addRow([i, typeDealer[util.type(item)](item, depth + 1, i)]);
+						table.addRow([index, typeDealer[util.type(item)](item, depth + 1, index)]);
 					});
 				}
 

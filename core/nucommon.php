@@ -5,7 +5,6 @@ error_reporting( error_reporting() & ~E_NOTICE );
 require_once('nuchoosesetup.php');
 require_once('nubuilders.php');
 require_once('nuemailer.php');
-require_once dirname(__FILE__) . '/nusqlclass.php';
 
 //set_time_limit(0);
 
@@ -1419,10 +1418,10 @@ function nuExceptionHandler($e, $code){
 	$ce		= nuObjKey($_POST,'nuProcedureEval');
 	$se		= nuObjKey($_POST,'nuSystemEval');
 
-	nuDisplayError("$ce $se<br>", "nuErrorPHP");
-	nuDisplayError($e->getFile(), 'eval');
-	nuDisplayError('<i>' . $e->getMessage() . '</i>', 'eval');
-	nuDisplayError('<br><b><i>Traced from...</i></b><br>', 'nuErrorPHP');
+	nuDisplayError("$ce $se<br>");
+	nuDisplayError($e->getFile());
+	nuDisplayError('<i>' . $e->getMessage() . '</i>');
+	nuDisplayError('<br><b><i>Traced from...</i></b><br>');
 
 	$a		= $e->getTrace();
 	$t		= array_reverse($a);
@@ -1432,7 +1431,7 @@ function nuExceptionHandler($e, $code){
 
 		$m	= '(line:<i>' . $t[$i]['line'] . '</i>) ' . $t[$i]['file'] . ' <b> - ' . $t[$i]['function'] . '<b>';
 
-		nuDisplayError($m . '<br>', 'eval');
+		nuDisplayError($m . '<br>');
 
 	}
 

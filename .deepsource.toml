@@ -6,6 +6,10 @@ exclude_patterns = ["core/libs/**"]
 name = "php"
 enabled = true
 
+[analyzers.meta]
+environment = ["jquery"]
+dialect = "flow"
+
 [[analyzers]]
 name = "javascript"
 enabled = true
@@ -14,6 +18,4 @@ enabled = true
 name = "standardjs"
 enabled = true
 
-[analyzers.meta]
-environment = ["jquery"]
-dialect = "flow"
+

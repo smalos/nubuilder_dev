@@ -10,6 +10,13 @@ enabled = true
 name = "javascript"
 enabled = true
 
+[analyzers.meta]
+environment = ["jquery"]
+dialect = "flow"
+
+
 [[transformers]]
 name = "standardjs"
 enabled = true
+
+

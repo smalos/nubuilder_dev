@@ -430,7 +430,7 @@ function nuLogin(nuconfigNuWelcomeBodyInnerHTML) {
 
 	`;
 
-	var H = HTML == '' ? h : HTML
+	var H = HTML == '' ? h : HTML;
 
 	var e = document.createElement('div');
 
@@ -442,7 +442,7 @@ function nuLogin(nuconfigNuWelcomeBodyInnerHTML) {
 	$('body').html(H);
 
 	if (nuIsMobile()) {
-		$('body').css('width', 300).css('height', 300)
+		$('body').css('width', 300).css('height', 300);
 	}
 
 	if (window.nuLoginU == '' && window.nuLoginP == '') {
@@ -939,7 +939,7 @@ function nuTranslate(s) {
 
 function nuTranslateToEnglish(s) {
 
-	if (!s || s === '' || s === null) {
+	if (!s || s === '') {
 		return '';
 	}
 
@@ -1072,7 +1072,7 @@ function nuEnable(i, enable) {					//-- Enable Edit Form Object
 		a = i;
 	}
 
-	$.each(a, function (index, value) {
+	$.each(a, function (index) {
 
 		i = a[index];
 
@@ -1126,7 +1126,7 @@ function nuDisable(i) {					//-- Disable Edit Form Object
 		a = i;
 	}
 
-	$.each(a, function (index, value) {
+	$.each(a, function (index) {
 
 		i = a[index];
 
@@ -1639,14 +1639,12 @@ function nuDecode(s) {
 function nuAddRow(s) {
 
 	const o = nuSubformObject(s);
-	const i = s + nuPad3(o.rows.length - 1) + o.fields[1];
-	const $i = $('#' + i);
-
-	$i.change();
+	let i = s + nuPad3(o.rows.length - 1) + o.fields[1];
+	$('#' + i).change();
 
 	i = s + nuPad3(o.rows.length) + o.fields[1];
 
-	$i.focus();
+	$('#' + i).focus();
 
 }
 
@@ -1754,7 +1752,7 @@ function nuSortSubform(sfName, c, e) {
 			const objF = $('#' + f + so);
 			t = objF.hasClass('input_number') || objF.hasClass('input_nuNumber') || objF.hasClass('nuCalculator');
 			let v = objF.val();
-			let m = objF.attr('data-nu-format')
+			let m = objF.attr('data-nu-format');
 			const l = objF.hasClass('nuHiddenLookup');
 
 			if (m != '') {
@@ -1985,7 +1983,7 @@ function nuGetColumWidths() {
 	let a = [];
 
 	$("div[id^='nuBrowseTitle']").each(function (index) {
-		a.push(parseInt($(this).css('width')), 10);
+		a.push(parseInt($(this).css('width'), 10));
 	});
 
 	return a;
@@ -2544,11 +2542,10 @@ jQuery.fn.nuHighlight = function (pat) {
 			var pos = node.data.toUpperCase().indexOf(pat);
 			pos -= (node.data.substr(0, pos).toUpperCase().length - node.data.substr(0, pos).length);
 			if (pos >= 0) {
-				var spannode = document.createElement('span');
+				let spannode = document.createElement('span');
 				spannode.className = 'nuBrowseSearch';
-				var middlebit = node.splitText(pos);
-				var endbit = middlebit.splitText(pat.length);
-				var middleclone = middlebit.cloneNode(true);
+				let middlebit = node.splitText(pos);
+				const middleclone = middlebit.cloneNode(true);
 				spannode.appendChild(middleclone);
 				middlebit.parentNode.replaceChild(spannode, middlebit);
 				skip = 1;

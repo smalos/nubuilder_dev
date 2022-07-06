@@ -24,13 +24,15 @@ function nuAjax(w, successCallback, errorCallback) {
 
 			let err = nuFormatAjaxErrorMessage(jqXHR, errorThrown);
 
+			let msgDiv;
+
 			if (parent.$('#nuModal').length > 0 && parent.$('#nuModal').siblings(".nuDragDialog").css("visibility") == "hidden") {
-				let msgDiv = parent.nuMessage(err);
+				msgDiv = parent.nuMessage(err);
 				nuClosePopup();
 				return;
 			}
 
-			let msgDiv = nuMessage(err);
+			msgDiv = nuMessage(err);
 
 			if (window.nuOnMessage) {
 				nuOnMessage(msgDiv, err);
@@ -62,10 +64,6 @@ function nuForm(f, r, filter, search, n, like) {
 	}
 
 	if (nuOpenNewBrowserTab('getform', f, r, filter)) { return; }
-
-	var u = '';
-	var p = '';
-	var s = '';
 
 	if (n != 1) {	//-- add a new breadcrumb
 		window.nuFORM.addBreadcrumb();
@@ -165,7 +163,7 @@ function nuGetReport(f, r) {
 			nuBuildForm(fm);
 		}
 
-	}
+	};
 
 	nuAjax(last, successCallback);
 
@@ -198,7 +196,7 @@ function nuRunReport(f, iframe) {
 
 		}
 
-	}
+	};
 
 	nuAjax(last, successCallback);
 
@@ -271,7 +269,7 @@ function nuLogout(f, iframe) {
 			window.open('index.php', '_self');
 		}
 
-	}
+	};
 
 	nuAjax(last, successCallback);
 
@@ -309,7 +307,7 @@ function nuGetPHP(f, r) {
 		} else {
 			window.nuFORM.breadcrumbs.pop();
 		}
-	}
+	};
 
 	nuAjax(last, successCallback);
 
@@ -463,7 +461,7 @@ function nuAttachImage(i, code, fit) {
 
 	if (window.nuGraphics.indexOf(code + '.png') != -1) {						//-- check filenames in graphics dir.
 
-		$('#' + imgID).attr('src', "core/graphics/" + code + ".png")
+		$('#' + imgID).attr('src', "core/graphics/" + code + ".png");
 
 		return;
 
@@ -476,7 +474,7 @@ function nuAttachImage(i, code, fit) {
 		const p = JSON.parse(PARENT.nuImages[code]);
 		const b = atob(p.file);
 
-		$('#' + imgID).attr('src', b)
+		$('#' + imgID).attr('src', b);
 
 		return;
 
@@ -621,7 +619,7 @@ function nuGetLookupCode(e) {
 	last.session_id = window.nuSESSION;
 	last.call_type = 'getlookupcode';
 	last.object_id = e.target.getAttribute('data-nu-object-id');
-	last.target = e.target.getAttribute('data-nu-target')
+	last.target = e.target.getAttribute('data-nu-target');
 	last.code = e.target.value;
 	last.hash = nuHashFromEditForm();
 

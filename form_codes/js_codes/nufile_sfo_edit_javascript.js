@@ -1,30 +1,24 @@
-nuShowFile();
-nuSetToolTip('sfi_json_file_file', nuTranslate('Max. 300Kb'));
+nuShowFile()
+nuSetToolTip('sfi_json_file_file', nuTranslate('Max. 300Kb'))
 
-if (nuIsNewRecord()) { 
- nuHide('view_image'); 
+if (nuIsNewRecord()) {
+  nuHide('view_image')
 }
 
-function nuBeforeSave() {
+function nuBeforeSave () {
+  const f = $('#sfi_json_file').val()
 
-    var f = $('#sfi_json_file').val();
+  if (f !== '') {
+    $('#sfi_json')
+      .val(f)
+      .change()
+  }
 
-    if (f !== '') {
-
-        $('#sfi_json')
-            .val(f)
-            .change();
-
-    }
-
-    return true;
-
+  return true
 }
 
-function nuShowFile() {
+function nuShowFile () {
+  const j = $('#sfi_json').val()
 
-    var j = $('#sfi_json').val();
-
-    nuEmbedObject(j, 'view_image', -1, -1); // auto-size
-
+  nuEmbedObject(j, 'view_image', -1, -1) // auto-size
 }

@@ -2319,7 +2319,7 @@ function nuSubformAddFilter(filter) {
 
 				const prop = arrColumns[columnId];
 				const float = prop === undefined || prop.float === undefined ? 'center' : prop.float;
-				const placeholder = prop.placeholder;
+
 				let width = $('#' + sfName + '000' + columnId).width() - 3;
 				width = prop === undefined || prop.width === undefined ? width : prop.width;
 
@@ -2336,7 +2336,7 @@ function nuSubformAddFilter(filter) {
 				$(columnTitle).append("<br />");
 
 				 obj.appendTo(columnTitle).css(style);
-				 if (placeholder) obj.nuSetPlaceholder(placeholder);
+				 if (prop.placeholder) obj.nuSetPlaceholder(prop.placeholder);
 
 			}
 
@@ -3786,7 +3786,7 @@ function nuHideTabById(id) {
 function nuHideTabs() {
 
 	for (var i = 0; i < arguments.length; i++) {
-		if (arguments[i] === parseInt(arguments[i]), 10) {
+		if (arguments[i] === parseInt(arguments[i], 10)) {
 			$('#nuTab' + arguments[i]).hide();
 		} else {
 			nuHideTabByTitle(arguments[i]);

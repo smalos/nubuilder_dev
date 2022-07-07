@@ -351,6 +351,7 @@ class nuSECTION{
 
 	public $group			= 0;
 	public $section			= 0;
+	public $pageHeight		= 0;
 	public $sectionHeight	= 0;
 	public $sectionTop		= 0;
 	public $O				= array();
@@ -777,6 +778,7 @@ class nuSECTION{
 		$type			= '';
 		$value			= '';
 		$field			= '';
+		$fields			= array();
 
 		if(strtoupper(substr($O->fieldName,0,4)) == 'SUM('){
 			$type		= 's';

@@ -10,7 +10,7 @@ function getDataType(t, i, selectMultiple) {
     
     if (t == 'input') {
          let dtInput = '';
-         if ('date' || i == 'nuDate') { dtInput = 'DATE'; }
+         if (i == 'date' || i == 'nuDate') { dtInput = 'DATE'; }
          if (i == 'number') { dtInput = 'INT'; }
          if (i == 'nuAutoNumber') { dtInput = 'BIGINT UNSIGNED'; }
          if (i == 'nuNumber') { dtInput = 'DECIMAL(12,4)'; }

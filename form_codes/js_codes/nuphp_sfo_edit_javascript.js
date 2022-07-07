@@ -16,8 +16,12 @@ if (justPHP) {
     nuHideTabById('nu5fdf7df2d873dd1'); // Access Levels
     $('#nuCloneButton').remove();
 
-    var formInfo = eventName(recordIdSuffix) == 'After Browse' ? $('#sob_all_label', window.parent.document).val(): sph_form_code.value;
-    nuSetTitle(ev + ' - ' + formInfo);
+    if (nuIsIframe()) {
+        var ev = eventName(recordIdSuffix) ;
+        var formInfo = ev == 'After Browse' ? $('#sob_all_label', window.parent.document).val(): sph_form_code.value;
+        $('#nuBreadcrumb0').html(ev + ' - ' + formInfo);
+    }
+
 
     nuAttachButtonImage('icon', recordIdSuffix);
 

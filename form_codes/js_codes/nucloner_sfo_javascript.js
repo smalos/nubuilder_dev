@@ -59,7 +59,7 @@ function runCloner() {
     nuSetProperty('cloner_subforms', subforms === false || clo_subforms.length === 0 ? '0' : JSON.stringify(clo_subforms));
 
     var formsRunIFrame = selectToValueArray('clo_iframe_forms');
-    nuSetProperty('cloner_iframe_forms', formsRunIFrame === false || formsRunIFrame.length === 0 ? '0' : JSON.stringify(formsRunIFrame));
+    nuSetProperty('cloner_iframe_forms', nuGetValue('clo_subforms_include') == false|| formsRunIFrame.length === 0 ? '0' : JSON.stringify(formsRunIFrame));
 
     var dump = $('#clo_dump').is(':checked');
     nuSetProperty('cloner_dump', dump ? '1' : '0');

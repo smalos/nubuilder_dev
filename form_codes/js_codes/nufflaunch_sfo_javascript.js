@@ -187,7 +187,7 @@ function nuGetFFDataType(h) {
     if (h == 'nuAutoNumber')    t = "BIGINT UNSIGNED";
     if (h == 'Number')          t = "INT";
     if (h == 'nuNumber')        t = "DECIMAL(12,4)";
-    if (h == 'Button' || h == 'HTML' | h == 'Image' || h == 'Word' || h == 'Subform') t = null;
+    if (h == 'Button' || h == 'HTML' || h == 'Image' || h == 'Word' || h == 'Subform') t = null;
 
     return t;
 
@@ -235,7 +235,7 @@ function nuFFFormType() {
 
 function nuSelectFFObjects(e) {
 
-    if ($('#fastform_table').val().trim() == '' && !nuFFFormType() == 'launch') {
+    if ($('#fastform_table').val().trim() == '' && nuFFFormType() !== 'launch') {
         nuMessage(fastform_table.title);
         $('#fastform_table').focus();
         return;

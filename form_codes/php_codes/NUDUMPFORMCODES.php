@@ -27,7 +27,7 @@ function dumpFile($folder, $sfoCode, $code, $postfix, $extension) {
 
 
     if (strlen($code) > 0) {
-        $dir = dirname(__DIR__, 1) . DIRECTORY_SEPARATOR. "codes". DIRECTORY_SEPARATOR .$folder . DIRECTORY_SEPARATOR . $file;
+        $dir = dirname(__DIR__, 1) . DIRECTORY_SEPARATOR. "form_codes". DIRECTORY_SEPARATOR .$folder . DIRECTORY_SEPARATOR . $file;
         file_put_contents($dir, $code);
     }
 }

@@ -1,20 +1,23 @@
 function getDataType(t, i, selectMultiple) {
 
-    var date = (i == 'date' || i == 'nuDate');
-    var norm = (i == 'input' && i != 'date' && i != 'nuDate' && i != 'nuNumber' && i != 'number' && i != 'file' && i != 'nuAutoNumber');
-    var dt = 'VARCHAR(100)';
+    let dt = 'VARCHAR(100)';
 
     if (t == 'lookup') { dt = 'VARCHAR(25)'; }
     if (t == 'select' && ! selectMultiple) { dt = 'VARCHAR(100)'; }
     if (t == 'select' && selectMultiple) { dt = 'VARCHAR(1000)'; }
     if (t == 'calc') { dt = 'DECIMAL(12,4)'; }
     if (t == 'textarea') { dt = 'TEXT'; }
-    if (t == 'input' && norm) { dt = 'VARCHAR(100)'; }
-    if (t == 'input' && date) { dt = 'DATE'; }
-    if (t == 'input' && i == 'number') { dt = 'INT'; }
-    if (t == 'input' && i == 'nuAutoNumber') { dt = 'BIGINT UNSIGNED'; }
-    if (t == 'input' && i == 'nuNumber') { dt = 'DECIMAL(12,4)'; }
-    if (t == 'input' && i == 'file') { dt = 'LONGTEXT'; }
+    
+    if (t == 'input') {
+         let dtInput = '';
+         if ('date' || i == 'nuDate') { dtInput = 'DATE'; }
+         if (i == 'number') { dtInput = 'INT'; }
+         if (i == 'nuAutoNumber') { dtInput = 'BIGINT UNSIGNED'; }
+         if (i == 'nuNumber') { dtInput = 'DECIMAL(12,4)'; }
+         if (i == 'file') { dtInput = 'LONGTEXT'; }
+         dt = dtInput != '' ? dtInput : 'VARCHAR(100)';
+         
+    }
 
     return dt;
 }

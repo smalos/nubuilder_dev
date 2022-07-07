@@ -32,6 +32,7 @@ function nuAjax(w, successCallback, errorCallback) {
 			} else {
 				msgDiv = nuMessage(err);
 			}
+			
 
 			if (window.nuOnMessage) {
 				nuOnMessage(msgDiv, err);

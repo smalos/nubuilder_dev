@@ -618,7 +618,7 @@ class nuSECTION{
 		$bottomMostObject	= 0;
 		$bottomID			= 0;
 
-		$count = count($this->O)
+		$count = count($this->O);
 		for($i = 0 ; $i < $count ; $i++){
 
 			$thisBottom			= $this->O[$i]->top + (count($this->O[$i]->LINES) * $this->O[$i]->height);
@@ -924,7 +924,7 @@ function nuGetObjectProperties($REPORT, $id){
 		$countSections = count($REPORT->groups[$g]->sections);
 		for($s = 0 ; $s <  $countSections; $s++){
 
-			$countSectionObjects = count($REPORT->groups[$g]->sections[$s]->objects)
+			$countSectionObjects = count($REPORT->groups[$g]->sections[$s]->objects);
 			for($o = 0 ; $o <  $countSectionObjects ; $o++){
 				if($REPORT->groups[$g]->sections[$s]->objects[$o]->id == $id)
 					return $REPORT->groups[$g]->sections[$s]->objects[$o];
@@ -996,8 +996,8 @@ function nuGetTotalPages(){
 
 	$pages					 = 0;
 
-	$count = count($GLOBALS['nu_report'];
-	for($i = 0 ; $i < $count) ; $i++){
+	$count = count($GLOBALS['nu_report']);
+	for($i = 0 ; $i < $count ; $i++){
 		if($GLOBALS['nu_report'][$i]->sectionTop == 0){
 			$pages++;
 		}
@@ -1016,8 +1016,8 @@ function nuReplaceLabelHashVariables($LAY, $hashData){
 
 			if($O->objectType == 'label'){
 
-				$countLines = count($GLOBALS['nu_report'][$i]->objects[$o]->lines;
-				for($l = 0 ; $l < $countLines ) ; $l++){
+				$countLines = count($GLOBALS['nu_report'][$i]->objects[$o]->lines);
+				for($l = 0 ; $l < $countLines ; $l++){
 					$GLOBALS['nu_report'][$i]->objects[$o]->lines[$l] = nuReplaceHashVariables($GLOBALS['nu_report'][$i]->objects[$o]->lines[$l]);
 				}
 			}

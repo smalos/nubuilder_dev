@@ -922,31 +922,27 @@ function nuUnbindDragEvents() {
 	$(document).off('.nubindctrl');
 }
 
+function nuTranslate(str) {
 
-function nuTranslate(s) {
+	if (!str) return '';
 
-	if (typeof s === 'undefined' || s === '' || s === null) {
-		return '';
-	}
+	str = String(str);
+	if (str.charAt(0) == '|') return str.substring(1);
 
-	s = String(s);
-	if (s.charAt(0) == '|') return s.substring(1);
-
-	let l = nuLANGUAGE.find(elem => elem.english === s);
-	return !l ? s : l.translation;
+	let l = nuLANGUAGE.find(elem => elem.english === str);
+	return !l ? str : l.translation;
 
 }
 
-function nuTranslateToEnglish(s) {
+function nuTranslateToEnglish(str) {
 
-	if (!s || s === '') {
-		return '';
-	}
+	if (!str) return '';
 
-	if (s.charAt(0) == '|') return s.substring(1);
+	str = String(str);
+	if (str.charAt(0) == '|') return str.substring(1);
 
-	let l = nuLANGUAGE.find(elem => elem.translation === s);
-	return !l ? s : l.english;
+	let l = nuLANGUAGE.find(elem => elem.translation === str);
+	return !l ? str : l.english;
 
 }
 
@@ -2248,7 +2244,7 @@ function nuAddDatalist(i, arr, showAllOnArrowClick) {
 	var datalist = document.getElementById(id);
 
 	if (!datalist) {
-		var datalist = document.createElement('datalist');
+		datalist = document.createElement('datalist');
 		datalist.id = id;
 		document.body.appendChild(datalist);
 		if (showAllOnArrowClick !== false) nuDatalistShowAllOnArrowClick(i);
@@ -2728,8 +2724,9 @@ function nuSetSaveButtonPosition(t, l, h, w, fs) {
 	var sb = $('#nuSaveButton');
 	sb.appendTo('div#nuRECORD');
 
-	if (!w || w === 0) w = sb.cssNumber("width");
-	if (!h || h === 0) h = sb.cssNumber("height");
+	// not defined or 0
+	if (!w) w = sb.cssNumber("width");
+	if (!h) h = sb.cssNumber("height");
 
 	sb.css({
 		"top": t + "px",
@@ -2743,7 +2740,7 @@ function nuSetSaveButtonPosition(t, l, h, w, fs) {
 	sb.attr('data-nu-tab', '0');
 	sb.attr('data-nu-form', '');
 
-	if (fs && fs !== 0) sb[0].style.fontSize = fs + "px";
+	if (fs) sb[0].style.fontSize = fs + "px";
 	if (nuSelectedTabNumber() !== '0') sb.css('display', 'none');
 
 	return sb;

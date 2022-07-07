@@ -447,15 +447,17 @@ function nuAddedByLookup(f) {
 
 function nuSetBody(f) {
 
-	$('body').html('');
-	$('body').removeClass('nuBrowseBody nuEditBody');
+	let $body = $('body');
+
+	$body.html('');
+	$body.removeClass('nuBrowseBody nuEditBody');
 
 	if (nuFormType() == 'browse') {
-		$('body').addClass('nuBrowseBody');
+		$body.addClass('nuBrowseBody');
 	} else {
 
 		var height = f.dimensions === null ? 0 : f.dimensions.edit.height;
-		$('body').addClass('nuEditBody')
+		$body.addClass('nuEditBody')
 			.css('width', window.innerWidth - 1)
 			.css('height', height);
 
@@ -463,80 +465,57 @@ function nuSetBody(f) {
 
 }
 
+function nuCSSPropertySum(id, arr) {
+
+	let $id = $('#' + id);
+	if ($id.length == 0) { return 0; }
+
+	let sum = 0;
+	arr.forEach(function(element){
+		sum += parseInt($id.css(element), 10);
+	 });
+
+	return sum;
+
+}
+
 function nuDialogHeadersHeight() {
 
-	let h = 0;
+	let height = 0;
+	let arr = ['nuBreadcrumbHolder','nuActionHolder','nuTabHolder','nuBrowseTitle0','nuBrowseFooter'];
+	arr.forEach(function(element){
+		height += nuTotalHeight(element);
+	 });
 
-	h = h + nuTotalHeight('nuBreadcrumbHolder');
-	h = h + nuTotalHeight('nuActionHolder');
-	h = h + nuTotalHeight('nuTabHolder');
-	h = h + nuTotalHeight('nuBrowseTitle0');
-	h = h + nuTotalHeight('nuBrowseFooter');
-
-	return h;
+	return height;
 
 }
 
-function nuTotalHeight(i) {
+function nuTotalHeight(id) {
 
-	let h = 0;
-
-	let obj = $('#' + i);
-	if (obj.length == 0) { return 0; }
-
-	h += parseInt(obj.css('height'), 10);
-	h += parseInt(obj.css('padding-top'), 10);
-	h += parseInt(obj.css('padding-bottom'), 10);
-	h += parseInt(obj.css('border-top-width'), 10);
-	h += parseInt(obj.css('border-bottom-width'), 10);
-	h += parseInt(obj.css('margin-top'), 10);
-	h += parseInt(obj.css('margin-bottom'), 10);
-
-	return h;
+	const arrProperties = ['height','padding-top','padding-bottom','border-top-width','border-bottom-width','margin-top','margin-bottom'];
+	return nuCSSPropertySum(id, arrProperties);
 
 }
 
-function nuTotalWidth(i) {
+function nuTotalWidth(id) {
 
-	let h = 0;
-
-	let obj = $('#' + i);
-	if (obj.length == 0) { return 0; }
-
-	h += parseInt(obj.css('width'), 10);
-	h += parseInt(obj.css('padding-left'), 10);
-	h += parseInt(obj.css('padding-right'), 10);
-	h += parseInt(obj.css('border-left-width'), 10);
-	h += parseInt(obj.css('border-right-width'), 10);
-	h += parseInt(obj.css('margin-left'), 10);
-	h += parseInt(obj.css('margin-right'), 10);
-
-	return h;
+	const arrProperties = ['width','padding-left','padding-right','border-left-width','border-right-width','margin-left','margin-right'];
+	return nuCSSPropertySum(id, arrProperties);
 
 }
 
-function nuTotalHolderWidth(i) {
+function nuTotalHolderWidth(id) {
 
-	var h = 0;
-
-	let obj = $('#' + i);
-	if (obj.length == 0) { return 0; }
-
-	h += parseInt(obj.css('padding-left'), 10);
-	h += parseInt(obj.css('padding-right'), 10);
-	h += parseInt(obj.css('border-left-width'), 10);
-	h += parseInt(obj.css('border-right-width'), 10);
-	h += parseInt(obj.css('margin-left'), 10);
-	h += parseInt(obj.css('margin-right'), 10);
-
-	return h;
+	const arrProperties = ['padding-left','padding-right','border-left-width','border-right-width','margin-left','margin-right'];
+	return nuCSSPropertySum(id, arrProperties);
 
 }
 
 function nuDefine(v, defaultValue = '') {
 
 	if (v === undefined) {
-		v = '';
+		v = defaultValue;
 	}
 
 	return v;
@@ -785,18 +764,17 @@ function nuRecordProperties(w, p, l) {
 
 function nuDRAG(w, i, l, p, prop) {
 
-	let obj = prop.objects[i];
-	let id = p + obj.id;
-	let ef = p + 'nuRECORD';
-	let nuObjectType = p + obj.type;
-	let drg = document.createElement('div');
-	drg.setAttribute('id', id);
+	const obj = prop.objects[i];
+	const id = p + obj.id;
+	const nuObjectType = p + obj.type;
+	let drgDiv = document.createElement('div');
+	drgDiv.setAttribute('id', id);
 
-	$('#' + ef).append(drg);
+	$('#' + p + 'nuRECORD').append(drgDiv);
 
-	let objId = $('#' + id);
+	let $id = $('#' + id);
 
-	objId.css({
+	$id.css({
 		'top': Number(obj.top),
 		'left': Number(obj.left),
 		'width': Number(obj.width),
@@ -809,11 +787,13 @@ function nuDRAG(w, i, l, p, prop) {
 		'padding-left': '4px'
 	}).addClass('nu_' + nuObjectType);
 
-	objId.text(id);
-	objId.attr('data-drag', 1);
-	objId.attr('data-nu-object-id', obj.object_id);
+	$id.text(id);
+	$id.attr('data-drag', 1)
+		.attr('data-nu-object-id', obj.object_id);
 
-	if (obj.input == 'button' || nuObjectType == 'run') objId.attr('data-drag-button-label', obj.label);
+	if (obj.input == 'button' || nuObjectType == 'run') {
+		$id.attr('data-drag-button-label', obj.label);
+	}
 
 	if (obj.input != 'button' && nuObjectType != 'run' && nuObjectType != 'contentbox' && prop.title !== 'Insert-Snippet') {		//-- Input Object
 		let lab = nuLabel(w, i, p, prop);
@@ -826,17 +806,18 @@ function nuDRAG(w, i, l, p, prop) {
 
 }
 
+
 function getDBColumnLengh(w, id) {
 
-	let tableSchema = nuSERVERRESPONSE.tableSchema;
+	const tableSchema = nuSERVERRESPONSE.tableSchema;
 	if (tableSchema === undefined || w.table == '' || tableSchema[w.table] === undefined) return 0;
 
 	var len = 0;
-	let index = tableSchema[w.table].names.indexOf(id);
+	const index = tableSchema[w.table].names.indexOf(id);
 
 	if (index !== -1) {
 
-		let datatype = tableSchema[w.table]["types"][index].toUpperCase();
+		const datatype = tableSchema[w.table]["types"][index].toUpperCase();
 
 		switch (datatype) {
 			case "TINYTEXT":
@@ -887,11 +868,8 @@ function nuINPUTInput($id, inp, inputType, obj, objectType) {
 
 	inp.setAttribute('type', inputType);
 
-	if (objectType == 'lookup') {
-		$id.addClass('nuHiddenLookup');
-	} else {
-		$id.addClass('input_' + inputType);
-	}
+	const className = objectType == 'lookup' ? 'nuHiddenLookup' : 'input_' + inputType;
+	$id.addClass(className);
 
 	if (obj.datalist !== null && obj.datalist !== '' && typeof obj.datalist !== "undefined") {
 		let dl = obj.datalist;
@@ -976,10 +954,10 @@ function nuINPUTLookup(id, objId, wi, obj, $fromId, p, vis) {
 	.attr('data-nu-target', target)
 	.attr('data-nu-type', 'lookup')
 	.attr('data-nu-subform-sort', 1)
-	.css('visibility', vis)
-	.addClass('nuLookupCode')
 	.attr('onchange', 'nuGetLookupCode(event)')
-	.attr('onfocus', 'nuLookupFocus(event)');
+	.attr('onfocus', 'nuLookupFocus(event)')
+	.css('visibility', vis)
+	.addClass('nuLookupCode');
 
 	if (Number(obj.width) == 0) nuHide(id);
 
@@ -1074,8 +1052,8 @@ function nuINPUTCalc($id, wi, p) {
 	$id.addClass('nuCalculator')
 		.attr('data-nu-format', wi.format)
 		.attr('data-nu-calc-order', wi.calc_order)
-		.prop('readonly', true).prop('tabindex', -1)
-		.attr('data-nu-formula', formula);
+		.attr('data-nu-formula', formula)
+		.prop('readonly', true).prop('tabindex', -1);
 
 	if (p != '') {
 		$id.addClass('nuSubformObject');
@@ -1103,14 +1081,14 @@ function nuINPUTSetValue($id, wi, inputType) {
 
 function nuIPUTNuChangeEvent(inputType, objectType) {
 
-	let c = 'nuChange(event)';
+	let change = 'nuChange(event)';
 	if (inputType == 'file') {
-		c = 'nuChangeFile(event)';
+		change = 'nuChangeFile(event)';
 	} else if (objectType == 'lookup') {
-		c = 'nuGetLookupId(this.value, this.id)';
+		change = 'nuGetLookupId(this.value, this.id)';
 	}
 
-	return c;
+	return change;
 
 }
 

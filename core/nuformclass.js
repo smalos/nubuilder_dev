@@ -458,11 +458,12 @@ class nuFormObject {
 
 		var fld = [];
 
-		$('#sqlframe').contents().find('.nuBox').each(function (index) {
+		const sqlFrameContents = $('#sqlframe').contents();
+		sqlFrameContents.find('.nuBox').each(function (index) {
 
 			var b = $(this)[0].id;
-			var a = $('#sqlframe').contents().find('#alias' + b).val();
-			var t = $('#sqlframe').contents().find('#tablename' + b).html();
+			var a = sqlFrameContents.find('#alias' + b).val();
+			var t = sqlFrameContents.find('#tablename' + b).html();
 
 			if (a == '') {
 				a = t;
@@ -693,15 +694,12 @@ class nuFormObject {
 			var C = 1;
 			var chk = $('#' + this.id).prop("checked");
 
-
-
 			THIS.children('[data-nu-data]').each(function () {
 
-
+				let $this = $('#' + this.id);
 				if (this.id.substr(-8) == 'nuDelete') {
-					chk = ($('#' + this.id).prop("checked") || deleteAll) ? 1 : 0;
+					chk = ($this.prop("checked") || deleteAll) ? 1 : 0;
 				}
-
 
 				if (sf == 'nuRECORD') {						//-- the main Form
 					F[C] = this.id;
@@ -709,20 +707,20 @@ class nuFormObject {
 					F[C] = this.id.substr(sf.length + 3);
 				}
 
-				var dnf = $('#' + this.id).attr('data-nu-format');
-				var typ = $('#' + this.id).attr('type');
-				var val = $('#' + this.id).val();
+				const dnf = $this.attr('data-nu-format');
+				const type = $this.attr('type');
+				let val = $this.val();
 
-				if (typ == 'checkbox') {
-					val = $('#' + this.id).prop("checked") ? 1 : 0;
+				if (type == 'checkbox') {
+					val = $this.prop("checked") ? 1 : 0;
 				}
 
-				if (typeof ($('#' + this.id).val()) == 'object') {						//-- multi SELECT Object
-					val = JSON.stringify($('#' + this.id).val());
+				if (typeof ($this.val()) == 'object') {						//-- multi SELECT Object
+					val = JSON.stringify($this.val());
 				}
 
 				V[C] = nuFORM.removeFormatting(val, dnf);
-				E[C] = $('#' + this.id).hasClass('nuEdited') ? 1 : 0;
+				E[C] = $this.hasClass('nuEdited') ? 1 : 0;
 
 				C++;
 
@@ -922,13 +920,15 @@ class nuFormObject {
 
 			if (o == 'Invalid Date') { return ''; }
 
-			var wee = o.toString().split(' ')[0];								//-- Tue Sep 07 2004 11:11:12 GMT+0930 (Cen. Australia Standard Time)
-			var mth = o.toString().split(' ')[1];
-			var day = o.toString().split(' ')[2];
-			var yea = o.toString().split(' ')[3];
-			var hou = String(o.toString().split(' ')[4]).split(':')[0];
-			var min = String(o.toString().split(' ')[4]).split(':')[1];
-			var sec = String(o.toString().split(' ')[4]).split(':')[2];
+			const splitDate = o.toString().split(' ');
+			var wee = splitDate[0];													//-- Tue Jul 07 2022 11:11:12 GMT+0930 (Cen. Australia Standard Time)
+			var mth = splitDate[1];
+			var day = splitDate[2];
+			var yea = splitDate[3];
+
+			var hou = String(splitDate[4]).split(':')[0];
+			var min = String(splitDate[4]).split(':')[1];
+			var sec = String(splitDate[4]).split(':')[2];
 
 			var s = String(f);
 

@@ -1,0 +1,1 @@
+nuHide('nuPrintButton');

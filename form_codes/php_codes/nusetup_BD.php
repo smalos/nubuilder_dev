@@ -1,0 +1,1 @@
+nuDisplayError('The Setup cannot be deleted!');

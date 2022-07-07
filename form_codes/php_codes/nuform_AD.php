@@ -1,0 +1,1 @@
+nuDeleteForm('#RECORD_ID#');

@@ -1,0 +1,129 @@
+.container {
+     display: -ms-grid;
+     display: grid;
+     -ms-grid-columns: 1fr 1fr 1fr;
+     grid-template-columns: 1fr 1fr 1fr;
+     width: 97vw;
+     border-radius: 5px;
+     background-color: #f2f2f9;
+     padding: 10px;
+     height: 100%;
+     justify-content: flex-start;
+     align-items: flex-start;
+}
+ label {
+     order: 2;
+}
+ .form-element-wrapper {
+     display: flex;
+     flex-direction: row-reverse;
+}
+ .form-element-wrapper > * {
+     display: flex;
+     position: relative;
+}
+ .form-element-wrapper label {
+     flex: 1;
+     align-items: flex-end;
+     justify-content: flex-end;
+}
+ .form-element-wrapper input {
+     flex: 3;
+}
+ .form-element-wrapper .lookup {
+     display: flex;
+     position: relative;
+     flex: 3;
+     flex-shrink:1;
+     height: 25px;
+}
+ .form-element-wrapper select {
+     flex: 3;
+}
+ #lu > label {
+     flex-flow: nowrap;
+}
+ .lookup {
+     width: 70%;
+}
+ .lookup> * {
+     position: relative;
+     flex: 1 ;
+     flex: 0 1 auto 
+}
+ .nuLookupCode{
+     width:35px !important;
+}
+ @media (max-width: 900px) {
+     .container {
+         display: -ms-grid;
+         display: grid;
+         -ms-grid-columns: 1fr 1fr;
+         grid-template-columns: 1fr 1fr;
+         width: 97vw;
+         border-radius: 5px;
+         background-color: #f2f2f9;
+         padding: 10px 20px;
+         height: 100%;
+         column-gap: 20px;
+    }
+     .form-element-wrapper >* {
+         width: 100%;
+    }
+     .form-element-wrapper {
+         width: 100%;
+         flex-direction: column-reverse;
+    }
+     .form-element-wrapper label {
+         flex: 1;
+         align-items: flex-start;
+         justify-content: flex-start;
+    }
+     .lookup {
+         width: 100%;
+    }
+     .form-element-wrapper.lookup {
+         width: 100%;
+         height: 30px;
+    }
+     .lookup> * {
+         position: relative;
+         flex: 1 ;
+         flex: 0 1 auto 
+    }
+     .nuLookupCode{
+         width:35px !important;
+    }
+}
+ @media (max-width: 700px) {
+     .container {
+         display: -ms-grid;
+         display: grid;
+         -ms-grid-columns: 1fr ;
+         grid-template-columns: 1fr;
+         width: 97vw;
+         border-radius: 5px;
+         background-color: #f2f2f9;
+         padding: 10px 20px;
+         height: 100%;
+    }
+     .form-element-wrapper >* {
+         width: 100%;
+    }
+     .form-element-wrapper {
+         width: 100%;
+         flex-direction: column-reverse;
+    }
+     .form-element-wrapper label {
+         flex: 1;
+         align-items: flex-start;
+         justify-content: flex-start;
+    }
+     .lookup {
+         width: 100%;
+    }
+     .form-element-wrapper.lookup {
+         width: 100%;
+         height: 30px;
+    }
+}

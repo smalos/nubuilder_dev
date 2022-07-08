@@ -1,7 +1,7 @@
 function openNuObject() {
 
     $('#nuMessageDiv').remove();
-    nuPopup('nuobject', '-1', window.nuFORM.getCurrent().form_id, '', 0);
+    nuPopup('nuobject', '-1', window.nuFORM.getCurrent().form_id, '');
 
 }
 

@@ -48,5 +48,3 @@ while($r = db_fetch_object($t)){
     $o = $o + 10;    
     
 }
-
-nuCloneForm();

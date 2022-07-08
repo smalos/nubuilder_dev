@@ -63,7 +63,7 @@ function incVersion(i) {
     const date = dbvSplit[1].slice(0, -3)
     let build = parseInt(dbv.split(/[. ]+/).pop(), 10);
 
-    today = nuCurrentDate('dd.mm.yyyy');
+    let today = nuCurrentDate('dd.mm.yyyy');
 
     build++;
     if (date !== today) {

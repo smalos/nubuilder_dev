@@ -1,8 +1,8 @@
 function nuBeforeSave() {
 
-    var dupF = nuSubformColumnUnique('accform', 'slf_zzzzsys_form_id', 'Forms');
-    var dupP = nuSubformColumnUnique('accphp', 'slp_zzzzsys_php_id', 'Procedures');
-    var dupR = nuSubformColumnUnique('accreport', 'sre_zzzzsys_report_id', 'Reports');
+    const dupF = nuSubformColumnUnique('accform', 'slf_zzzzsys_form_id', 'Forms');
+    const dupP = nuSubformColumnUnique('accphp', 'slp_zzzzsys_php_id', 'Procedures');
+    const dupR = nuSubformColumnUnique('accreport', 'sre_zzzzsys_report_id', 'Reports');
 
     if (dupF !== true || dupP !== true || dupR !== true) {
         

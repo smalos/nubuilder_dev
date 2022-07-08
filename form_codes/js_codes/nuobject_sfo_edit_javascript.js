@@ -626,6 +626,8 @@ function setJSON() {
 
 function nuPreviewIcon(i, s) {
     
+	s = nuEscapeHTML(s);
+
 	let $i = $('#'+i);
 
 	$i.html('');

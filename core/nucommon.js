@@ -1588,8 +1588,6 @@ function nuChart(i, t, a, h, x, y, st, is) {
 
 	google.charts.setOnLoadCallback(drawVisualization);
 
-	if (a == '') { return; }
-
 	function drawVisualization() {
 
 		let data = google.visualization.arrayToDataTable(a);
@@ -2063,11 +2061,12 @@ function nuRemovePX(s) {
 	return Number(String(s).split('px')[0]);
 }
 
-function nuImportUsersFromCSV(file) {
+function nuImportUsersFromCSV(file, delimiter) {
 
 	file = nuDefine(file, 'user_import.csv');
 
-	nuSetProperty('nuimportusers_file', file);
+	nuSetProperty('NUIMPORTUSERS_file', file);
+	nuSetProperty('NUIMPORTUSERS_delimiter', delimiter);
 
 	nuRunPHP('NUIMPORTUSERS', '', 0);
 
@@ -2914,3 +2913,15 @@ function nuDateIsValid(date) {
 	);
 
 }
+
+function nuEscapeHTML(string) {
+
+	if (string === undefined) return '';
+
+	let replacements= {"<": "&lt;", ">": "&gt;","&": "&amp;", '"': "&quot;","'": "&#039;"};
+	return string.replace(/[<>&"]/g, function(character) {
+		return replacements[character];
+	});
+
+}
+

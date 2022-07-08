@@ -25,7 +25,7 @@ $('#nuBreadcrumb2')
 .css('width', '95%')
 .css('color', 'black')
 .css('padding', '5px')
-.html(t + ' :: ' + nuWhen($('#deb_added').val()))
+.html(t + ' :: ' + nuWhen(nuEscapeHTML($('#deb_added').val())))
 .appendTo("#nuTabHolder");
 
 $('#deb_message').val(m);

@@ -1,3 +1,5 @@
-$file = "#csv_from#";
-nuImportUsersFromCSV("../temp/".$file, ";", "\n");
+$file = nuGetProperty('NUIMPORTUSERS_file');
+$delimiter = nuGetProperty('NUIMPORTUSERS_delimiter');
+
+nuImportUsersFromCSV("../temp/".$file, $delimiter, "\n");
 nuProcessImportedUsers();

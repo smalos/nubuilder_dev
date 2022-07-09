@@ -157,7 +157,7 @@ if (nuFormType() == 'edit') {
         nuJSSelectCustomCode('#' + js_button, js);
     } else {
         if ($('#sfo_javascript').val() == '' && $('#sfo_edit_javascript').val() == '' && $('#sfo_browse_javascript').val() !== '') {
-            nuJSSelectCustomCode('#js_browse', 'sfo_browse_javascript')
+            nuJSSelectCustomCode('#js_browse', 'sfo_browse_javascript');
         } else if ($('#sfo_javascript').val() == '' && $('#sfo_browse_javascript').val() == '' && $('#sfo_edit_javascript').val() !== '') {
             nuJSSelectCustomCode('#js_edit', 'sfo_edit_javascript');
         } else {
@@ -402,7 +402,7 @@ if (nuFormType() == 'browse') {
         nuSetBrowseColumnSize(0, 0);
     } // Hide Preview
 
-    var _nuSelectBrowse = nuSelectBrowse;
+    var _nuSelectBrowse = window.nuSelectBrowse;
     var nuSelectBrowse = function(e, t) {
         nuSelectBrowseNew(e, t);
     };

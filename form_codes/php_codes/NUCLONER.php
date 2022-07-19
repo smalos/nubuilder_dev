@@ -190,7 +190,7 @@ function getFormInfo($f) {
 
 function getNewFormCode($code) {
 
-    if ("#cloner_new_pks#" == '1') {
+    if ("#cloner_new_pks#" == '0') {
         return $code;
     } else {    
         $s = "SELECT COUNT(zzzzsys_form_id) + 1 FROM zzzzsys_form WHERE sfo_code LIKE ?";

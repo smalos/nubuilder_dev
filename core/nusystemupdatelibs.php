@@ -208,6 +208,7 @@ function nuAlterSystemTables(){
 	nuRunQueryNoDebug("ALTER TABLE `zzzzsys_form` ADD `sfo_browse_javascript` MEDIUMTEXT NULL DEFAULT NULL AFTER `sfo_javascript`;");
 	nuRunQueryNoDebug("ALTER TABLE `zzzzsys_form` ADD `sfo_edit_javascript` MEDIUMTEXT NULL DEFAULT NULL AFTER `sfo_browse_javascript`;");
 	nuRunQueryNoDebug("ALTER TABLE `zzzzsys_form` ADD `sfo_style` MEDIUMTEXT NULL DEFAULT NULL AFTER `sfo_edit_javascript`;");
+	nuRunQueryNoDebug("ALTER TABLE `zzzzsys_form` ADD `sfo_mobile_view` VARCHAR(1) NULL DEFAULT NULL AFTER `sfo_style`;");
 
 	nuRunQueryNoDebug("ALTER TABLE `zzzzsys_session` ADD `sss_hashcookies` MEDIUMTEXT NULL DEFAULT NULL AFTER `sss_access`;");
 	nuRunQueryNoDebug("ALTER TABLE `zzzzsys_session` ADD COLUMN IF NOT EXISTS sss_login_time timestamp NULL DEFAULT current_timestamp(); AFTER sss_time;");
@@ -283,53 +284,53 @@ function nuRemoveNuRecords(){
 	$O	= nuTT();
 
 	$s = "DELETE FROM sys_zzzzsys_event WHERE zzzzsys_event_id LIKE 'nu%'";
-	nuRunQuery($s);
+	nuRunQueryNoDebug($s);
 
 	$s = "DELETE FROM sys_zzzzsys_file WHERE zzzzsys_file_id LIKE 'nu%'";
-	nuRunQuery($s);
+	nuRunQueryNoDebug($s);
 
 	$s = "DELETE FROM sys_zzzzsys_format WHERE zzzzsys_format_id LIKE 'nu%'";
-	nuRunQuery($s);
+	nuRunQueryNoDebug($s);
 
 	$s = "DELETE FROM sys_zzzzsys_object WHERE sob_all_zzzzsys_form_id LIKE 'nu%' AND sob_all_zzzzsys_form_id != 'nuuserhome'";
-	nuRunQuery($s);
+	nuRunQueryNoDebug($s);
 
 	$s = "DELETE FROM sys_zzzzsys_tab WHERE syt_zzzzsys_form_id LIKE 'nu%' AND syt_zzzzsys_form_id != 'nuuserhome'";
-	nuRunQuery($s);
+	nuRunQueryNoDebug($s);
 
 	$s = "DELETE FROM sys_zzzzsys_form WHERE zzzzsys_form_id LIKE 'nu%' ";
-	nuRunQuery($s);
+	nuRunQueryNoDebug($s);
 
 	$s = "DELETE FROM sys_zzzzsys_php WHERE zzzzsys_php_id LIKE 'nu%' AND zzzzsys_php_id != 'nuuserhome_BE'";
-	nuRunQuery($s);
+	nuRunQueryNoDebug($s);
 
 	$s = "DELETE FROM sys_zzzzsys_browse WHERE sbr_zzzzsys_form_id LIKE 'nu%'";
-	nuRunQuery($s);
+	nuRunQueryNoDebug($s);
 
 	$s = "DELETE FROM sys_zzzzsys_translate WHERE zzzzsys_translate_id LIKE 'nu%'";
-	nuRunQuery($s);
+	nuRunQueryNoDebug($s);
 
 	$s = "DELETE FROM sys_zzzzsys_note WHERE zzzzsys_note_id LIKE 'nu%'";
-	nuRunQuery($s);
+	nuRunQueryNoDebug($s);
 
 	$s = "DELETE FROM sys_zzzzsys_config WHERE zzzzsys_config_id LIKE 'nu%'";
-	nuRunQuery($s);
+	nuRunQueryNoDebug($s);
 
 	$s = "DELETE FROM sys_zzzzsys_note_category WHERE zzzzsys_note_category_id LIKE 'nu%'";
-	nuRunQuery($s);
+	nuRunQueryNoDebug($s);
 
 	$s = "DELETE FROM sys_zzzzsys_code_snippet WHERE zzzzsys_code_snippet_id LIKE 'nu%'";
-	nuRunQuery($s);
+	nuRunQueryNoDebug($s);
 
 	$s = "DELETE FROM sys_zzzzsys_cloner WHERE zzzzsys_cloner_id LIKE 'nu%'";
-	nuRunQuery($s);
+	nuRunQueryNoDebug($s);
 
 	$s = "DELETE FROM sys_zzzzsys_info WHERE zzzzsys_info_id LIKE 'nu%'";
-	nuRunQuery($s);
+	nuRunQueryNoDebug($s);
 
 	//-- delete all timezones
 	$s = "DELETE FROM sys_zzzzsys_timezone";
-	nuRunQuery($s);
+	nuRunQueryNoDebug($s);
 
 }
 

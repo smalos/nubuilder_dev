@@ -51,8 +51,7 @@ function nuBuildForm(f) {
 		nuAddJavascript(f.javascript_bc);
 	}
 
-	$('#nubody').off('.nuresizecolumn')
-		.css('transform', 'scale(1)');
+	$('#nubody').off('.nuresizecolumn').css('transform', 'scale(1)');
 	$('html,body').scrollTop(0).scrollLeft(0);
 
 	nuSetProperty('CLONED_RECORD', 0);
@@ -148,6 +147,7 @@ function nuBuildForm(f) {
 	b.browse_filtered_rows = f.browse_height;
 	b.browse_title_multiline = f.browse_title_multiline;
 	b.browse_autoresize_columns = f.browse_autoresize_columns;
+	b.mobile_view = f.mobile_view;
 	b.pages = f.pages;
 	b.form_code = f.form_code;
 	b.form_description = f.form_description;
@@ -218,16 +218,6 @@ function nuBuildForm(f) {
 			.css('cursor', 'pointer');
 
 		window.nuLoginH = '';
-
-	}
-
-	if (!nuIsMobile()) {
-		$('#nuSearchField').focus();
-	} else {
-
-		if (nuUXOptions.nuMobileView) {
-			nuMobileView();
-		}
 
 	}
 
@@ -327,9 +317,45 @@ function nuBuildForm(f) {
 
 	nuCursor('default');
 
+	if (!nuIsMobile()) {
+		$('#nuSearchField').focus();
+	} else {
+		nuMobileView(b.mobile_view);
+	}
+
 	nuWindowPosition();
 
+	nuBrowseScrollbar();
+
 	nuRestoreScrollPositions();
+
+}
+
+function nuBrowseScrollbar() {
+
+	if (nuFormType() == 'browse') {
+
+		if (!nuIsIframe()) {
+			$('#nuRECORD').css({
+				'width': '100vw',
+				'height': '100%',
+				'overflow-x': 'auto'
+			});
+			$('#nuBreadcrumbHolder').css({
+				'width': '100vw',
+				'display': 'flex',
+				'flex': '1',
+				'flex-flow': 'row wrap'
+			});
+			$('#nuActionHolder').css({
+				'width': '100vw'
+			});
+			document.body.style.overflow = 'hidden';
+		}
+
+	} else {
+		document.body.style.overflow = 'visible';
+	}
 
 }
 
@@ -406,9 +432,10 @@ function nuAddHomeLogout() {
 
 		}
 
-		$('#nuBreadcrumbHolder').append('<span id="nulink"><a href="https://www.nubuilder.com" class="nuBuilderLink" target="_blank">nuBuilder</a></span>');
-
-		nuAddIconToBreadCrumb('nuLogout', 'Log out', 16, 'nuAskLogout()', 'fas fa-sign-out-alt');
+		if (!nuIsMobile() || $('.nuBreadcrumb').length == 0) {
+			$('#nuBreadcrumbHolder').append('<span id="nulink"><a href="https://www.nubuilder.com" class="nuBuilderLink" target="_blank">nuBuilder</a></span>');
+			nuAddIconToBreadCrumb('nuLogout', 'Log out', 16, 'nuAskLogout()', 'fas fa-sign-out-alt');
+		}
 
 	}
 
@@ -522,10 +549,11 @@ function nuDefine(v, defaultValue = '') {
 
 }
 
-function nuSearchFieldSetSearchType() {
+function nuSearchFieldSetSearchType(isMobile) {
 
 	$("#nuSearchField")
 		.prop("type", "search")
+		.css("width", isMobile ? "120" : "auto")
 		.attr('autocomplete', 'off')
 		.on('search', function () {
 			nuSearchAction();
@@ -549,14 +577,22 @@ function nuAddActionButtons(form) {
 		var s = nuDefine(nuFORM.getProperty('search'));
 		var f = nuDefine(nuFORM.getProperty('filter'));
 
+		const isMobile = nuIsMobile();
+
 		$('#nuActionHolder').append("<input id='nuSearchField' type='text' class='nuSearch' onfocus='this.value = this.value;' onkeypress='nuSearchPressed(event)' onkeydown='nuArrowPressed(event)' value='" + s + "'>")
-			.append("<input id='nuFilter' style='visibility:hidden;width:0px' value='" + f + "'>")
-			.append("<button id='nuSearchButton' type='button' class='nuActionButton' onclick='nuSearchAction()'><i class='fa fa-search'></i>&nbsp;" + nuTranslate('Search') + "</button>");
+			.append("<input id='nuFilter' style='visibility:hidden;width:0px' value='" + f + "'>");
 
-		nuSearchFieldSetSearchType();
 
-		if (button.Add == 1) { nuAddActionButton('Add'); }
-		if (button.Print == 1) { nuAddActionButton('Print'); }
+		const searchCaption = isMobile ? "" : "&nbsp;" + nuTranslate('Search');
+		const printCaption = isMobile ? "<i class='fa fa-print'></i>" : nuTranslate('Print');
+		const addCaption = isMobile ? "<i class='fa fa-add'></i>" : nuTranslate('Add');
+
+		nuAddActionButton("Search", "<i class='fa fa-search'></i>" + searchCaption, 'nuSearchAction()');
+
+		if (button.Add == 1) { nuAddActionButton('Add', addCaption, 'nuAddAction()'); }
+		if (button.Print == 1) { nuAddActionButton('Print', printCaption, 'nuPrintAction()'); }
+
+		nuSearchFieldSetSearchType(isMobile);
 
 	} else {
 
@@ -584,25 +620,28 @@ function nuAddActionButtons(form) {
 
 }
 
-function nuAddActionButton(i, v, f, t, e) {
+function nuAddActionButton(id, value, func, text, e) {
 
 	if (arguments.length == 1) {
-
-		v = i;
-		f = 'nu' + i + 'Action()';
-
+		value = id;
+		func = 'nu' + id + 'Action()';
 	}
 
-	t = nuDefine(t);
-
-	let nuClass = "";
-	if (i == 'Save' || i == 'Add' || i == 'Clone' || i == 'Delete') {
-		nuClass = " " + "nu" + i + "Button";
+	if (typeof(value) == 'object') {
+		value = nuUXOptions.nuMobileView ? value['valueMobile'] : nuTranslate(nuDefine(value('value')));
+	} else {
+		value = nuTranslate(nuDefine(value));
 	}
 
-	let id = "nu" + i + "Button";
+	text = nuTranslate(nuDefine(text));
 
-	let html = "<input id='" + id + "' type='button' title='" + nuTranslate(t) + "' class='nuActionButton" + nuClass + "' value='" + nuTranslate(v) + "' onclick='" + f + "'>";
+	let nuClass = "nuActionButton";
+	if (id == 'Save' || id == 'Add' || id == 'Clone' || id == 'Delete') {
+		nuClass += " " + "nu" + id + "Button";
+	}
+
+	id = "nu" + id + "Button";
+	let html = `<button id='${id}' type='button' class='${nuClass}' title = '${text}' onclick='${func}'>${value}` + "</button>";
 
 	if (e) {
 		$(html).insertAfter('#' + e);
@@ -3417,8 +3456,8 @@ function nuGetOptionsList(f, t, p, a, type) {
 		FormObjectList : ['Form Object List', 'nuOptionsListAction("nuobject", "", "' + f + '")', 'fa-th-list', 'O'],
 		Search : ['Search', 'nuSearchAction();', 'fas fa-search', 'S'],
 		Add : ['Add', 'nuAddAction();', 'fas fa-plus', 'A'],
-		Print : ['Print', 'nuPrintAction();', 'fas fa-table', 'P'],
-		Save : ['Save', 'nuSaveAction();', 'far fa-save', 'Ss'],
+		Print : ['Print', 'nuPrintAction();', 'fas fa-print', 'P'],
+		Save : ['Save', 'nuSaveAction();', 'far fa-save', 'S'],
 		Delete : ['Delete', 'nuDeleteAction();', 'far fa-trash-alt', 'Y'],
 		Clone : ['Clone', 'nuCloneAction();', 'far fa-clone', 'C'],
 		Refresh : ['Refresh', 'if (nuGlobalAccess()) {nuRunPHPHidden("NUSETREFRESHCACHE", 0);} else {nuGetBreadcrumb();}', 'fas fa-sync-alt', 'R'],
@@ -3428,7 +3467,8 @@ function nuGetOptionsList(f, t, p, a, type) {
 		Database : ['Database', 'nuStartDatabaseAdmin();', 'fa-database', 'E'],
 		Backup : ['Backup', 'nuRunBackup();', 'far fa-hdd', 'B'],
 		Setup : ['Setup', 'nuForm("nusetup","1","", "", 2)', 'fa-cogs', 'U'],
-		FormInfo : ['Form Info', 'nuShowFormInfo();', 'fa-info', 'M']
+		FormInfo : ['Form Info', 'nuShowFormInfo();', 'fa-info', 'M'],
+		Logout: ['Log out', 'nuAskLogout();', 'fas fa-sign-out-alt', 'L']
 	};
 
 	if (typeEdit && admin && canChange) {
@@ -3488,6 +3528,11 @@ function nuGetOptionsList(f, t, p, a, type) {
 		list.push(items.Backup);
 		list.push(items.Setup);
 		list.push(items.FormInfo);
+	}
+
+	if (!typeSf && nuIsMobile()) {
+		list.push(items.Divider);
+		list.push(items.Logout);
 	}
 
 	if (list.length == 0) { return; }
@@ -5059,7 +5104,7 @@ function nuMessage(o, timeout, callback) {
 	}
 
 	widest = Math.min(widest + 200, 1000);
-	let w = $(this).innerWidth() - 42; 								//-- subtract padding, border
+	let w = window.visualViewport.width - 42; 								//-- subtract padding, border
 	let l = Math.max(0, $(this).scrollLeft() + (w - widest) / 2);
 	w = Math.min(w, widest);
 
@@ -5510,7 +5555,7 @@ function nuResizeFormDialogCoordinates() {
 	const parentDocument = window.parent.document;
 	const windowInnerHeight = window.innerHeight;
 	const $body = $('body');
-	
+
 	let dragDlg = $('#nuDragDialog', parentDocument);
 	if (dragDlg.length == 0) { return; }
 
@@ -5639,6 +5684,24 @@ function nuLookingUp() {
 
 function nuPortraitScreen(columns) {
 
+	function nuPortraitScreenObjDimensions(id, $id) {
+
+		let height = $id.outerHeight()
+
+		if ($id.is('[data-select2-id]')) {
+			height = $id.data('nu-org-height') + 50;
+		}
+
+		if (!$id.is("[nu-mobileview-hidden]")) {
+			width = Math.max(width, $id.outerWidth());
+		}
+
+		let heightLabel = $('#label_' + id).length == 0 ? 0 : $('#label_' + id).outerHeight()
+
+		return {height, width, heightLabel}
+
+	}
+
 	$('#nubody').css('transform', 'scale(1)')
 
 	if (nuFormType() == 'browse') { return; }
@@ -5648,93 +5711,139 @@ function nuPortraitScreen(columns) {
 
 	$('.nuPortraitTab').remove();
 
-	var o = nuSERVERRESPONSE.objects;
-	var lw = columns == 1 ? 0 : nuPortraitLabelWidth(o);
-	var t = 10;
+	const obj = nuSERVERRESPONSE.objects;
+	var lw = columns == 1 ? 0 : nuPortraitLabelWidth(obj);
+	var top = 10;
 	var b = -1;
-	var W = 0;
+	var width = 0;
+	let oWidth = 0;
+	let oTop = 0;
 
-	for (var i = 0; i < o.length; i++) {
+	for (let i = 0; i < obj.length; i++) {
 
-		var I = o[i].id;
-		var L = $('#label_' + I).length == 0 ? 0 : $('#label_' + I).outerHeight()
-		var O = $('#' + I).outerHeight()
+		let oType = obj[i].type;
 
-		W = Math.max(W, $('#' + I).outerWidth());
+		let id = obj[i].id;
+		let $id = $('#' + id);
 
-		if (o[i].tab != b) {
 
-			b = o[i].tab;
-			const l = $('#nuTab' + o[i].tab).html();
-			const d = '<div class="nuPortraitTab" id="nuPort' + b + '" style="top:' + t + 'px" >' + l + '</div>';
-			$('#nuRECORD').append(d);
-			var OH = $('#nuPort' + b).outerHeight()
+		let {height, width, heightLabel} = nuPortraitScreenObjDimensions(id, $id)
 
-			t = t + OH + 20;
+		const $tab = $('#nuTab' + obj[i].tab);
+		let tabVisible = $tab.nuIsVisible()
+
+		if (obj[i].tab != b && tabVisible) {
+
+			if (tabVisible && $('.nuTab').length > 1) {
+				b = obj[i].tab;
+				const l = $tab.html();
+				const d = '<div class="nuPortraitTab" id="nuPort' + b + '" style="top:' + top + 'px" >' + l + '</div>';
+				$('#nuRECORD').append(d);
+				const OH = $('#nuPort' + b).outerHeight()
+
+				top = top + OH + 5;
+			}
 
 		}
 
-		if (o[i].read != 2) {
+		tabVisible = $tab.nuIsVisible() || $('.nuTab').length == 1;
 
-			$('#label_' + o[i].id).css({ 'top': t + 2, 'left': 7, 'text-align': 'left', 'font-weight': 700 });
+		if ($id.is("[nu-mobileview-hidden]") || !tabVisible) {
 
-			if (columns == 1) {
-				t = t + L + 5;
+				const objComponents = nuObjectComponents(id);
+
+				for (let c = 0; c < objComponents.length; c++) {
+					let comp = $('#' + objComponents[c]);
+					comp.attr('nu-mobileview-hidden','');
+					comp.hide();
+				}
+
+		} else {
+
+			if (obj[i].read != 2) {
+
+				$('#label_' + id).css({ 'top': top + 2, 'left': 7, 'text-align': 'left', 'font-weight': 700 });
+
+				const sameRow = $id.is('[data-nu-same-row]');
+				if (columns == 1 && !sameRow) {
+					top = top + heightLabel + 5;
+				}
+
+				if ($id.is('[data-select2-id]')) {
+					$id = $('#' + id + '_select2');
+				}
+
+				if (sameRow) {
+					$id.css({ 'top': oTop, 'left': oWidth });
+				} else {
+					$id.css({ 'top': top, 'left': lw + 10 });
+				}
+
+				if (oType == 'lookup') {
+
+					const w = $('#' + id + 'code').outerWidth()
+					const d = $('#' + id + 'description').outerWidth()
+					width = Math.max(width, w + d + 30);
+
+					$('#' + id + 'code').css({ 'top': top, 'left': lw + 10 });
+					$('#' + id + 'button').css({ 'top': top, 'left': lw + w + 15 });
+					top += 35;
+					$('#' + id + 'description').css({ 'top': top, 'left': lw + 10, 'width': w - 5 });
+
+				} else if (obj[i].input == 'file') {
+					top += 5;
+					$('#' + id + '_file').css({ 'top': top, 'left': lw + 10 });
+					top += 5;
+				}
+
+				oWidth = lw + 10 + Number(obj[i].width);
+				oTop = top;
+
+				if (!sameRow) {
+					top = top + height + 5;
+				}
+
 			}
-
-			$('#' + o[i].id).css({ 'top': t, 'left': lw + 10 });
-
-			if (o[i].type == 'lookup') {
-
-				const w = $('#' + o[i].id + 'code').outerWidth()
-				const d = $('#' + o[i].id + 'description').outerWidth()
-				W = Math.max(W, w + d + 30);
-
-				$('#' + o[i].id + 'code').css({ 'top': t, 'left': lw + 10 });
-				$('#' + o[i].id + 'button').css({ 'top': t, 'left': lw + w + 15 });
-				t = t + 25;
-				$('#' + o[i].id + 'description').css({ 'top': t, 'left': lw + 35 });
-
-			}
-
-			t = t + O + 5;
 
 		}
-
 	}
 
-	$("[data-nu-tab!='x'][data-nu-form='']:not([data-nu-lookup-id])").show();
+	$("[data-nu-tab!='x'][data-nu-form='']:not([data-nu-lookup-id]):not([nu-mobileview-hidden])").show();
 	$('#nuTabHolder').hide();
 
-	t = t + 50;
+	top = top + 50;
 
-	$('#nuRECORD').append('<div id="nuPortEnd" style="left:0px;position:absolute;top:' + t + 'px" >&nbsp;</div>');
+	$('#nuRECORD').append('<div id="nuPortEnd" style="left:0px;position:absolute;top:' + top + 'px" >&nbsp;</div>');
 
 	if (columns == 1) {
-		$('label').css('text-align', 'right').css({ 'width': W, 'text-align': 'left', 'left': 12 });
+		$('label').css('text-align', 'right').css({ 'width': width, 'text-align': 'left', 'left': 12 });
 	} else {
 		$('label').css('text-align', 'left').css('width', lw);
 	}
 
-	var objectWidth = W + lw + 50;
+	var objectWidth = width + lw + 50;
 	var screenWidth = window.innerWidth;
 	var scale = screenWidth / (objectWidth);
 
-	$('#nubody').css('width', objectWidth)
-		.css('transform', 'scale(' + scale + ')')
+	$('#nubody').css('width', objectWidth).css('transform', 'scale(' + scale + ')')
 	$('html,body').scrollTop(0).scrollLeft(0);
+	window.scrollTo(0, 0);
+
+	$('#nuBreadcrumbHolder').css('width', window.visualViewport.width);
 
 	return scale;
 
 }
 
-function nuMobileView() {
+function nuMobileView(mobileView) {
 
-	var f = nuCurrentProperties();
-	if (nuFormType() == 'edit' && (f.form_id == 'nuhome' || f.form_id == 'nuaccess' || f.form_id == 'nuuser')) {
-		nuPortraitScreen();
-		$('#nuActionHolder').hide();
-		$('button').css('text-align', 'left');
+	if (nuUXOptions.nuMobileView && mobileView == '1') {
+		if (nuFormType() == 'edit') {
+			nuPortraitScreen();
+			$('button').css('text-align', 'left');
+		} else {
+			$('#nuBreadcrumbHolder').css('width', window.visualViewport.width);
+		}
 	}
 
 }
@@ -6053,7 +6162,9 @@ function nuDatalistShowAllOnArrowClick(i) {
 
 function nuSetSelect2(id, obj) {
 
-	$('#' + id).attr('date-nu-select2', 1);
+	let $id = $('#' + id);
+
+	$id.attr('date-nu-select2', 1);
 
 	let select2Id = $('#' + id).attr('id') + "_select2";
 
@@ -6075,7 +6186,9 @@ function nuSetSelect2(id, obj) {
 	let select2Options = Object.assign(select2UserOptions, objSelect2OptionsDefault.options);
 	// select2Options = {...objSelect2OptionsDefault.options, ...select2UserOptions};
 
-	$('#' + id).select2(select2Options);
+	$id.data('nu-org-height', $id.outerHeight());
+
+	$id.select2(select2Options);
 
 	$('.' + select2Id).parent().parent().css({
 		position: 'absolute',
@@ -6083,6 +6196,8 @@ function nuSetSelect2(id, obj) {
 		top: Number(obj.top),
 		left: Number(obj.left)
 	}).attr('id', select2Id);
+
+
 
 	return select2Id;
 
@@ -6136,7 +6251,7 @@ function nuAccessFormSetButtonIcons(force) {
 		element.innerHTML = '<br>&nbsp<span style="padding: 1px 10px 1px 10px;" class="nuActionButton"><i class="' + icon +'"></i></span>';
 	}
 
-	if (nuUserLanguage() !== '' || force === true) {
+	if (nuIsMobile() || force === true) {
 		setInnerHTML(title_accformslf_add_button, 'fas fa-plus');
 		setInnerHTML(title_accformslf_print_button, 'fas fa-print');
 		setInnerHTML(title_accformslf_save_button, 'fas fa-save');

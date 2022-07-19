@@ -176,6 +176,11 @@ jQuery.fn.extend({
 			nuHide(this.id);
 		});
 	},
+	nuRemove: function () {
+		return this.each(function () {
+			nuRemove(this.id);
+		});
+	},
 	nuSelectRemoveEmpty: function (setIndex) {
 		return this.each(function () {
 			nuSelectRemoveEmpty(this.id, setIndex);
@@ -1231,6 +1236,26 @@ function nuHide(i) {
 
 }
 
+function nuRemove(i) {
+
+	let arr = [];
+	if (!$.isArray(i)) {
+		arr.push(i);
+	} else {
+		arr = i;
+	}
+
+	for (let s = 0; s < arr.length; s++) {
+
+		const o = nuObjectComponents(arr[s]);
+
+		for (let c = 0; c < o.length; c++) {
+			$('#' + o[c]).remove();
+		}
+	}
+
+}
+
 function nuIsVisible(i) {
 	return $('#' + i).is(':visible');
 }
@@ -1500,7 +1525,7 @@ function nuAttachFontAwesome(i, c, s, after) {
 		o = i;
 	}
 
-	const html = '<i style="font-size:' + size + '" class="' + c + '"></i>';
+	const html = '<i style="font-size:' + size + '" class="' + 'fa-fw ' + c + '"></i>';
 	let obj = $(o);
 	if (obj.length === 0) return;
 
@@ -1858,7 +1883,7 @@ function nuStartDatabaseAdmin() {
 }
 
 function nuIsMobile() {
-	return navigator.userAgent.toLowerCase().split('mobile').length > 1
+	return navigator.userAgent.toLowerCase().split('mobile').length > 1;
 }
 
 function nuIsMacintosh() {

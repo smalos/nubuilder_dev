@@ -376,10 +376,22 @@ function nuInputTypeChanged(t) {
     nuHide('sob_input_count');
     nuHide('sob_input_javascript');
     nuHide('sob_input_datalist');
+    nuHide('sob_input_file_target');
+
 
     if (t == 'nuScroll') {
         nuShow('sob_input_javascript');
     }
+    
+    if (t == 'file') {
+        nuShow('sob_input_file_target');
+
+        if (nuGetValue('sob_input_file_target') == '') {
+                 nuSetValue('sob_input_file_target','0');
+        }
+
+        addFileUploadScript();
+    }    
 
     if (t == 'nuAutoNumber') {
 
@@ -643,4 +655,71 @@ function nuPreviewIcon(i, s) {
 		$i.append(s);
 	}
 	
+}
+
+
+function addFileUploadScript() {
+
+    let htmlCode = $('#sob_html_code');
+    
+    if (! htmlCode.val().includes('new Uppy.Core') && nuGetValue('sob_input_file_target') == '0') {
+    
+    const uppyScript = `
+<div id="#uppy_drag_drop_area#"></div>
+
+<script>
+
+    var $parentDiv = $('#' + '#parent_div#');
+    var targetDiv = '#' + '#uppy_drag_drop_area#';
+
+    var uppy = new Uppy.Core();
+    uppy.setMeta({
+        content_type: 2
+    })
+
+    uppy.use(Uppy.Dashboard, {
+            inline: true
+            , bundle: true
+            , height: $parentDiv.cssNumber('height')
+            , width: $parentDiv.cssNumber('width')
+            , target: targetDiv
+            , showProgressDetails: true
+            , replaceTargetContent: true
+            , method: 'post'
+        })
+        .use(Uppy.XHRUpload, {
+            endpoint: 'core/nuapi.php'
+        })
+
+    uppy.on('file-added', (file) => {
+        uppy.setFileMeta(file.id, {
+            procedure: 'NUUPLOADFILE_TEMPLATE'
+        });
+    });
+
+    uppy.on('complete', (result) => {
+
+        if (result.successful.length >= 1) {
+            const response = result.successful[0].response;
+            if (response.status = 201) {
+
+                if (window.nuOnFileUploaded) {
+                    nuOnFileUploaded('FS', $parentDiv.attr('id'), response);
+                }
+
+            }
+        }
+
+    })
+
+</script>
+`;
+    
+    
+        nuSetValue('sob_html_code', htmlCode.val() + uppyScript);
+        
+    }
+    
+    
+    
 }

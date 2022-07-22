@@ -876,13 +876,11 @@ function nuGetAllLookupList(){
 
 }
 
-
 function nuLookupRecord(){
 
 	return $_POST['lookup_row'];
 
 }
-
 
 function nuSetFormValue($f, $v){
 

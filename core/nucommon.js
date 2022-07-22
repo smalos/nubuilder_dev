@@ -831,7 +831,7 @@ function nuBindCtrlEvents() {
 				} else if (e.keyCode == 77 && g) {					//-- m		Form Info
 					nuShowFormInfo();
 				} else if (e.keyCode == 69 && g) {					//-- e		Database
-					nuStartDatabaseAdmin();
+					nuVendorLogin('PMA');
 				} else if (e.keyCode == 66 && g) {					//-- b		Backup
 					nuRunBackup();
 				} else if (e.keyCode == 82) {						//-- r		Refresh

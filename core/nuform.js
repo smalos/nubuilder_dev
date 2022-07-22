@@ -3511,7 +3511,7 @@ function nuGetOptionsList(f, t, p, a, type) {
 		Help : ['Help', nuFORMHELP[p], 'fa-question-circle', '?'],
 		ChangePassword : ['Change Password', 'nuPopup("nupassword", "", "")', 'fa-password', 'L'],
 		DebugResults : ['nuDebug Results', 'nuOptionsListAction("nudebug", "")', 'fa-bug', 'D'],
-		Database : ['Database', 'nuStartDatabaseAdmin();', 'fa-database', 'E'],
+		Database : ['Database', 'nuVendorLogin("PMA")', 'fa-database', 'E'],
 		Backup : ['Backup', 'nuRunBackup();', 'far fa-hdd', 'B'],
 		Setup : ['Setup', 'nuForm("nusetup","1","", "", 2)', 'fa-cogs', 'U'],
 		FormInfo : ['Form Info', 'nuShowFormInfo();', 'fa-info', 'M'],

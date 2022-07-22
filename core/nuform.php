@@ -270,9 +270,13 @@ function nuGetFormObject($F, $R, $OBJS, $tabs = null){
 				";
 
 			}
-
-			if($r->sob_all_type == 'editor'){
+			
+			$fileTarget = isset($r->sob_input_file_target) ? $r->sob_input_file_target : 0;
+			
+			$o->file_target = $fileTarget;
+			if($r->sob_all_type == 'editor'  || $r->sob_all_type == 'input' && $fileTarget == 1){
 					$o->html		= nuReplaceHashVariables($r->sob_html_code);
+					
 			}
 
 			if($r->sob_all_type == 'html'){
@@ -942,6 +946,18 @@ function nuSelectOptions($sql) {
 
 			while ($r = db_fetch_row($t)) {
 				$a[]	= $r;
+			}
+
+	} elseif (nuStringStartsWith('[', $sql) && is_array(json_decode($sql))) {	
+			
+			$arr = json_decode($sql);
+			foreach($arr as $item) {
+
+				$r		= array();
+				$r[0]	= $item;
+				$r[1]	= $item;
+				$a[]	= $r;
+
 			}
 
 	} else {																	//-- comma delimited string

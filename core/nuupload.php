@@ -18,7 +18,7 @@ if ($_POST && !empty($_FILES["file"]) && is_uploaded_file($_FILES['file']['tmp_n
 
 	$filename = sanitizeFilename(basename($_FILES['file']['name']));
 	$target_dir =  $_SERVER['DOCUMENT_ROOT']. '/'; 	
-	$target_file = $target_dir . $filename);
+	$target_file = $target_dir . $filename;
 
 	$ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
 	if (!in_array($ext, $allowed)) {

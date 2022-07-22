@@ -1,16 +1,19 @@
 <?php
 	require_once('nuchoosesetup.php');
 	require_once('nuprocesslogins.php');
+	
+	$sessionId		= $_REQUEST['sessid'];
 
-	$session_id		= $_REQUEST['sessid'];
-	$values			= array($session_id);
+	$appId = isset($_GET['appId']) ? $_GET['appId'] : "";
+	
+	$values			= array($sessionId);
 	$sql			= "SELECT * FROM zzzzsys_session WHERE zzzzsys_session_id = ?";
 	$obj			= nuRunQuery($sql, $values);
 	$result			= db_num_rows($obj);
 
 	if($_SESSION['nubuilder_session_data']['IS_DEMO']){
 		echo('Not available in the Demo');
-		$page   = pmaBad();
+		$page   = nuVendorBad($appId);
 		return;
 	}
 
@@ -22,34 +25,38 @@
 		$_extra_check	= $logon_info->session->global_access;
 
 		if ( $_user == $_SESSION['nubuilder_session_data']['GLOBEADMIN_NAME'] AND $_extra_check == '1' ) {
-			$page	= pmaGood();
+			$page	= nuVendorGood($appId);
 		} else {
-			$page	= pmaBad();
+			$page	= nuVendorBad($appId);
 		}
 
 	} else {
-			$page   = pmaBad();
+			$page   = nuVendorBad($appId);
 	}
 
 	header("Location: $page");
 
-function pmaGood() {
+function nuVendorGood($appId) {
 
 	$time = time();
 
-	// $page = "libs/nudb/db_structure.php?server=1&db=".$_SESSION['nubuilder_session_data']['DB_NAME']."&$time=$time";
-	$page = "libs/nudb/index.php?route=/database/structure&server=1&db=".$_SESSION['nubuilder_session_data']['DB_NAME']."&$time=$time";
+	if ($appId == 'PMA') {
+		$page = "libs/nudb/index.php?route=/database/structure&server=1&db=".$_SESSION['nubuilder_session_data']['DB_NAME']."&$time=$time";
+	} elseif ($appId == 'TFM') {
+		$page = "libs/tinyfilemanager/tinyfilemanager.php";
+	}
 
-	setcookie("nupmalogin",	 $_SESSION['nubuilder_session_data']['SESSION_ID']);
+	setcookie("nu_".$appId,	 $_SESSION['nubuilder_session_data']['SESSION_ID']);
 
 	return $page;
+	
 }
 
-function pmaBad() {
+function nuVendorBad($appId) {
 
 	$time = time();
-	$page							= "nupmalogout.php?$time=$time";
-	setcookie("nupmalogin",			"bad");
+	$page = "nupmalogout.php?$time=$time";
+	setcookie("nu_".$appId,	"bad");
 
 	return $page;
 }

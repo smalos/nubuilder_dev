@@ -4,7 +4,7 @@ require_once(dirname(__FILE__). '/../../../nuconfig.php');
 
 if (! isset($nuTfmNotAuth)) {
 
-	$sessionId = isset($_COOKIE['tfmlogin']) ? $_COOKIE["tfmlogin"] : '';
+	$sessionId = isset($_COOKIE['nu_TFM']) ? $_COOKIE["nu_TFM"] : '';
 	
 	if ($sessionId == '') {
 		nuAuthFailed();

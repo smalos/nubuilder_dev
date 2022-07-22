@@ -1878,8 +1878,8 @@ function nuEmbedObject(f, d, w, h) {
 
 }
 
-function nuStartDatabaseAdmin() {
-	window.open("core/nupmalogin.php?sessid=" + window.nuSESSION);
+function nuVendorLogin(appId) {
+	window.open("core/nuvendorlogin.php?sessid=" + window.nuSESSION + "&appId=" + appId);
 }
 
 function nuIsMobile() {

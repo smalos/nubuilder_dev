@@ -665,58 +665,52 @@ function addFileUploadScript() {
     if (! htmlCode.val().includes('new Uppy.Core') && nuGetValue('sob_input_file_target') == '0') {
     
     const uppyScript = `
-<div id="#uppy_drag_drop_area#"></div>
+<div id="#uppy_div#"></div>
 
 <script>
+    
+    nuInitUppy();
+    
+    function nuInitUppy() {
 
-    var $parentDiv = $('#' + '#parent_div#');
-    var targetDiv = '#' + '#uppy_drag_drop_area#';
-
-    var uppy = new Uppy.Core();
-    uppy.setMeta({
-        content_type: 2
-    })
-
-    uppy.use(Uppy.Dashboard, {
-            inline: true
-            , bundle: true
-            , height: $parentDiv.cssNumber('height')
-            , width: $parentDiv.cssNumber('width')
-            , target: targetDiv
-            , showProgressDetails: true
-            , replaceTargetContent: true
-            , method: 'post'
-        })
-        .use(Uppy.XHRUpload, {
-            endpoint: 'core/nuapi.php'
-        })
-
-    uppy.on('file-added', (file) => {
-        uppy.setFileMeta(file.id, {
-            procedure: 'NUUPLOADFILE_TEMPLATE'
-        });
-    });
-
-    uppy.on('complete', (result) => {
-
-        if (result.successful.length >= 1) {
-            const response = result.successful[0].response;
-            if (response.status = 201) {
-
-                if (window.nuOnFileUploaded) {
-                    nuOnFileUploaded('FS', $parentDiv.attr('id'), response);
-                }
-
+        const $objId= $('#' + '#this_object_id#');
+        const target = '#' + '#uppy_div#';
+    
+        let uppy = new Uppy.Core();
+    
+        uppy.use(Uppy.Dashboard, {
+                inline: true
+                , bundle: true
+                , height: $objId.cssNumber('height')
+                , width: $objId.cssNumber('width')
+                , target: target
+                , showProgressDetails: true
+                , replaceTargetContent: true
+                , method: 'post'
+            })
+            .use(Uppy.XHRUpload, {
+                endpoint: 'core/nuapi.php'
+            })
+    
+        uppy.setMeta({ procedure: 'NUUPLOADFILE_TEMPLATE', session_id: window.nuSESSION })
+    
+        uppy.on('complete', (result) => {
+    
+            if (window.nuOnFileUploadComplete) {
+                nuOnFileUploaded('FS', $objId.attr('id'), result);
             }
-        }
+    
+        })
 
-    })
+    }
 
 </script>
 `;
     
     
         nuSetValue('sob_html_code', htmlCode.val() + uppyScript);
+
+        if (sob_all_height.value < 30) nuSetValue('sob_all_height', '250');
         
     }
     

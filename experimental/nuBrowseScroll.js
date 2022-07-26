@@ -10,10 +10,10 @@ $('#nuRECORD').bind("scroll", function() {
   
        var scrollLeft = $('#nuRECORD') .scrollLeft();
           var scrollTop = $('#nuRECORD').scrollTop();
-       //$('.nuBrowseTitle').each(function() {
+      
             if (scrollTop >= 0 && scrollLeft >= 0) {
                
-                $('#btitle').css({ 'z-index': '95','position': 'fixed', 'left':-scrollLeft + 'px' });
+                $('#btitle').css({ 'z-index': '95','position': 'fixed', 'left':3-scrollLeft + 'px' });
                 $('.nuBrowseTitle').css({'top':'0', 'height':'28px'});
                 $('.nuBrowseTitleMultiline ').css({'top':'0', 'height':'48px'});
              
@@ -22,8 +22,7 @@ $('#nuRECORD').bind("scroll", function() {
                $('#btitle').css({ 'z-index': '0','position': 'absolute' });
                 $('.nuBrowseTitle,.nuBrowseTitleMultiline ').css({'top':'3px'});
             }
-            
-      // });       
+       
            
 });       
                 

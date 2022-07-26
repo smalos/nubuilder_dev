@@ -3,7 +3,7 @@
     display: flex;
     width: 100%;
     border-radius: 5px;
-    background-color: #f2f2f9;
+    background-color: inherit;
     padding: 10px;
     height: 100%;
     justify-content: flex-start;
@@ -25,6 +25,9 @@ input, select, textarea, .nuSubform , iframe, .nuImage, .nuHtml {
 }
 
 .form-element-wrapper>* {
+    position: relative;
+}
+.othertabs>* {
     position: relative;
 }
 
@@ -160,7 +163,10 @@ input, select, textarea, .nuSubform , iframe, .nuImage, .nuHtml {
      flex-flow: row nowrap;
 }
 
-
+.nuSubform{
+    
+    overflow-x: none;
+}
 @media (max-width: 700px) {
   
     
@@ -182,11 +188,11 @@ input, select, textarea, .nuSubform , iframe, .nuImage, .nuHtml {
          text-align: left;
 
     }
-   .nuSubform  {
-     width:100%;
-     height:400px;
+   /*.nuSubform  {*/
+   /*  width:100%;*/
+   /*  height:400px;*/
 
-    }
+   /* }*/
   #lu{
      display: flex;
        width:100%;

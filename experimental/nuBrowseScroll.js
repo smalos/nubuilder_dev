@@ -13,7 +13,7 @@ $('#nuRECORD').bind("scroll", function() {
       
             if (scrollTop >= 0 && scrollLeft >= 0) {
                
-                $('#btitle').css({ 'z-index': '95','position': 'fixed', 'left':3-scrollLeft + 'px' });
+                $('#btitle').css({ 'z-index': '95','position': 'fixed', 'left':5-scrollLeft + 'px' });
                 $('.nuBrowseTitle').css({'top':'0', 'height':'28px'});
                 $('.nuBrowseTitleMultiline ').css({'top':'0', 'height':'48px'});
              

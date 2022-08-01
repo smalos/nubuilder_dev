@@ -87,7 +87,7 @@ if (nuFormType() == 'edit') {
         $(".form-element-wrapper").wrapAll('<div class="container"></div>');
       
          $(".nuContentBoxContainer").hide();
-        $('div:empty').remove();
+        
         
 
 

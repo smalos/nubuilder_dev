@@ -1,4 +1,4 @@
-function nuBrowseScrollbar() {
+function nuFormModification() {
 
 	if (nuFormType() == 'browse') {
 
@@ -16,7 +16,8 @@ function nuBrowseScrollbar() {
 				'width': '100vw',
 				'display': 'flex',
 				'flex': '1',
-				'flex-flow': 'row wrap'
+				'flex-flow': 'row wrap',
+				'align-items' : 'baseline'
 			});
 			$('#nuActionHolder').css({
 				'width': '100vw'
@@ -24,44 +25,51 @@ function nuBrowseScrollbar() {
 
 			$('.nuBrowseTitle, .nuBrowseTitleMultiline').wrapAll('<div id= "btitle"></div>');
 
-			//adding sticky nuBrowseTitle
-			$record.bind("scroll", function () {
-
-				const scrollLeft = $('#nuRECORD').scrollLeft();
-				const scrollTop = $('#nuRECORD').scrollTop();
-
-				if (scrollTop >= 0 && scrollLeft >= 0) {
-
-					$('#btitle').css({
-						'z-index': '95',
-						'position': 'fixed',
-						'left': 5 - scrollLeft + 'px'
-					});
-					$('.nuBrowseTitle').css({
-						'top': '0',
-						'height': '28px'
-					});
-					$('.nuBrowseTitleMultiline').css({
-						'top': '0',
-						'height': '48px'
-					});
-
-				} else {
-					$('#btitle').css({
-						'z-index': '0',
-						'position': 'absolute'
-					});
-					$('.nuBrowseTitle,.nuBrowseTitleMultiline ').css({
-						'top': '3px'
-					});
-				}
-
-			});
+			nuBrowseStickyColumns();
 
 			document.body.style.overflow = 'hidden';
 		}
 	} else {
 		document.body.style.overflow = 'visible';
 	}
+
+}
+
+function nuBrowseStickyColumns() {
+
+	$record.bind("scroll", function () {
+
+		const scrollLeft = $('#nuRECORD').scrollLeft();
+		const scrollTop = $('#nuRECORD').scrollTop();
+
+		if (scrollTop >= 0 && scrollLeft >= 0) {
+
+			$('#btitle').css({
+				'z-index': '95',
+				'position': 'fixed',
+				'left': 5 - scrollLeft + 'px'
+			});
+			$('.nuBrowseTitle').css({
+				'top': '0',
+				'height': '28px'
+			});
+			$('.nuBrowseTitleMultiline').css({
+				'top': '0',
+				'height': '48px'
+			});
+
+		} else {
+
+			$('#btitle').css({
+				'z-index': '0',
+				'position': 'absolute'
+			});
+			$('.nuBrowseTitle,.nuBrowseTitleMultiline ').css({
+				'top': '3px'
+			});
+
+		}
+
+	});	
 
 }

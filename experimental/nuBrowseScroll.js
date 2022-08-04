@@ -1,67 +1,59 @@
-function nuBrowseScrollbar() {
+function nuBrowseScrollbar () {
+  if (nuFormType() == 'browse') {
+    if (!nuIsIframe()) {
+      $record = $('#nuRECORD')
+      $record.css({
+        width: '100vw',
+        height: '85vh',
+        'overflow-x': 'auto',
+        'overflow-y': 'auto'
+      })
 
-	if (nuFormType() == 'browse') {
+      $('#nuBreadcrumbHolder').css({
+        width: '100vw',
+        display: 'flex',
+        flex: '1',
+        'flex-flow': 'row wrap'
+      })
+      $('#nuActionHolder').css({
+        width: '100vw'
+      })
 
-		if (!nuIsIframe()) {
+      $('.nuBrowseTitle, .nuBrowseTitleMultiline').wrapAll('<div id= "btitle"></div>')
 
-			$record = $('#nuRECORD');
-			$record.css({
-				'width': '100vw',
-				'height': '85vh',
-				'overflow-x': 'auto',
-				'overflow-y': 'auto'
-			});
+      // adding sticky nuBrowseTitle
+      $record.bind('scroll', function () {
+        const scrollLeft = $('#nuRECORD').scrollLeft()
+        const scrollTop = $('#nuRECORD').scrollTop()
 
-			$('#nuBreadcrumbHolder').css({
-				'width': '100vw',
-				'display': 'flex',
-				'flex': '1',
-				'flex-flow': 'row wrap'
-			});
-			$('#nuActionHolder').css({
-				'width': '100vw'
-			});
+        if (scrollTop >= 0 && scrollLeft >= 0) {
+          $('#btitle').css({
+            'z-index': '95',
+            position: 'fixed',
+            left: 5 - scrollLeft + 'px'
+          })
+          $('.nuBrowseTitle').css({
+            top: '0',
+            height: '28px'
+          })
+          $('.nuBrowseTitleMultiline').css({
+            top: '0',
+            height: '48px'
+          })
+        } else {
+          $('#btitle').css({
+            'z-index': '0',
+            position: 'absolute'
+          })
+          $('.nuBrowseTitle,.nuBrowseTitleMultiline ').css({
+            top: '3px'
+          })
+        }
+      })
 
-			$('.nuBrowseTitle, .nuBrowseTitleMultiline').wrapAll('<div id= "btitle"></div>');
-
-			//adding sticky nuBrowseTitle
-			$record.bind("scroll", function () {
-
-				const scrollLeft = $('#nuRECORD').scrollLeft();
-				const scrollTop = $('#nuRECORD').scrollTop();
-
-				if (scrollTop >= 0 && scrollLeft >= 0) {
-
-					$('#btitle').css({
-						'z-index': '95',
-						'position': 'fixed',
-						'left': 5 - scrollLeft + 'px'
-					});
-					$('.nuBrowseTitle').css({
-						'top': '0',
-						'height': '28px'
-					});
-					$('.nuBrowseTitleMultiline').css({
-						'top': '0',
-						'height': '48px'
-					});
-
-				} else {
-					$('#btitle').css({
-						'z-index': '0',
-						'position': 'absolute'
-					});
-					$('.nuBrowseTitle,.nuBrowseTitleMultiline ').css({
-						'top': '3px'
-					});
-				}
-
-			});
-
-			document.body.style.overflow = 'hidden';
-		}
-	} else {
-		document.body.style.overflow = 'visible';
-	}
-
+      document.body.style.overflow = 'hidden'
+    }
+  } else {
+    document.body.style.overflow = 'visible'
+  }
 }

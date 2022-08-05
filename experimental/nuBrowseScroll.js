@@ -7,7 +7,7 @@ function nuFormModification() {
 			$record = $('#nuRECORD');
 			$record.css({
 				'width': '100vw',
-				'height': '85vh',
+				'height': '80vh',
 				'overflow-x': 'auto',
 				'overflow-y': 'auto'
 			});

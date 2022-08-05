@@ -25,7 +25,7 @@ function nuFormModification() {
 
 			$('.nuBrowseTitle, .nuBrowseTitleMultiline').wrapAll('<div id= "btitle"></div>');
 
-			nuBrowseStickyColumns();
+			nuBrowseStickyColumns($record);
 
 			document.body.style.overflow = 'hidden';
 		}
@@ -35,12 +35,12 @@ function nuFormModification() {
 
 }
 
-function nuBrowseStickyColumns() {
+function nuBrowseStickyColumns($record) {
 
 	$record.bind("scroll", function () {
 
-		const scrollLeft = $('#nuRECORD').scrollLeft();
-		const scrollTop = $('#nuRECORD').scrollTop();
+		const scrollLeft = $record.scrollLeft();
+		const scrollTop = $record.scrollTop();
 
 		if (scrollTop >= 0 && scrollLeft >= 0) {
 

@@ -795,6 +795,12 @@ function nuBindCtrlEvents() {
 
 	$(document).keydown(function (e) {
 
+		if((e.keyCode === 34 || e.keyCode === 33) && nuFormType() == 'browse'){ // Page Down, Page Up	
+			const $nuRecord = $("#nuRECORD");
+			const scrollBy = e.keyCode === 34 ? 400 : -400;
+			$nuRecord.scrollTop($nuRecord.scrollTop() + scrollBy);
+        }
+
 		if (e.keyCode == 27) {										//-- ESC
 
 			if (nuIsVisible('nuMessageDiv')) {
@@ -842,7 +848,10 @@ function nuBindCtrlEvents() {
 					nuPopup("nudebug", "");
 				} else if (e.keyCode == 89 && g) {					//-- y		Current Properties
 					nuPrettyPrintMessage(e, nuCurrentProperties());
+				} else if (e.keyCode == 76) {						//-- l		Log out
+					nuAskLogout();
 				}
+
 			}
 
 			if (nuFormType() == 'browse') {
@@ -863,7 +872,7 @@ function nuBindCtrlEvents() {
 
 				if (e.keyCode == 65 && g) {							//-- a		Arrange
 					nuPopup(formId, "-2");
-				} else if (e.keyCode == 76 && g) {					//-- l		Change Password
+				} else if (e.keyCode == 81 && !g) {					//-- q		Change Password
 					nuPopup("nupassword", "5b6bb7108a75efc", "");
 				} else if (e.keyCode == 72 && g) {					//-- t		Add Object
 					nuPopup('nuobject', '-1', '');

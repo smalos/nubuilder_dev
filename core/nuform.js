@@ -325,49 +325,85 @@ function nuBuildForm(f) {
 
 	nuWindowPosition();
 
-	nuBrowseScrollbar();
+	nuFormModification();
 
 	nuRestoreScrollPositions();
 
 }
 
-function nuBrowseScrollbar() {
-
-	function nuAdjustBreadcrumbHolder() {
-
-		$('#nuBreadcrumbHolder').css({
-			'width': '100vw',
-			'display': 'flex',
-			'flex': '1',
-			'flex-flow': 'row wrap',
-			'align-items': 'baseline'
-		});
-
-	}
+function nuFormModification() {
 
 	if (nuFormType() == 'browse') {
 
 		if (!nuIsIframe()) {
-			$('#nuRECORD').css({
-				'width': '100vw',
-				'height': '100%',
-				'overflow-x': 'auto'
+
+			$record = $('#nuRECORD');
+			$record.css({
+				'width': '99.7vw',
+				'height': '80vh',
+				'overflow-x': 'auto',
+				'overflow-y': 'auto'
 			});
 
-			nuAdjustBreadcrumbHolder();
-
+			$('#nuBreadcrumbHolder').css({
+				'width': '100vw',
+				'display': 'flex',
+				'flex': '1',
+				'flex-flow': 'row wrap',
+				'align-items' : 'baseline'
+			});
 			$('#nuActionHolder').css({
 				'width': '100vw'
 			});
-			document.body.style.overflow = 'hidden';
-		} else {
-			nuAdjustBreadcrumbHolder();
-		}
 
+			$('.nuBrowseTitle, .nuBrowseTitleMultiline').wrapAll('<div id= "btitle"></div>');
+
+			nuBrowseStickyColumns($record);
+
+			document.body.style.overflow = 'hidden';
+		}
 	} else {
-		nuAdjustBreadcrumbHolder();
 		document.body.style.overflow = 'visible';
 	}
+
+}
+
+function nuBrowseStickyColumns($record) {
+
+	$record.bind("scroll", function () {
+
+		const scrollLeft = $record.scrollLeft();
+		const scrollTop = $record.scrollTop();
+
+		if (scrollTop >= 0 && scrollLeft >= 0) {
+
+			$('#btitle').css({
+				'z-index': '95',
+				'position': 'fixed',
+				'left': 5 - scrollLeft + 'px'
+			});
+			$('.nuBrowseTitle').css({
+				'top': '0',
+				'height': '28px'
+			});
+			$('.nuBrowseTitleMultiline').css({
+				'top': '0',
+				'height': '48px'
+			});
+
+		} else {
+
+			$('#btitle').css({
+				'z-index': '0',
+				'position': 'absolute'
+			});
+			$('.nuBrowseTitle,.nuBrowseTitleMultiline ').css({
+				'top': '3px'
+			});
+
+		}
+
+	});	
 
 }
 
@@ -3521,7 +3557,7 @@ function nuGetOptionsList(f, t, p, a, type) {
 		Clone : ['Clone', 'nuCloneAction();', 'far fa-clone', 'C'],
 		Refresh : ['Refresh', 'if (nuGlobalAccess()) {nuRunPHPHidden("NUSETREFRESHCACHE", 0);} else {nuGetBreadcrumb();}', 'fas fa-sync-alt', 'R'],
 		Help : ['Help', nuFORMHELP[p], 'fa-question-circle', '?'],
-		ChangePassword : ['Change Password', 'nuPopup("nupassword", "", "")', 'fa-password', 'L'],
+		ChangePassword : ['Change Password', 'nuPopup("nupassword", "", "")', 'fa-password', 'Q'],
 		DebugResults : ['nuDebug Results', 'nuOptionsListAction("nudebug", "")', 'fa-bug', 'D'],
 		Database : ['Database', 'nuVendorLogin("PMA")', 'fa-database', 'E'],
 		Backup : ['Backup', 'nuRunBackup();', 'far fa-hdd', 'B'],
@@ -5790,7 +5826,7 @@ function nuPortraitScreen(columns) {
 
 		if (obj[i].tab != b && tabVisible) {
 
-			if (tabVisible && $('.nuTab').length > 1) {
+			if ($('.nuTab').length > 1) {
 				b = obj[i].tab;
 				const l = $tab.html();
 				const d = '<div class="nuPortraitTab" id="nuPort' + b + '" style="top:' + top + 'px" >' + l + '</div>';

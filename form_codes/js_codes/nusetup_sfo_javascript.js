@@ -3,6 +3,10 @@ if (window.configImport == '1') {
   configEffectiveMsg();
 }
 
+if (set_smtp_username.value == '1') {
+  nuHide('set_nuemailtest_button');
+}
+
 $(function() {
     $('#set_header').scrollTop(window.scrollTop);
 });
@@ -34,6 +38,7 @@ nuSetProperty('set_language_current', $('#set_language').val());
 // Code Snippets form
 nuSetSnippetFormFilter(0, 1, 0, 0);
 
+setGAHOmeDatalist();
 
 var lang = $("#set_language");
 if (lang.val() === '') {
@@ -306,3 +311,14 @@ function nuBeforeSaveConfig() {
     })
 
 }
+
+function setGAHOmeDatalist() {
+
+	const gaHome = $('input').filter((i,v) => v.value == "$nuConfigGlobeadminHome");
+	if (gaHome.length == 1) {
+		const valueId = gaHome.attr('id').replace('cfg_setting','cfg_value');
+		nuAddDatalist(valueId,['nuhome','nuhomecompact']);
+	}
+
+}
+

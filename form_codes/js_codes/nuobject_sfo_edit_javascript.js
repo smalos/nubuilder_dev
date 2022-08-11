@@ -697,7 +697,7 @@ function addFileUploadScript() {
         uppy.on('complete', (result) => {
     
             if (window.nuOnFileUploadComplete) {
-                nuOnFileUploaded('FS', $objId.attr('id'), result);
+                nuOnFileUploadComplete('FS', $objId.attr('id'), result);
             }
     
         })

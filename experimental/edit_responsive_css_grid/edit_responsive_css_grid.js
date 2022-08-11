@@ -1,3 +1,4 @@
+
 function nuOnLoad() {
 if (nuFormType() == 'edit') {
  $(document).ready(function() {
@@ -5,8 +6,7 @@ if (nuFormType() == 'edit') {
     function isResponsive() {
 
         var f = window.nuFORM.getProperty('form_id');
-        return f.containsAny(['60ff227479f9950', // Include form ID's Here
-            '5ca15ca2410c298', '5ca123935de96df', '62b0e343864c838']); // form B
+        return f.containsAny(['60ff227479f9950']); // form B
 
     }
 
@@ -22,7 +22,7 @@ if (nuFormType() == 'edit') {
 
 
            
-             if (o[i].read !== '2'  ) {
+             if (o[i].read !== '2'&& o[i].tab == '0' ) {
 
                 $('#'+ id).map(function(index) {
 
@@ -58,7 +58,7 @@ if (nuFormType() == 'edit') {
 
             }
 
-            if (oType == 'iframe' || oType == 'subform' || oType == 'run') {
+            if (o[i].tab === 0 && oType == 'subform') { //subforms in tab one only-responsive + scroll on small screens
 
                 $("#label_"+id+",#"+id+"").wrapAll('<div id="subiframe" class="form-element-wrapper"></div>');
                 $("#"+id+",#label_"+id+"").css({
@@ -68,9 +68,16 @@ if (nuFormType() == 'edit') {
                  $("#"+id+"").css({
                     'overflow-x': 'auto'});
 
-            } else {
+            } else if (o[i].tab != '0' && oType == 'subform') { //subform on other tabs are not wrapped and maintains its NB set positions + subforms are responsive
+                    $("#"+id).css({
+                     'width':'90vw','overflow-x':'auto'});
+                     $("#label_"+id).css({
+                     'top': parseInt($('#'+id).css("top"))-18, 'left': parseInt($('#'+id).css("left")) +0,'text-align': 'left' });
+                     //other tabs subform labels are always on top
+                     
+            } else  {
                 $("#"+id+",#label_"+id+",#"+id+"_file, .select2, span, .selection" ).css({'top':'','left':'','width':'','position':'','height':''});
-       $("#"+id+"code,#"+id+"button,#"+id+"description").css({'top':'','left':'','width':'','position':'','height':''});
+                 $("#"+id+"code,#"+id+"button,#"+id+"description").css({'top':'','left':'','width':'','position':'','height':''});
 
             }
 
@@ -80,8 +87,8 @@ if (nuFormType() == 'edit') {
         $(".form-element-wrapper").wrapAll('<div class="container"></div>');
       
          $(".nuContentBoxContainer").hide();
-        $('div:empty').remove();
-        $('.nuHiddenLookup').remove();
+        
+        
 
 
 

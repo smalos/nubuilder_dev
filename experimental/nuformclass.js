@@ -747,7 +747,7 @@ class nuFormObject {
 
 			});
 
-			THIS.children().children('[data-nu-data]').each(function () {
+			THIS.children('.container').find('[data-nu-data]').each(function () {
 				
 				let children = cThis.subformCollectRecordChildren(this, sf, chk, deleteAll, V, E, F, C);
 				chk = children.chk;

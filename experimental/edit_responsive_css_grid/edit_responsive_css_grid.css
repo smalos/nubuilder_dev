@@ -1,4 +1,4 @@
-.container {
+.nuContainer {
    
     display: flex;
     width: 100%;
@@ -24,19 +24,16 @@ input, select, textarea, .nuSubform , iframe, .nuImage, .nuHtml {
 
 }
 
-.form-element-wrapper>* {
-    position: relative;
-}
-.othertabs>* {
+.nuObjectWrapper>* {
     position: relative;
 }
 
-.form-element-wrapper {
+.nuObjectWrapper {
     width: 45%;
     display: flex;
     flex-flow: row wrap;
    }
-.form-element-wrapper input , select, textarea, .nuSubform , iframe, .nuImage, .nuHtml, .select2  {
+.nuObjectWrapper input , select, textarea, .nuSubform , iframe, .nuImage, .nuHtml, .select2  {
     flex: 3;
 }
 .nuWord{
@@ -50,10 +47,10 @@ input, select, textarea, .nuSubform , iframe, .nuImage, .nuHtml {
     flex: 0.5;
     
 }
-.form-element-wrapper .select2 {
+.nuObjectWrapper .select2 {
     order: 2;
 }
-#subiframe {
+.nuSubformWrapper {
     display: flex;
      width:90%;
      height:200px!important;
@@ -62,7 +59,7 @@ input, select, textarea, .nuSubform , iframe, .nuImage, .nuHtml {
     flex-flow: row wrap;
     overflow:auto;
 }
-#subiframe label {
+.nuSubformWrapper label {
     display: flex;
     flex: 1;
      flex-direction : column;
@@ -70,7 +67,7 @@ input, select, textarea, .nuSubform , iframe, .nuImage, .nuHtml {
          height:20px!important;
          
 }
-.form-element-wrapper label {
+.nuObjectWrapper label {
     flex: 1;
    align-items: flex-start;
     justify-content: flex-start;
@@ -79,7 +76,7 @@ input, select, textarea, .nuSubform , iframe, .nuImage, .nuHtml {
     margin-right: 10px;
 }
 
-#lu {
+.nuLookupWrapper {
     display: flex;
     width: 45%;
      flex-flow: row nowrap;
@@ -87,7 +84,7 @@ input, select, textarea, .nuSubform , iframe, .nuImage, .nuHtml {
     
 }
 
-#lu label {
+.nuLookupWrapper label {
         flex: 1;
    align-items: flex-start;
     justify-content: flex-start;
@@ -96,7 +93,7 @@ input, select, textarea, .nuSubform , iframe, .nuImage, .nuHtml {
     order: 1;
 }
 
-#lu>.look {
+.nuLookupWrapper>.nuLuWrapper {
     display: flex;
     flex:3;
     height: 30px;
@@ -104,7 +101,7 @@ input, select, textarea, .nuSubform , iframe, .nuImage, .nuHtml {
     flex-shrink: 4;
 }
 
-.look> * {
+.nuLuWrapper> * {
     display:flex;
     position: relative;
     flex: 1;
@@ -113,39 +110,39 @@ input, select, textarea, .nuSubform , iframe, .nuImage, .nuHtml {
 }
 
 
-#lu>.look :nth-child(1) {
+.nuLookupWrapper>.nuLuWrapper :nth-child(1) {
     order: 1;
     min-width: 10%;
    max-width:20%;
 }
-#lu> .look :nth-child(2) {
+.nuLookupWrapper> .nuLuWrapper :nth-child(2) {
     order: 2;
    flex:0.1;
 
 }
 
-#lu>.look :nth-child(3) {
+.nuLookupWrapper>.nuLuWrapper :nth-child(3) {
     order: 3;
     width: 50% ;
 }
 
-#file> :nth-child(1){
+.nuFileWrapper> :nth-child(1){
     order:3;
     flex:0.0001;
     
 }
-#file> :nth-child(2){
+.nuFileWrapper> :nth-child(2){
     order:1;
     
     
 }
-#file> :nth-child(3){
+.nuFileWrapper> :nth-child(3){
     order:2;
    
     
 }
 
-.form-element-wrapper .input_button{
+.nuObjectWrapper .input_button{
     
    min-width: 30%;
    max-width: 50%;
@@ -176,7 +173,7 @@ input, select, textarea, .nuSubform , iframe, .nuImage, .nuHtml {
       
     }
 
-    .form-element-wrapper {
+    .nuObjectWrapper {
        display: flex;
        width:100%;
   flex-direction : column;
@@ -184,29 +181,25 @@ input, select, textarea, .nuSubform , iframe, .nuImage, .nuHtml {
     }
 
 
-    .form-element-wrapper label  {
+    .nuObjectWrapper label  {
          text-align: left;
 
     }
-   /*.nuSubform  {*/
-   /*  width:100%;*/
-   /*  height:400px;*/
-
-   /* }*/
-  #lu{
+   
+  .nuLookupWrapper{
      display: flex;
        width:100%;
   flex-direction : column;
     }
-     #lu label {
+     .nuLookupWrapper label {
          text-align: left;
     
 }
-   #lu .look{
+   .nuLookupWrapper .nuLuWrapper{
        flex-shrink: 4;
        
    } 
-    #subiframe {
+    .nuSubformWrapper {
     display: flex;
      width:100%;
      height:200px!important;

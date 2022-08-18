@@ -1,3 +1,5 @@
+
+
 .nuContainer {
    
     display: flex;
@@ -151,7 +153,7 @@ input, select, textarea, .nuSubform , iframe, .nuImage, .nuHtml {
      
 }
 
-#btn{
+.nuButtonWrapper{
      width: 45%;
     display: flex;
     flex:4;
@@ -167,7 +169,7 @@ input, select, textarea, .nuSubform , iframe, .nuImage, .nuHtml {
 @media (max-width: 700px) {
   
     
-    .container {
+    .nuContainer {
                width: 95vw;
         padding: 5px;
       
@@ -209,3 +211,5 @@ input, select, textarea, .nuSubform , iframe, .nuImage, .nuHtml {
 }
 
 }
+
+

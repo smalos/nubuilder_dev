@@ -1,11 +1,8 @@
-<!DOCTYPE html>
-<html>
-<head>
 <?php
 
 require_once('nucommon.php');
 
-nuJSInclude('libs/jquery/jquery.js');
+nuJSInclude('libs/jquery/jquery-3.6.1.min.js');
 nuJSInclude('nuselectclass.js');
 nuJSInclude('nuformclass.js');
 nuJSInclude('nuform.js');
@@ -21,6 +18,10 @@ nuCSSInclude('css/nubuilder4.css');
 nuCSSInclude('css/nudrag.css');
 
 ?>
+
+<!DOCTYPE html>
+<html>
+<head>
 
 <style>
 

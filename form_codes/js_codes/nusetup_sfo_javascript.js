@@ -38,7 +38,10 @@ nuSetProperty('set_language_current', $('#set_language').val());
 // Code Snippets form
 nuSetSnippetFormFilter(0, 1, 0, 0);
 
-setGAHOmeDatalist();
+setConfigDatalist('$nuConfigGlobeadminHome', ['nuhome','nuhomecompact']);
+setConfigDatalist('nuEditCloseAfterSave', ['None','AllForms',"UserForms","SystemForms"]);
+setConfigDatalist('nuCalendarType', ['nuBuilder','VanillaJS']);
+
 
 var lang = $("#set_language");
 if (lang.val() === '') {
@@ -312,12 +315,13 @@ function nuBeforeSaveConfig() {
 
 }
 
-function setGAHOmeDatalist() {
 
-	const gaHome = $('input').filter((i,v) => v.value == "$nuConfigGlobeadminHome");
-	if (gaHome.length == 1) {
-		const valueId = gaHome.attr('id').replace('cfg_setting','cfg_value');
-		nuAddDatalist(valueId,['nuhome','nuhomecompact']);
+function setConfigDatalist(cfgItem, arrDatalist) {
+
+ 	const input = $('input').filter((i,v) => v.value == cfgItem);
+	if (input.length == 1) {
+		const valueId = input.attr('id').replace('cfg_setting','cfg_value');
+		nuAddDatalist(valueId, arrDatalist);
 	}
 
 }

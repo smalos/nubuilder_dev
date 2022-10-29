@@ -252,9 +252,10 @@ function nuAskLogout() {
 
 function nuLogout(f, iframe) {
 
-	nuFORM.addBreadcrumb();
+	let top = window.top;
+    top.nuFORM.addBreadcrumb();
 
-	var last = nuFORM.getCurrent();
+	var last = top.nuFORM.getCurrent();
 
 	last.session_id = window.nuSESSION;
 	last.call_type = 'logout';
@@ -265,7 +266,7 @@ function nuLogout(f, iframe) {
 
 		if (!nuDisplayError(fm)) {
 			sessionStorage.removeItem('nukeepalive');
-			window.open('index.php', '_self');
+			top.window.open('index.php', '_self');
 		}
 
 	};
@@ -370,7 +371,7 @@ function nuRunPHP(pCode, iframe, rbs) {
 }
 
 
-function nuRunPHPHidden(i, rbs) {
+function nuRunPHPHidden(i, rbs, params) {
 
 	if (arguments.length == 1) {
 
@@ -386,6 +387,7 @@ function nuRunPHPHidden(i, rbs) {
 	last.session_id = window.nuSESSION;
 	last.call_type = 'runhiddenphp';
 	last.form_id = 'doesntmatter';
+	last.params = params ? params: null;
 	last.hash_record_id = last.record_id;
 	last.record_id = i;					//-- php code
 	last.nuFORMdata = nuFORM.data();
@@ -569,7 +571,9 @@ function nuAttachButtonImage(i, c, cssClass) {
 }
 
 
-function nuGetLookupId(pk, id, setFocus) {
+function nuGetLookupId(pk, id, setFocus, setEdited) {
+
+	if (window.nuLOOKUPCLEARING) return;
 
 	$('#nuLookupList').remove();
 
@@ -594,7 +598,10 @@ function nuGetLookupId(pk, id, setFocus) {
 
 			nuPopulateLookup(data, id, setFocus);
 			$('#' + id).addClass('nuEdited');
-			nuHasBeenEdited();
+			
+			if (setEdited != false) {
+				nuHasBeenEdited();
+			}
 
 			var o = $('#' + id);
 
@@ -610,15 +617,25 @@ function nuGetLookupId(pk, id, setFocus) {
 
 }
 
-
 function nuGetLookupCode(e) {
-
+	
+	const nuTarget = e.target.getAttribute('data-nu-target');
+	
+	if (e.currentTarget && e.currentTarget.value.length == 0) {
+		window.nuLOOKUPCLEARING = true;
+		$('#' + nuTarget).addClass('nuEdited');
+		nuSetValue(nuTarget, '');
+		nuSetValue(nuTarget + 'description', '');
+		window.nuLOOKUPCLEARING = false;
+		return;
+	}
+	
 	var last = window.nuFORM.getCurrent();
 
 	last.session_id = window.nuSESSION;
 	last.call_type = 'getlookupcode';
 	last.object_id = e.target.getAttribute('data-nu-object-id');
-	last.target = e.target.getAttribute('data-nu-target');
+	last.target = nuTarget;
 	last.code = e.target.value;
 	last.hash = nuHashFromEditForm();
 
@@ -743,6 +760,14 @@ function nuUpdateData(action, instruction, close) {
 				}
 
 				nuUpdateMessage('Record Deleted');
+
+				if (window.nuAfterDeleteGlobal) {
+					nuAfterDeleteGlobal();
+				}
+
+				if (window.nuAfterDelete) {
+					nuAfterDelete();
+				}
 
 			} else {
 

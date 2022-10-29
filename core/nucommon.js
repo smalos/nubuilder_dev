@@ -2,6 +2,9 @@ window.nuDialog = new nuCreateDialog('');
 window.nuFORM = new nuFormObject();
 window.nuRESPONSIVE = new nuResponseForm();
 window.nuOnLoad = null;
+window.nuLoadBrowseGlobal = null;
+window.nuLoadEditGlobal = null;
+window.nuOnLookupPopulatedGlobal = null;
 window.nuHideMessage = true;
 window.nuDragID = 1000;
 window.nuLastForm = '';
@@ -135,10 +138,9 @@ String.prototype.nuFormat = function () {
 
 $.fn.enterKey = function (fnc) {
 	return this.each(function () {
-		$(this).keypress(function (ev) {
-			var keycode = (ev.keyCode ? ev.keyCode : ev.which);
-			if (keycode == '13') {
-				fnc.call(this, ev);
+		$(this).keypress(function (e) {
+			if (e.key == 'Enter') {
+				fnc.call(this, e);
 			}
 		})
 	})
@@ -189,9 +191,9 @@ jQuery.fn.extend({
 	nuGetValue: function (method) {
 		return nuGetValue(this.attr('id'), method);
 	},
-	nuSetValue: function (v, method) {
+	nuSetValue: function (v, method, change) {
 		return this.each(function () {
-			return nuSetValue(this.id, v, method);
+			return nuSetValue(this.id, v, method, change);
 		});
 	},
 	nuGetText: function () {
@@ -252,7 +254,7 @@ function nuGlobalAccess() {
 }
 
 function loginInputKeyup(event) {
-	if (event.keyCode == 13) {
+	if (event.key == 'Enter') {
 		$('input#submit').click();
 	}
 }
@@ -480,7 +482,7 @@ function nuLogin(nuconfigNuWelcomeBodyInnerHTML) {
 
 function nuSubmit(e) {
 
-	if (e.keyCode == 13) {
+	if (e.key == 'Enter') {
 		$('#submit').click();
 	}
 
@@ -708,7 +710,17 @@ function nuReformat(t) {
 
 		let a = nuReapplyFormat(v, f);
 		if (v != a) {
+
 			o.val('');
+
+			if (window.nuFormatValueClearedGlobal) {
+				nuFormatValueClearedGlobal(o, v);
+			}
+
+			if (window.nuFormatValueCleared) {
+				nuFormatValueCleared(o, v);
+			}
+
 		}
 
 	}
@@ -782,10 +794,10 @@ function nuBindCtrlEvents() {
 
 	var nuCtrlKeydownListener = function (e) {
 
-		if (e.keyCode === 114 || ((nuIsMacintosh() ? e.metaKey : e.ctrlKey) && e.keyCode === 70)) { // exclude Ctrl + f
+		if (e.key === 'F3' || ((nuIsMacintosh() ? e.metaKey : e.ctrlKey) && e.key === 'f')) { // exclude Ctrl + f
 			window.nuNEW = 0;
 		} else {
-			if (e.keyCode == 17) { 									//-- Ctrl
+			if (e.key == 'Control') {
 				window.nuNEW = 1;
 			}
 
@@ -795,13 +807,13 @@ function nuBindCtrlEvents() {
 
 	$(document).keydown(function (e) {
 
-		if((e.keyCode === 34 || e.keyCode === 33) && nuFormType() == 'browse'){ // Page Down, Page Up	
+		if((e.key === 'PageDown' || e.key === 'PageUp') && nuFormType() == 'browse'){
 			const $nuRecord = $("#nuRECORD");
-			const scrollBy = e.keyCode === 34 ? 400 : -400;
+			const scrollBy = e.key === 'PageDown' ? 400 : -400;
 			$nuRecord.scrollTop($nuRecord.scrollTop() + scrollBy);
         }
 
-		if (e.keyCode == 27) {										//-- ESC
+		if (e.key == 'Escape') {
 
 			if (nuIsVisible('nuMessageDiv')) {
 				$('#nuMessageDiv').remove();
@@ -811,13 +823,18 @@ function nuBindCtrlEvents() {
 				let ae = document.activeElement;
 				$(ae).blur();
 				$(ae).focus();
-				if (nuFormsUnsaved() == 0) nuClosePopup();
+				if (nuFormsUnsaved() == 0) {
+					nuClosePopup();
+				} else {
+					if (confirm(nuTranslate('Leave this form without saving?'))) {
+						nuClosePopup();
+					}
+				}
 			} else if (nuFormType() == 'browse') {
 				nuSearchAction("");
 			}
 
 		}
-
 
 		if ((nuIsMacintosh() ? e.metaKey : e.ctrlKey) && e.shiftKey) {
 
@@ -830,25 +847,29 @@ function nuBindCtrlEvents() {
 
 			if (nuFormType() == 'browse' || nuFormType() == 'edit') {
 
-				if (e.keyCode == 70 && g) {							//-- f		Form Properties
+				if (e.code == 'KeyF' && g) {						//-- f		Form Properties
 					nuPopup("nuform", formId);
-				} else if (e.keyCode == 79 && g) {					//-- O		Object List
+				} else if (e.code == 'KeyO' && g) {					//-- O		Object List
 					nuPopup("nuobject", "", formId);
-				} else if (e.keyCode == 77 && g) {					//-- m		Form Info
+				} else if (e.code == 'KeyM' && g) {					//-- m		Form Info
 					nuShowFormInfo();
-				} else if (e.keyCode == 69 && g) {					//-- e		Database
+				} else if (e.code == 'KeyE' && g) {					//-- e		Database
 					nuVendorLogin('PMA');
-				} else if (e.keyCode == 66 && g) {					//-- b		Backup
+				} else if (e.code == 'KeyI' && g) {					//-- e		Sessions
+					nuForm("nusession","","", "", 2);					
+				} else if (e.code == 'KeyQ' && g) {					//-- e		File Manager
+					nuVendorLogin("TFM");
+				} else if (e.code == 'KeyB' && g) {					//-- b		Backup
 					nuRunBackup();
-				} else if (e.keyCode == 82) {						//-- r		Refresh
+				} else if (e.code == 'KeyR') {						//-- r		Refresh
 					nuGetBreadcrumb();
-				} else if (e.keyCode == 85 && g) {					//-- u		Setup
+				} else if (e.code == 'KeyU' && g) {					//-- u		Setup
 					nuForm('nusetup', '1', '', '', 2);
-				} else if (e.keyCode == 68 && g) {					//-- d		nuDebug Results
+				} else if (e.code == 'KeyD' && g) {					//-- d		nuDebug Results
 					nuPopup("nudebug", "");
-				} else if (e.keyCode == 89 && g) {					//-- y		Current Properties
+				} else if (e.code == 'KeyY' && g) {					//-- y		Current Properties
 					nuPrettyPrintMessage(e, nuCurrentProperties());
-				} else if (e.keyCode == 76) {						//-- l		Log out
+				} else if (e.code == 'Keyl') {						//-- l		Log out
 					nuAskLogout();
 				}
 
@@ -856,13 +877,13 @@ function nuBindCtrlEvents() {
 
 			if (nuFormType() == 'browse') {
 
-				if (e.keyCode == 67 && g) {							//-- c		Searchable Columns
+				if (e.code == 'KeyC' && g) {						//-- c		Searchable Columns
 					nuGetSearchList();
-				} else if (e.keyCode == 83) {						//-- s		Search
+				} else if (e.code == 'KeyS') {						//-- s		Search
 					nuSearchAction();
-				} else if (e.keyCode == 65 && g) {					//-- a		Add
+				} else if (e.code == 'KeyA' && g) {					//-- a		Add
 					nuAddAction();
-				} else if (e.keyCode == 80 && g) {					//-- p		Print
+				} else if (e.code == 'KeyP' && g) {					//-- p		Print
 					nuPrintAction();
 				}
 
@@ -870,24 +891,24 @@ function nuBindCtrlEvents() {
 
 			if (nuFormType() == 'edit') {
 
-				if (e.keyCode == 65 && g) {							//-- a		Arrange
+				if (e.code == 'KeyA' && g) {						//-- a		Arrange
 					nuPopup(formId, "-2");
-				} else if (e.keyCode == 81 && !g) {					//-- q		Change Password
+				} else if (e.code == 'KeyQ' && !g) {				//-- q		Change Password
 					nuPopup("nupassword", "5b6bb7108a75efc", "");
-				} else if (e.keyCode == 72 && g) {					//-- t		Add Object
+				} else if (e.code == 'KeyT' && g) {					//-- t		Add Object
 					nuPopup('nuobject', '-1', '');
-				} else if (e.keyCode == 71 && g) {					//-- G		Object Grid
+				} else if (e.code == 'KeyG' && g) {					//-- G		Object Grid
 					nuForm("nuobjectgrid", formId, "", "", 2);
-				} else if (e.keyCode == 83) {						//-- s		Save
+				} else if (e.code == 'KeyS') {						//-- s		Save
 					$(":focus").blur();
 					nuSaveAction();
-				} else if (e.keyCode == 67) {						//-- c		Clone
+				} else if (e.code == 'KeyC') {						//-- c		Clone
 					nuCloneAction();
-				} else if (e.keyCode == 98) {						//-- y		Delete
+				} else if (e.code == 'KeyY') {						//-- y		Delete
 					nuDeleteAction();
-				} else if (e.keyCode == 39) {						//-- ->		Select next tab
+				} else if (e.code == 'ArrowRight') {				//-- ->		Select next tab
 					nuSelectNextTab(1);
-				} else if (e.keyCode == 37) {						//-- <-		Select previous tab
+				} else if (e.code == 'ArrowLeft') {				//-- <-		Select previous tab
 					nuSelectNextTab(-1);
 				}
 
@@ -897,8 +918,9 @@ function nuBindCtrlEvents() {
 			var searchIndex = -1;
 
 			//Numbers
-			if (e.keyCode >= 49 && e.keyCode <= 57) {
-				searchIndex = Math.abs(49 - e.keyCode);
+			const numberCode = e.code.replace('Digit','');
+			if (numberCode >= "1" && numberCode <= "9") {
+				searchIndex = Number(numberCode) - 1;
 			}
 
 			if (searchIndex != -1) {
@@ -936,15 +958,27 @@ function nuUnbindDragEvents() {
 	$(document).off('.nubindctrl');
 }
 
-function nuTranslate(str) {
+function nuTranslate(obj) {
 
-	if (!str) return '';
+	if (Array.isArray(obj)) {
+		
+		let arr = obj;
+		arr.forEach(function(item, index) {
+			const l = nuLANGUAGE.find(elem => elem.english === item);
+			arr[index] = !l ? item : l.translation;
+		})
+		
+		return arr;
 
-	str = String(str);
-	if (str.charAt(0) == '|') return str.substring(1);
+	} else {
+		if (!obj) return '';
 
-	let l = nuLANGUAGE.find(elem => elem.english === str);
-	return !l ? str : l.translation;
+		str = String(obj);
+		if (str.charAt(0) == '|') return str.substring(1);
+
+		const l = nuLANGUAGE.find(elem => elem.english === str);
+		return !l ? str : l.translation;
+	}
 
 }
 
@@ -1700,6 +1734,10 @@ function nuUserDepartment() {
 	return nuSERVERRESPONSE.user_department;
 }
 
+function nuUserA11Y() {
+	return nuSERVERRESPONSE.user_a11y;
+}
+
 function nuUserTeam() {
 	return nuSERVERRESPONSE.user_team;
 }
@@ -1911,13 +1949,19 @@ function nuTransformScale() {
 
 function nuSetBrowserColumns(c) {
 
-	const p = nuTotalWidth('nucell_0_0') - $('#nucell_0_0').width();	//-- padding
+	const p = nuTotalWidth('nucell_0_0') - $('#nucell_0_0').width(); //-- padding
 	var l = 7;
 
 	for (let i = 0; i < c.length; i++) {
 
-		$('[data-nu-column="' + i + '"]').css({ 'left': l, 'width': c[i] });
-		$('#nuBrowseTitle' + i).css({ 'left': l, 'width': c[i] });
+		$('[data-nu-column="' + i + '"]').css({
+			'left': l,
+			'width': c[i]
+		});
+		$('#nuBrowseTitle' + i).css({
+			'left': l,
+			'width': c[i]
+		});
 		l = l + c[i] + (c[i] == 0 ? 0 : p);
 
 	}
@@ -1925,6 +1969,18 @@ function nuSetBrowserColumns(c) {
 	$('#nuBrowseFooter').css('width', l - 7);
 
 	nuFORM.breadcrumbs[nuFORM.breadcrumbs.length - 1].column_widths = c;
+
+	if (nuCurrentProperties().browse_filtered_rows == 0) {
+
+		$('#nucell_0_0').css({
+			'width': l - 20	,
+			'z-index': '2'
+
+		});
+
+		$("div[id^='nucell_']").not('#nucell_0_0').hide();
+
+	}
 
 }
 
@@ -2353,11 +2409,11 @@ function nuEnableDisableAllObjects(v, excludeTypes, excludeIds) {
 	excludeTypes = nuDefine(excludeTypes, []);
 	excludeIds = nuDefine(excludeIds, []);
 
-	var r = JSON.parse(JSON.stringify(nuSERVERRESPONSE));
-	for (var i = 0; i < r.objects.length; i++) {
-		let obj = r.objects[i];
+	const r = JSON.parse(JSON.stringify(nuSERVERRESPONSE));
+	for (let i = 0; i < r.objects.length; i++) {
+		const obj = r.objects[i];
 
-		if ($.inArray(obj.type, excludeTypes) == -1 && $.inArray(obj.id, excludeIds) == -1) {
+		if ($.inArray(obj.type, excludeTypes) == -1 && $.inArray(obj.id, excludeIds) == -1 && obj.type !== 'contentbox') {
 			nuEnable(obj.id, v);
 		}
 	}
@@ -2647,21 +2703,23 @@ function nuGetText(i, method) {
 	return nuGetValue(i, 'text');
 }
 
-function nuSetValue(i, v, method) {
+function nuSetValue(i, v, method, change) {
 
 	var obj = $('#' + i);
 
 	if (i === undefined || nuDebugOut(obj, i)) return false;
 
+	change = (change || change === undefined);
+
 	if (method === undefined && obj.is(':button')) {
 		obj.text(v);
 	} else if (obj.is(':checkbox')) {
-		obj.prop('checked', v).change();
+		if (change) obj.prop('checked', v).change();
 	} else if (obj.is('select') && method === 'text') {
 		$('#' + i + ' option').each(function () {
 			if ($(this).text().fixNbsp() === v) {
 				$(this).prop("selected", "selected");
-				obj.change();
+				if (change) obj.change();
 				return true;
 			}
 		});
@@ -2676,7 +2734,8 @@ function nuSetValue(i, v, method) {
 				obj.text(v);
 				break;
 			default:
-				obj.val(v).change();
+				obj.val(v);
+				if (change) obj.change();
 		}
 	}
 
@@ -2959,3 +3018,6 @@ function nuEscapeHTML(string) {
 
 }
 
+function nuDelay(ms) {
+	return new Promise(resolve => setTimeout(resolve, ms));
+}

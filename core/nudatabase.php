@@ -281,6 +281,26 @@ function db_fetch_all_row($o){
 
 }
 
+function db_update_value($table, $pk, $recordId, $column, $newValue) {
+
+	$update = "UPDATE `$table` SET `$column` = ? WHERE `$pk` = ?";
+	nuRunQuery($update, array($newValue, $recordId));
+
+}
+
+function db_fetch_value($table, $pk, $recordId, $column) {
+
+	$select = "SELECT `$column` FROM `$table` WHERE `$pk` = ?";
+	$result = nuRunQuery($select, array($recordId));
+	if (db_num_rows($result) == 1) {
+		$arr = db_fetch_array($result);
+		return $arr[$column];
+	} else {
+		return false;
+	}
+
+}
+
 function db_field_info($n){
 
 	$fields		= array();

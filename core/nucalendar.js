@@ -40,18 +40,14 @@ function nuPopupCalendarVanillaJs(pThis, d) {
 	let optionWeekStart = {};
 	let weekStartNumber = nuCalendarWeekStartNumber();
 
-	if (weekStartNumber !== undefined) {
-		optionWeekStart = {
-			weekStart: weekStartNumber
-		}
-	}
-
 	let calendarOptionsDefault = {
 		autohide: true,
-		calendarWeeks: true,
+		calendarWeeks: false,
 		defaultViewDate: d,
 		format: $(pThis).attr('data-nu-format').replace('D|', ''),
-		optionWeekStart
+		todayHighlight: true,
+		clearBtn: true,
+		weekStart : (weekStartNumber !== undefined ? weekStartNumber : 0)
 	}
 
 	let objCalendarOptionsDefault = { options: calendarOptionsDefault };
@@ -63,14 +59,25 @@ function nuPopupCalendarVanillaJs(pThis, d) {
 
 	let calendarOptions = Object.assign(calendarUserOptions, objCalendarOptionsDefault.options);
 
+	Datepicker.locales.en = {
+		days: nuTranslate(["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]),
+		daysShort: nuTranslate(["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]),
+		daysMin: nuTranslate(["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"]),
+		months: nuTranslate(["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]),
+		monthsShort: nuTranslate(["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]),
+		today: nuTranslate("Today"),
+		clear: nuTranslate("Clear"),
+		titleFormat: "MM y"
+	}
+
 	datepicker = new Datepicker(pThis, calendarOptions);
 	window[id + '_datepicker'] = datepicker;
 
 	datepicker.setOptions({ defaultViewDate: d });
+
 	datepicker.show();
 
 }
-
 
 function nuPopupCalendar(pThis, d) {
 
@@ -79,7 +86,7 @@ function nuPopupCalendar(pThis, d) {
 	$('#nuCalendar').remove();
 	$('#nuLookupList').remove();
 
-	if (nuUXOptions['nuCalendarVanillaJS']) {
+	if (nuUXOptions['nuCalendarVanillaJS'] || nuUXOptions['nuCalendarType'] === 'VanillaJS') {
 		nuPopupCalendarVanillaJs(pThis, d);
 		return;
 	}

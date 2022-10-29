@@ -115,13 +115,13 @@ function nuBindDragEvents(){
 
 		var keyDirection = '';
 
-		if(e.keyCode == 37){
+		if(e.key == 'ArrowLeft'){
 			keyDirection	= 'left';
-		} else if(e.keyCode == 39){
+		} else if(e.key == 'ArrowRight'){
 			keyDirection	= 'right';
-		} else if(e.keyCode == 38){
+		} else if(e.key == 'ArrowUp'){
 			keyDirection	= 'up';
-		} else if(e.keyCode == 40){
+		} else if(e.key == 'ArrowDown'){
 			keyDirection	= 'down';
 		}
 
@@ -427,8 +427,7 @@ function nuInitialiseDragState(){
 
 function nuSetTabOrderDataAttrs(){
 
-	var currentTabNo	= $('div.nuTabSelected[id^="nuTab"]').attr('data-nu-tab-filter');
-	if (currentTabNo === undefined) currentTabNo = 0;
+	var currentTabNo	= $('div.nuTabSelected[id^="nuTab"]').attr('data-nu-tab-filter') || '0';
 
 	for(var i=0; i<window.nuDragOptionsState.tabs[currentTabNo].objects.length; i++){
 
@@ -440,9 +439,13 @@ function nuSetTabOrderDataAttrs(){
 
 }
 
+function nuDragCurrentTabNumber() {
+	return $('div.nuTabSelected[id^="nuTab"]', $('#nuDragDialog iframe').contents()).attr('data-nu-tab-filter') || '0'
+}
+
 function nuMoveUpOrder(){
 
-	var currentTabNo						= $('div.nuTabSelected[id^="nuTab"]', $('#nuDragDialog iframe').contents()).attr('data-nu-tab-filter');
+	var currentTabNo						= nuDragCurrentTabNumber();
 	var currentSelectedFieldOption			= $('select#nuDragOptionsFields option:selected');
 
 	for(var i=0; i<$('#nuDragDialog iframe')[0].contentWindow.nuDragOptionsState.tabs[currentTabNo].objects.length; i++){
@@ -479,7 +482,7 @@ function nuMoveUpOrder(){
 
 function nuMoveDownOrder(){
 
-	var currentTabNo					= $('div.nuTabSelected[id^="nuTab"]', $('#nuDragDialog iframe').contents()).attr('data-nu-tab-filter');
+	var currentTabNo					= nuDragCurrentTabNumber();
 	var currentSelectedFieldOption		= $('select#nuDragOptionsFields option:selected');
 
 	for(var i=0; i<$('#nuDragDialog iframe')[0].contentWindow.nuDragOptionsState.tabs[currentTabNo].objects.length; i++){

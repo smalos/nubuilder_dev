@@ -39,7 +39,7 @@ class nuSelectObject {
 			'overflow': 'hidden',
 			'padding-top': '5px',
 			'background-color': '#c5c3c3',
-			'z-index': -1,
+			'z-index': 5,
 		})
 			.addClass('nuBox')
 			.addClass('nuDragNoSelect')
@@ -456,8 +456,8 @@ class nuSelectObject {
 
 		}
 
-		for (const item of j) {
-			J.push(item);
+		for (const k in j) {
+			J.push(j[k]);
 		}
 
 		return J;
@@ -747,6 +747,7 @@ class nuSelectObject {
 	getJoins() {
 
 		var a = [];
+		var j = [];
 		var r = this.joins;
 
 		for (var k in r) {
@@ -987,6 +988,7 @@ function nuAngle() {
 			'border-left-color': 'purple',
 			'background-color': 'rgba(255, 153, 0, .5)',
 			'transform': 'rotate(' + d + 'deg)',
+			'z-index': 10
 		})
 			.attr('data-nu-join', key)
 			.attr('title', jt + ' JOIN ON ' + nuSQL.joins[key].fromfield + ' = ' + nuSQL.joins[key].tofield + ' (Click to Change Join)')

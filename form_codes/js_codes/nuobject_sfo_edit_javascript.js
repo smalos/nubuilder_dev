@@ -644,8 +644,7 @@ function nuPreviewIcon(i, s) {
 
 	$i.html('');
 
-	if (s.startsWith('fas ') || s.startsWith('fa ') || s.startsWith('far ')) {
-
+	if (s.startsWith('fas ') || s.startsWith('fa ') || s.startsWith('far ') || s.startsWith('fa-')) {
 		$i.append('<i class="' + s + ' fa-2x'  + '"></i>');
 	} else if (s.startsWith('<i class="fa')) {
 		let i = s.indexOf('>', 10);

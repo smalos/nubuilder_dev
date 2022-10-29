@@ -370,66 +370,84 @@ function nuAllowedActivities(){
 
 }
 
-function nuRunPHP($nuCode){
-
-	$aa									= nuAllowedActivities();
-	$p									= nuProcedureAccessList($aa);
-	$id									= nuID();
-	$s									= "SELECT sph_code, sph_description, zzzzsys_php_id, sph_php, sph_global FROM zzzzsys_php WHERE sph_code = ?";
-
-	$t									= nuRunQuery($s, array($nuCode));
-	$ob									= db_fetch_object($t);
-	$isGlobal							= $ob->sph_global == '1';
-
-	$_POST['nuHash']['code']			= $ob->sph_code;
-	$_POST['nuHash']['description']		= $ob->sph_description;
-	$_POST['nuHash']['parentID']		= $ob->zzzzsys_php_id;
-	$_POST['nuHash']['sph_php']			= $ob->sph_php;
-
-	$j									= json_encode($_POST['nuHash']);
-
-	if ( !($_SESSION['nubuilder_session_data']['isGlobeadmin'] or $isGlobal or in_array($ob->zzzzsys_php_id, $p))){
-		nuDisplayError(nuTranslate("Access To Procedure Denied...")." ($nuCode)");
-	}
-
-	nuSetJSONData($id, $j);
-
-	return $id;
-
+function nuRunPHPHidden($nuCode){ 
+	return nuRunPHP($nuCode, true);
 }
 
-function nuRunPHPHidden($nuCode){
-
-	$aa						= nuAllowedActivities();
-	$p						= nuProcedureAccessList($aa);
-
-	$s						= "SELECT zzzzsys_php_id, sph_global FROM zzzzsys_php WHERE sph_code = ? ";
-	$t						= nuRunQuery($s, array($nuCode));
-	$r						= db_fetch_object($t);
+function nuRunPHP($nuCode, $hidden = false){
+										 
+					  
+																														  
 
 	if ($nuCode != 'nukeepalive') {
+								   
+										  
 
-	if (db_num_rows($t) == 0) {
+		$sql	= "SELECT sph_code, sph_description, zzzzsys_php_id, sph_php, sph_global FROM zzzzsys_php WHERE sph_code = ? ";
+		$query	= nuRunQuery($sql, array($nuCode));
+													 
+											  
 
-			$isSystem = substr($nuCode, 0, 2) == 'nu';
-			 if (! $isSystem) {
-				nuDisplayError(nuTranslate("The Procedure does not exist...")." ($nuCode)");
-			 }
-		} else {
-			$isGlobal			= $r->sph_global == '1';
-			if($_SESSION['nubuilder_session_data']['isGlobeadmin'] or $isGlobal or in_array($r->zzzzsys_php_id, $p)){
-				nuEval($r->zzzzsys_php_id);
-			}else{
-				nuDisplayError(nuTranslate("Access To Procedure Denied...")." ($nuCode)");
+		$exists = db_num_rows($query) == 1;
+		
+		if (!$exists) {
+
+				$isSystem = substr($nuCode, 0, 2) == 'nu';
+				 if (! $isSystem) {
+					nuDisplayError(nuTranslate("The Procedure does not exist...")." ($nuCode)");
+				 }
+
+			} else {
+
+				$row = db_fetch_object($query);
+				$allowRun = $row->sph_global == '1';
+
+				if (! $allowRun) {
+					$p	= nuProcedureAccessList(nuAllowedActivities());
+					$allowRun = in_array($row->zzzzsys_php_id, $p);
+				}
+
+				if($allowRun || $_SESSION['nubuilder_session_data']['isGlobeadmin']){
+					if ($hidden) nuEval($row->zzzzsys_php_id);
+				}else{
+					nuDisplayError(nuTranslate("Access To Procedure Denied...")." ($nuCode)");
+				}
 			}
-		}
+
+	}
+	
+	if ($hidden) {
+
+		$f			= new stdClass;
+		$f->id		= 1;
+		return $f;
+
+	} else {
+
+		$_POST['nuHash']['code']			= $exists ? $row->sph_code : null;
+		$_POST['nuHash']['description']		= $exists ? $row->sph_description : null;
+		$_POST['nuHash']['parentID']		= $exists ? $row->zzzzsys_php_id : null;
+		$_POST['nuHash']['sph_php']			= $exists ? $row->sph_php : null;
+
+		$json								= json_encode($_POST['nuHash']);
+		$id									= nuID();
+		nuSetJSONData($id, $json);
+		return $id;
+		  
+									   
+																											
+							   
+		 
+																			  
+	
+   
 
 	}
 
-	$f			= new stdClass;
-	$f->id		= 1;
+					 
+			 
 
-	return $f;
+		   
 }
 
 function nuJavascriptCallback($js){
@@ -887,6 +905,7 @@ function nuGetUserAccess(){
 	$A['USER_POSITION']			= $j->session->sus_position;
 	$A['USER_ADDITIONAL1']		= $j->session->sus_additional1;
 	$A['USER_ADDITIONAL2']		= $j->session->sus_additional2;
+	$A['USER_A11Y']				= $j->session->sus_accessibility_features == '1' ? true : false;
 	$A['LANGUAGE']				= $j->session->language;
 
 	//-- update session time
@@ -1533,13 +1552,37 @@ function nuIsValidEmail($email){
 	return filter_var($email, FILTER_VALIDATE_EMAIL) !== false;
 }
 
-function nuSendEmail($to, $from, $fromname, $content, $subject, $filelist, $html = false, $cc = "", $bcc = "", $reply_to_addresses = array(), $priority = "") {
+function nuSendEmail($args_to, $from_email = '', $from_name = '', $body = '', $subject = '', $attachments = array(), $html = false, $cc = '', $bcc = '', $reply_to = array() , $priority = '') {
 
-	$to_list	= explode(',',$to);
-	$cc_list	= explode(',',$cc);
-	$bcc_list	= explode(',',$bcc);
+	if (is_array($args_to) && strnatcmp(phpversion(),'7.1.0') >= 0) {				// Prior to PHP 7.1, this function only worked on numerical arrays.
 
-	return nuEmail($to_list,$from,$fromname,$content,$subject,$filelist,$html,$cc_list, $bcc_list,$reply_to_addresses,"0","SMTP",$priority);
+		$defaults = array(
+			'to' => '',
+			'from_email' => '',
+			'from_name' => '',
+			'cc' => '',
+			'bcc' => '',
+			'body' => '',
+			'subject' => 'test',
+			'reply_to' => array() ,
+			'attachments' => array() ,
+			'html' => true,
+			'priority' => ''
+		);
+
+		$args = array_merge($defaults, array_intersect_key($args_to, $defaults));
+		list($to, $from_email, $from_name, $cc, $bcc, $body, $subject, $reply_to, $attachments, $html, $priority) = array_values($args);
+
+	}
+	else {
+		$to = $args_to;
+	}
+
+	$to_list = explode(',', $to);
+	$cc_list = explode(',', $cc);
+	$bcc_list = explode(',', $bcc);
+
+	return nuEmail($to_list, $from_email, $from_name, $body, $subject, $attachments, $html, $cc_list, $bcc_list, $reply_to, "0", "SMTP", $priority);
 
 }
 
@@ -2164,6 +2207,54 @@ function nuSanitizeFilename($file) {
 
 	$file = mb_ereg_replace("([^\w\s\d\-_~,;\[\]\(\).])", '', $file);
 	return mb_ereg_replace("([\.]{2,})", '', $file);
+
+}
+
+function nuGetEmailTemplateData($code, $language = '', $group = '') {
+
+    $sql = "
+			SELECT
+				`zzzzsys_email_template_id`,
+				`emt_form_id`,
+				`emt_group`,
+				`emt_language`,
+				`emt_description`,
+				`emt_code`,
+				`emt_body`,
+				`emt_subject`,
+				`emt_to`,
+				`emt_cc`,
+				`emt_bcc`
+			FROM
+				`zzzzsys_email_template`
+			WHERE 
+				`emt_code` = ? 
+				AND IFNULL(`emt_language`,'') = ?
+				AND IFNULL(`emt_group`,'') = ?
+			LIMIT 1	
+		";
+
+	$qry = nuRunQuery($sql, array($code, $language, $group));
+
+	if (db_num_rows($qry) == 0) {
+		return false;
+	}
+
+	$row = db_fetch_object($qry);
+
+	return array(
+		"description" => $row->emt_description,
+		"body" => $row->emt_body,
+		"subject" => $row->emt_subject,
+		"to" => $row->emt_to,
+		"group" => $row->emt_group,
+		"code" => $row->emt_code,
+		"form_id" => $row->emt_form_id,
+		"cc" => $row->emt_cc,
+		"bcc" => $row->emt_bcc,
+		"language" => $row->emt_language,
+		"id" => $row->zzzzsys_email_template_id
+	);
 
 }
 

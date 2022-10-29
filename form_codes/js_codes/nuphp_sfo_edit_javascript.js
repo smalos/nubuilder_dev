@@ -147,6 +147,10 @@ function nuOnClone() {
 
 }
 
+function nuOnSetSaved(v) {
+    nuEnable('nurunProcedureButton', v);
+}
+
 function nuBeforeSave() {
 
     if (nuFormType() == 'edit') {

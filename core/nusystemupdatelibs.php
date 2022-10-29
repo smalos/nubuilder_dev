@@ -237,6 +237,7 @@ function nuAlterSystemTables(){
 	nuRunQueryNoDebug("ALTER TABLE `zzzzsys_user` ADD `sus_additional2` varchar(100) DEFAULT NULL AFTER `sus_additional1`;");
 	nuRunQueryNoDebug("ALTER TABLE `zzzzsys_user` ADD `sus_expires_on` datetime DEFAULT NULL AFTER `sus_login_password`;");
 	nuRunQueryNoDebug("ALTER TABLE `zzzzsys_user` ADD `sus_json` MEDIUMTEXT NULL DEFAULT NULL AFTER `sus_expires_on`;");
+	nuRunQueryNoDebug("ALTER TABLE `zzzzsys_user` ADD `sus_accessibility_features` VARCHAR(1) NULL DEFAULT NULL AFTER `sus_expires_on`;");	
 
 	nuRunQueryNoDebug("ALTER TABLE `zzzzsys_access` ADD `sal_use_2fa` VARCHAR(1) NULL DEFAULT NULL AFTER `sal_zzzzsys_form_id`;");
 	nuRunQueryNoDebug("ALTER TABLE `zzzzsys_access` ADD `sal_group` VARCHAR(100) NULL DEFAULT NULL AFTER `sal_description`;");
@@ -257,7 +258,7 @@ function nuAlterSystemTables(){
 	$setupColumns = db_field_names('zzzzsys_setup');
 	if(array_search('set_languages_included', $setupColumns) == false){
 		nuRunQueryNoDebug("ALTER TABLE `zzzzsys_setup` ADD `set_languages_included` VARCHAR(1000) NULL DEFAULT NULL AFTER `set_language`;");
-		nuRunQuery('UPDATE `zzzzsys_setup` SET set_languages_included = ?', array('["Afrikaans","Arabic","Armenian","Catalan","Chinese","Czech","French","German","Greek","Hindi","Italian","Malay","Polish","Portuguese","Romanian","Russian","Slovak","Spanish","Tamil","Vietnamese"]'));
+		nuRunQuery('UPDATE `zzzzsys_setup` SET set_languages_included = ?', array('["Afrikaans","Arabic","Armenian","Catalan","Chinese","Czech","Danish","Dutch", "French","German","Greek","Hindi","Italian","Malay","Polish","Portuguese","Romanian","Russian","Slovak","Spanish","Tamil","Vietnamese"]'));
 	}
 
 	if(array_search('set_style', $setupColumns) == false){
@@ -345,6 +346,9 @@ function nuRemoveNuRecords(){
 	$s = "DELETE FROM sys_zzzzsys_info WHERE zzzzsys_info_id LIKE 'nu%'";
 	nuRunQueryNoDebug($s);
 
+	$s = "DELETE FROM zzzzsys_email_template WHERE zzzzsys_email_template_id LIKE 'nu%'";
+	nuRunQueryNoDebug($s);
+
 	//-- delete all timezones
 	$s = "DELETE FROM sys_zzzzsys_timezone";
 	nuRunQueryNoDebug($s);
@@ -409,6 +413,7 @@ function nuSystemList(){
 		$t[]	= 'zzzzsys_cloner';
 		$t[]	= 'zzzzsys_code_snippet';
 		$t[]	= 'zzzzsys_note';
+		$t[]	= 'zzzzsys_email_template';
 		$t[]	= 'zzzzsys_note_category';
 		$t[]	= 'zzzzsys_info';
 		$t[]	= 'zzzzsys_config';
@@ -473,7 +478,7 @@ function nuImportLanguageFiles() {
 		for($i = 0 ; $i < $countLanguages ; $i++){
 
 			if (trim($l[$i]) != '') {
-				$file = dirname(__FILE__). '/languages/'. $l[$i].'.sql';
+				$file = __DIR__ . DIRECTORY_SEPARATOR . 'languages'. DIRECTORY_SEPARATOR . $l[$i]. '.sql';
 				$sql = file_get_contents($file);
 				if ($sql) {
 					nuRunQuery($sql);

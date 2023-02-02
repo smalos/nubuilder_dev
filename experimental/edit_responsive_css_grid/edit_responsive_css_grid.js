@@ -6,7 +6,7 @@ if (nuFormType() == 'edit') {
     function isResponsive() {
 
         var f = window.nuFORM.getProperty('form_id');
-        return f.containsAny(['62e0bfe9ea011c7']); // form B
+        return f.containsAny(['nuaccess']); // form B
 
     }
 
@@ -19,7 +19,7 @@ if (nuFormType() == 'edit') {
         for (let i = 0; i < o.length; i++) {
             let id = o[i].id;
             let oType = o[i].type;
-
+//nuContentBoxContainer
 
            
              if (o[i].read !== '2'&& o[i].tab == '0' ) {
@@ -35,7 +35,7 @@ if (nuFormType() == 'edit') {
             if (oType == 'lookup') {
                 
                   $("#"+id+",#label_"+id+",#"+id+"code, #"+id+"button,#"+id+"description").wrapAll('<div  class="nuObjectWrapper nuLookupWrapper"></div>');
-                  $("#"+id+"code, #"+id+"button,#"+id+"description").wrapAll('<div class="nuLuWrapper"></div>');
+                  $("#"+id+"code, #"+id+"button,#"+id+"description ,#sal_zzzzsys_form_id_open_button").wrapAll('<div class="nuLuWrapper"></div>');
                   
             }
 
@@ -54,7 +54,7 @@ if (nuFormType() == 'edit') {
             if (o[i].input == 'button') {
 
 
-                $("#"+id+"").wrapAll('<div id= "btn" class="nuObjectWrapper"></div>');
+                $("#"+id+"").not("#sal_zzzzsys_form_id_open_button").wrapAll('<div class="nuObjectWrapper nuRespButton"></div>');//02/02/23 Added Class:nuRespButton 
 
             }
 
@@ -97,9 +97,9 @@ if (nuFormType() == 'edit') {
         $(".nuObjectWrapper").wrapAll('<div class="nuContainer"></div>');
        
       $('div:empty').remove(); 
-         $(".nuContentBoxContainer").hide();
-        
-        
+         $(".nuContentBoxContainer").unwrap().hide();
+        $(".nuContentBoxTitle").remove();
+        //$("#sal_zzzzsys_form_id_open_button").unwrap();
 
 
 

@@ -917,65 +917,72 @@ function nuDataListOptions($sql) {
 
 }
 
+function nuSelectAddOption($text, $value) {
+	
+	$arr	= array();
+	$arr[0]	= $text;
+	$arr[1]	= $value;	
+
+	return $arr;
+
+}
+
 function nuSelectOptions($sql) {
 
-	$a				= array();
+	$options	= array();
 
-	if (substr(strtoupper(trim($sql)), 0, 11) == '%LANGUAGES%') {					//-- language Files
+	if (nuStringStartsWith('SELECT', $sql, true) || nuStringStartsWith('WIDTH', $sql, true)) {			//-- sql statement
+
+		$t		= nuRunQuery($sql);
+
+		if (nuErrorFound()) {
+			return;
+		}
+
+		while ($r = db_fetch_row($t)) {
+			$options[] = $r;
+		}
+
+	} elseif (nuStringStartsWith('%LANGUAGES%', $sql, true)) {											//-- language Files
 
 		foreach(glob("languages/*.sql") as $file)  {
 
-			$f	= basename($file, '.sql');
-
-			$r		= array();
-			$r[0]	= $f;
-			$r[1]	= $f;
-			$a[]	= $r;
+			$f			= basename($file, '.sql');
+			$options[]	= nuSelectAddOption($f, $f);
 
 		}
 
-	} elseif (substr(strtoupper(trim($sql)), 0, 6) == 'SELECT' || substr(strtoupper($sql), 0, 5) == 'WITH ') {						//-- sql statement
-
-			$t		= nuRunQuery($sql);
-
-			if (nuErrorFound()) {
-				return;
-			}
-
-			while ($r = db_fetch_row($t)) {
-				$a[]	= $r;
-			}
-
-	} elseif (nuStringStartsWith('[', $sql) && is_array(json_decode($sql))) {	
+	} elseif (nuStringStartsWith('[', $sql) && is_array(json_decode($sql))) {							//-- Array style
 			
 			$arr = json_decode($sql);
 			foreach($arr as $item) {
-
-				$r		= array();
-				$r[0]	= $item;
-				$r[1]	= $item;
-				$a[]	= $r;
-
+				$options[] = nuSelectAddOption($item, $item);
 			}
 
-	} else {																	//-- comma delimited string
+	} elseif ($sql == 'SHOW TABLES') {
+
+		$t		= nuRunQuery($sql);
+		while ($r = db_fetch_row($t)) {		
+			if (!nuStringStartsWith('__', $r[0])) {
+				$options[] = nuSelectAddOption($r[0], $r[0]);
+			}
+		}
+
+	} else {																							//-- comma delimited string
 
 		$t			= explode('|', nuRemoveNonCharacters($sql));
 
 		$countt = count($t);
 		for ($i = 0; $i < $countt; $i++) {
 
-			$r		= array();
-			$r[0]	= $t[$i];
-			$r[1]	= $t[$i + 1];
-			$a[]	= $r;
+			$options[]	= nuSelectAddOption($t[$i], $t[$i + 1]);
 			$i++;
 
 		}
 
 	}
-
-	return $a;
+	
+	return $options;
 
 }
 
@@ -1141,8 +1148,8 @@ function nuBrowseRows($f){
 	$page_number	= isset($P['page_number']) ? $P['page_number'] : 0;
 	$nosearch_columns = isset($_POST['nuSTATE']['nosearch_columns']) ? $_POST['nuSTATE']['nosearch_columns'] : null;
 	$start			= $page_number * $rows;
-	$search			= str_replace('&#39;', "'", nuObjKey($P,'search'));
-	$filter			= str_replace('&#39;', "'", nuObjKey($P,'filter'));
+	$search			= str_replace('&#39;', "'", nuObjKey($P,'search',''));
+	$filter			= str_replace('&#39;', "'", nuObjKey($P,'filter',''));
 	$s				= "SELECT sfo_browse_sql FROM zzzzsys_form WHERE zzzzsys_form_id = ?";
 	$t				= nuRunQuery($s, array($f->id));
 	$r				= db_fetch_object($t);

@@ -317,7 +317,7 @@ function nuGetFormObject($F, $R, $OBJS, $tabs = null){
 						$htmlj	= "\nnuChart('$r->sob_all_id', 'BarChart', '$htmljs', '$title', '$h', '$v', 'bars', true);";
 					}
 
-					nuAddJavascript($htmlj);
+					nuAddJavaScript($htmlj);
 
 				}
 
@@ -929,53 +929,55 @@ function nuSelectAddOption($text, $value) {
 
 function nuSelectOptions($sql) {
 
-	$options	= array();
+	$options = array();
+	
+	$sqlFirstChars = substr($sql, 0, 15);
 
-	if (nuStringStartsWith('SELECT', $sql, true) || nuStringStartsWith('WIDTH', $sql, true)) {			//-- sql statement
+	if (nuStringStartsWith('SELECT', $sqlFirstChars, true) || nuStringStartsWith('WIDTH', $sqlFirstChars, true)) {	//-- sql statement
 
-		$t		= nuRunQuery($sql);
+		$stmt = nuRunQuery($sql);
 
 		if (nuErrorFound()) {
 			return;
 		}
 
-		while ($r = db_fetch_row($t)) {
-			$options[] = $r;
+		while ($row = db_fetch_row($stmt)) {
+			$options[] = $row;
 		}
 
-	} elseif (nuStringStartsWith('%LANGUAGES%', $sql, true)) {											//-- language Files
+	} elseif (nuStringStartsWith('%LANGUAGES%', $sqlFirstChars, true)) {											//-- language Files
 
 		foreach(glob("languages/*.sql") as $file)  {
 
-			$f			= basename($file, '.sql');
-			$options[]	= nuSelectAddOption($f, $f);
+			$baseName	= basename($file, '.sql');
+			$options[]	= nuSelectAddOption($baseName, $baseName);
 
 		}
 
-	} elseif (nuStringStartsWith('[', $sql) && is_array(json_decode($sql))) {							//-- Array style
+	} elseif (nuStringStartsWith('[', $sqlFirstChars) && is_array(json_decode($sql))) {								//-- Array style
 			
 			$arr = json_decode($sql);
 			foreach($arr as $item) {
 				$options[] = nuSelectAddOption($item, $item);
 			}
 
-	} elseif ($sql == 'SHOW TABLES') {
+	} elseif (nuStringStartsWith('SHOW TABLES', $sqlFirstChars)) {
 
-		$t		= nuRunQuery($sql);
-		while ($r = db_fetch_row($t)) {		
-			if (!nuStringStartsWith('__', $r[0])) {
-				$options[] = nuSelectAddOption($r[0], $r[0]);
+		$stmt = nuRunQuery($sql);
+		while ($row = db_fetch_row($stmt)) {		
+			if (!nuStringStartsWith('__', $row[0])) {
+				$options[] = nuSelectAddOption($row[0], $row[0]);
 			}
 		}
 
-	} else {																							//-- comma delimited string
+	} else {																										//-- comma delimited string
 
-		$t			= explode('|', nuRemoveNonCharacters($sql));
+		$parts = explode('|', nuRemoveNonCharacters($sql));
 
-		$countt = count($t);
-		for ($i = 0; $i < $countt; $i++) {
+		$count = count($parts);
+		for ($i = 0; $i < $count; $i++) {
 
-			$options[]	= nuSelectAddOption($t[$i], $t[$i + 1]);
+			$options[]	= nuSelectAddOption($parts[$i], $parts[$i + 1]);
 			$i++;
 
 		}
@@ -1783,7 +1785,7 @@ function nuAddPrintButtons($f, $t, $a){
 
 }
 
-function nuAddJavascript($js, $bc = false){
+function nuAddJavaScript($js, $bc = false){
 
 	if ($bc == true) {
 		if (isset($GLOBALS['EXTRAJS_BC'])) {
@@ -1817,7 +1819,7 @@ function nuPreloadImages($a){
 
 	}
 
-	nuAddJavascript($js);
+	nuAddJavaScript($js);
 
 }
 

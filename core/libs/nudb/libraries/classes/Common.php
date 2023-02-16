@@ -39,6 +39,7 @@ use function mb_strrpos;
 use function mb_substr;
 use function register_shutdown_function;
 use function session_id;
+use function str_replace;
 use function strlen;
 use function trigger_error;
 use function urldecode;
@@ -119,6 +120,8 @@ final class Common
         if (! defined('PMA_NO_SESSION')) {
             Session::setUp($config, $errorHandler);
         }
+
+        $request = Core::populateRequestWithEncryptedQueryParams($request);
 
         /**
          * init some variables LABEL_variables_init
@@ -524,8 +527,10 @@ final class Common
 
         $urlParams['db'] = $db;
         $urlParams['table'] = $table;
-        $containerBuilder->setParameter('db', $db);
-        $containerBuilder->setParameter('table', $table);
+        // If some parameter value includes the % character, you need to escape it by adding
+        // another % so Symfony doesn't consider it a reference to a parameter name.
+        $containerBuilder->setParameter('db', str_replace('%', '%%', $db));
+        $containerBuilder->setParameter('table', str_replace('%', '%%', $table));
         $containerBuilder->setParameter('url_params', $urlParams);
     }
 

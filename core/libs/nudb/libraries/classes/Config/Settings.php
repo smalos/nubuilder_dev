@@ -118,10 +118,9 @@ final class Settings
     public $AllowThirdPartyFraming;
 
     /**
-     * The 'cookie' auth_type uses AES algorithm to encrypt the password. If
-     * at least one server configuration uses 'cookie' auth_type, enter here a
-     * pass phrase that will be used by AES. The maximum length seems to be 46
-     * characters.
+     * The 'cookie' auth_type uses the Sodium extension to encrypt the cookies. If at least one server configuration
+     * uses 'cookie' auth_type, enter here a generated string of random bytes to be used as an encryption key. The
+     * encryption key must be 32 bytes long.
      *
      * @var string
      */
@@ -369,6 +368,20 @@ final class Settings
      * @var bool
      */
     public $IgnoreMultiSubmitErrors;
+
+    /**
+     * Define whether phpMyAdmin will encrypt sensitive data from the URL query string.
+     *
+     * @var bool
+     */
+    public $URLQueryEncryption;
+
+    /**
+     * A secret key used to encrypt/decrypt the URL query string. Should be 32 bytes long.
+     *
+     * @var string
+     */
+    public $URLQueryEncryptionSecretKey;
 
     /**
      * allow login to any user entered server in cookie based authentication
@@ -1603,6 +1616,8 @@ final class Settings
         $this->LoginCookieDeleteAll = $this->setLoginCookieDeleteAll($settings);
         $this->UseDbSearch = $this->setUseDbSearch($settings);
         $this->IgnoreMultiSubmitErrors = $this->setIgnoreMultiSubmitErrors($settings);
+        $this->URLQueryEncryption = $this->setURLQueryEncryption($settings);
+        $this->URLQueryEncryptionSecretKey = $this->setURLQueryEncryptionSecretKey($settings);
         $this->AllowArbitraryServer = $this->setAllowArbitraryServer($settings);
         $this->ArbitraryServerRegexp = $this->setArbitraryServerRegexp($settings);
         $this->CaptchaMethod = $this->setCaptchaMethod($settings);
@@ -2336,6 +2351,30 @@ final class Settings
         }
 
         return (bool) $settings['IgnoreMultiSubmitErrors'];
+    }
+
+    /**
+     * @param array<int|string, mixed> $settings
+     */
+    private function setURLQueryEncryption(array $settings): bool
+    {
+        if (! isset($settings['URLQueryEncryption'])) {
+            return false;
+        }
+
+        return (bool) $settings['URLQueryEncryption'];
+    }
+
+    /**
+     * @param array<int|string, mixed> $settings
+     */
+    private function setURLQueryEncryptionSecretKey(array $settings): string
+    {
+        if (! isset($settings['URLQueryEncryptionSecretKey'])) {
+            return '';
+        }
+
+        return (string) $settings['URLQueryEncryptionSecretKey'];
     }
 
     /**

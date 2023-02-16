@@ -7,12 +7,12 @@ namespace PhpMyAdmin;
 use PhpMyAdmin\Dbal\ResultInterface;
 use PhpMyAdmin\Html\Generator;
 use PhpMyAdmin\Html\MySQLDocumentation;
+use PhpMyAdmin\Query\Compatibility;
 use PhpMyAdmin\Query\Utilities;
 use PhpMyAdmin\SqlParser\Components\Expression;
 use PhpMyAdmin\SqlParser\Context;
 use PhpMyAdmin\SqlParser\Token;
 use PhpMyAdmin\Utils\SessionCache;
-use phpseclib3\Crypt\Random;
 use Stringable;
 
 use function __;
@@ -26,7 +26,6 @@ use function array_unique;
 use function basename;
 use function bin2hex;
 use function chr;
-use function class_exists;
 use function count;
 use function ctype_digit;
 use function date;
@@ -64,6 +63,7 @@ use function parse_url;
 use function preg_match;
 use function preg_quote;
 use function preg_replace;
+use function random_bytes;
 use function range;
 use function reset;
 use function round;
@@ -876,11 +876,7 @@ class Util
         $isBinaryString = $meta->isType(FieldMetadata::TYPE_STRING) && $meta->isBinary();
         // 63 is the binary charset, see: https://dev.mysql.com/doc/internals/en/charsets.html
         $isBlobAndIsBinaryCharset = $meta->isType(FieldMetadata::TYPE_BLOB) && $meta->charsetnr === 63;
-        // timestamp is numeric on some MySQL 4.1
-        // for real we use CONCAT above and it should compare to string
-        // See commit: 049fc7fef7548c2ba603196937c6dcaf9ff9bf00
-        // See bug: https://sourceforge.net/p/phpmyadmin/bugs/3064/
-        if ($meta->isNumeric && ! $meta->isMappedTypeTimestamp && $meta->isNotType(FieldMetadata::TYPE_REAL)) {
+        if ($meta->isNumeric) {
             $conditionValue = '= ' . $row;
         } elseif ($isBlobAndIsBinaryCharset || (! empty($row) && $isBinaryString)) {
             // hexify only if this is a true not empty BLOB or a BINARY
@@ -903,7 +899,7 @@ class Util
         } elseif ($meta->isMappedTypeGeometry && ! empty($row)) {
             // do not build a too big condition
             if (mb_strlen((string) $row) < 5000) {
-                $condition .= '=0x' . bin2hex((string) $row) . ' AND';
+                $condition .= '= CAST(0x' . bin2hex((string) $row) . ' AS BINARY)';
             } else {
                 $condition = '';
             }
@@ -912,7 +908,7 @@ class Util
                 . self::printableBitValue((int) $row, (int) $meta->length) . "'";
         } else {
             $conditionValue = '= \''
-                . $dbi->escapeString($row) . '\'';
+                . $dbi->escapeString((string) $row) . '\'';
         }
 
         return [$conditionValue, $condition];
@@ -1267,6 +1263,7 @@ class Util
         SessionCache::remove('is_superuser');
         SessionCache::remove('is_createuser');
         SessionCache::remove('is_grantuser');
+        SessionCache::remove('mysql_cur_user');
     }
 
     /**
@@ -1373,6 +1370,7 @@ class Util
             $binary = false;
             $unsigned = false;
             $zerofill = false;
+            $compressed = false;
         } else {
             $enumSetValues = [];
 
@@ -1394,6 +1392,8 @@ class Util
             $zerofill = ($zerofillCount > 0);
             $printType = (string) preg_replace('@unsigned@', '', $printType, -1, $unsignedCount);
             $unsigned = ($unsignedCount > 0);
+            $printType = (string) preg_replace('@\/\*!100301 compressed\*\/@', '', $printType, -1, $compressedCount);
+            $compressed = ($compressedCount > 0);
             $printType = trim($printType);
         }
 
@@ -1408,6 +1408,14 @@ class Util
 
         if ($zerofill) {
             $attribute = 'UNSIGNED ZEROFILL';
+        }
+
+        if ($compressed) {
+            // With InnoDB page compression, multiple compression algorithms are supported.
+            // In contrast, with InnoDB's COMPRESSED row format, zlib is the only supported compression algorithm.
+            // This means that the COMPRESSED row format has less compression options than InnoDB page compression does.
+            // @see https://mariadb.com/kb/en/innodb-page-compression/#comparison-with-the-compressed-row-format
+            $attribute = 'COMPRESSED=zlib';
         }
 
         $canContainCollation = false;
@@ -1747,6 +1755,14 @@ class Util
     public static function unsupportedDatatypes(): array
     {
         return [];
+    }
+
+    /**
+     * This function is to check whether database support UUID
+     */
+    public static function isUUIDSupported(): bool
+    {
+        return Compatibility::isUUIDSupported($GLOBALS['dbi']);
     }
 
     /**
@@ -2343,8 +2359,8 @@ class Util
                 && is_scalar($_REQUEST['tbl_group'])
                 && strlen((string) $_REQUEST['tbl_group']) > 0
             ) {
-                $group = self::escapeMysqlWildcards((string) $_REQUEST['tbl_group']);
-                $groupWithSeparator = self::escapeMysqlWildcards(
+                $group = $dbi->escapeMysqlLikeString((string) $_REQUEST['tbl_group']);
+                $groupWithSeparator = $dbi->escapeMysqlLikeString(
                     $_REQUEST['tbl_group']
                     . $GLOBALS['cfg']['NavigationTreeTableSeparator']
                 );
@@ -2463,19 +2479,11 @@ class Util
     public static function generateRandom(int $length, bool $asHex = false): string
     {
         $result = '';
-        if (class_exists(Random::class)) {
-            $randomFunction = [
-                Random::class,
-                'string',
-            ];
-        } else {
-            $randomFunction = 'openssl_random_pseudo_bytes';
-        }
 
         while (strlen($result) < $length) {
             // Get random byte and strip highest bit
             // to get ASCII only range
-            $byte = ord((string) $randomFunction(1)) & 0x7f;
+            $byte = ord(random_bytes(1)) & 0x7f;
             // We want only ASCII chars and no DEL character (127)
             if ($byte <= 32 || $byte === 127) {
                 continue;
@@ -2631,9 +2639,9 @@ class Util
             $urlParams['tbl_group'] = $_REQUEST['tbl_group'];
         }
 
-        $url = Url::getFromRoute('/database/structure', $urlParams);
+        $url = Url::getFromRoute('/database/structure');
 
-        return Generator::linkOrButton($url, $title . $orderImg, $orderLinkParams);
+        return Generator::linkOrButton($url, $urlParams, $title . $orderImg, $orderLinkParams);
     }
 
     /**

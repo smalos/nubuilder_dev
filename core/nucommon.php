@@ -249,8 +249,8 @@ function nuSetHashList($p){
 
 	if (! is_null($p)) {
 
-		$fid		= addslashes(nuObjKey($p,'form_id'));
-		$rid		= addslashes(nuObjKey($p,'record_id'));
+		$fid		= addslashes(nuObjKey($p,'form_id', ''));
+		$rid		= addslashes(nuObjKey($p,'record_id', ''));
 
 		$A			= nuGetUserAccess();
 
@@ -274,6 +274,9 @@ function nuSetHashList($p){
 						if(is_object($f) ){
 
 							foreach ($f as $fld => $value ){								//-- This Edit Form's Object Values
+								if ($value == null) {
+									$value='';
+								}
 								$r[$fld] = addslashes($value);
 							}
 
@@ -312,9 +315,9 @@ function nuSetHashList($p){
 		$h['PREVIOUS_RECORD_ID']	= addslashes($rid);
 		$h['RECORD_ID']				= addslashes($rid);
 		$h['FORM_ID']				= addslashes($fid);
-		$h['SUBFORM_ID']			= addslashes(nuObjKey($_POST['nuSTATE'],'object_id'));
-		$h['ID']					= addslashes(nuObjKey($_POST['nuSTATE'],'primary_key'));
-		$h['CODE']					= addslashes(nuObjKey($_POST['nuSTATE'],'code'));
+		$h['SUBFORM_ID']			= addslashes(nuObjKey($_POST['nuSTATE'],'object_id', ''));
+		$h['ID']					= addslashes(nuObjKey($_POST['nuSTATE'],'primary_key', ''));
+		$h['CODE']					= addslashes(nuObjKey($_POST['nuSTATE'],'code', ''));
 
 	}
 
@@ -343,10 +346,20 @@ function nuSetHashList($p){
 function nuRunReport($report_id){
 
 	$id									= nuID();
-	$s									= "SELECT sre_zzzzsys_php_id, sre_code, sre_description, sre_layout FROM zzzzsys_report WHERE sre_code = '$report_id'";
-	$t									= nuRunQuery($s);
+	$s									= "SELECT zzzzsys_report_id, sre_zzzzsys_php_id, sre_code, sre_description, sre_layout FROM zzzzsys_report WHERE sre_code = ?";
+	$t									= nuRunQuery($s, array($report_id));
 	$ob									= db_fetch_object($t);
-	$_POST['nuHash']['code']			= $ob->sre_code;
+
+	$nuCode								= $ob->sre_code;
+	$phpId								= $ob->zzzzsys_report_id;
+
+	$accessList	= nuReportAccessList(nuAllowedActivities());
+	if(!nuGlobalAccess() && !in_array($phpId, $accessList)) {
+		nuDisplayError(nuTranslate("Access To Report Denied...")." ($nuCode)");
+		return null;
+	}
+
+	$_POST['nuHash']['code']			= $nuCode;
 	$_POST['nuHash']['description']		= $ob->sre_description;
 	unset($_POST['nuHash']['pages']);
 	$_POST['nuHash']['sre_layout']		= nuReplaceHashVariables($ob->sre_layout);
@@ -375,9 +388,6 @@ function nuRunPHPHidden($nuCode){
 }
 
 function nuRunPHP($nuCode, $hidden = false){
-										 
-					  
-																														  
 
 	if ($nuCode != 'nukeepalive') {
 								   
@@ -433,19 +443,8 @@ function nuRunPHP($nuCode, $hidden = false){
 		$id									= nuID();
 		nuSetJSONData($id, $json);
 		return $id;
-		  
-									   
-																											
-							   
-		 
-																			  
-	
-   
 
 	}
-
-					 
-			 
 
 		   
 }
@@ -619,7 +618,8 @@ function nuRunHTML(){
 
 function nuReplaceHashVariables($s){
 
-	$s	= trim($s);
+	$s	= isset($s) ? trim($s) : '';
+
 	if($s == ''){
 		return '';
 	}
@@ -649,9 +649,11 @@ function nuReplaceHashVariables($s){
 
 	foreach ($a as $k => $v) {
 
-		 if(!is_object ($a[$k]) && !is_array ($a[$k])) {
+		 if(!is_object ($a[$k]) && !is_array ($a[$k]) ) {
+			$v = $v == null ? '' : $v; 
 			$s	= str_replace ('#' . $k . '#', $v, $s);
 		}
+
 	}
 
 	return $s;
@@ -960,6 +962,7 @@ function nuAddFormatting($v, $f){
 
 	if($f[0] == 'N'){												//-- number  '456.789','N|€ 1,000.00'
 		$CF				= nuGetNumberFormat(substr($f,2));			//-- CF[0]=sign, CF[1]=separator, CF[2]=decimal, CF[3]=places
+				
 		$nf				= number_format ($v , $CF[3] , $CF[2] , $CF[1]);
 		$nm				= str_replace('-', '', $nf);
 
@@ -973,9 +976,9 @@ function nuAddFormatting($v, $f){
 
 		$split	= explode(' ', $v);
 		$d		= explode('-', $split[0]);
-		$t		= explode(':', $split[1]);
+		$t		= count($split) > 1 ? explode(':', $split[1]) : '';
 
-		if($t[0] == ''){
+		if($t == '' || $t[0] == ''){
 			$t	= array(0, 0, 0);
 		}
 
@@ -1314,10 +1317,10 @@ function nuListSystemTables(){
 	$a				= array();
 	$t				= nuRunQuery("SELECT table_name FROM INFORMATION_SCHEMA.TABLES WHERE table_schema = DATABASE()");
 
-	while($r = db_fetch_object($t)){
-
-		if(substr($r->table_name, 0, 8) == 'zzzzsys_'){
-			$a[]	= $r->table_name;
+	while($r = db_fetch_row($t)){
+ 
+		if(nuStringStartsWith('zzzzsys_', $r[0])){
+			$a[]	= $r[0];
 		}
 
 	}
@@ -1385,11 +1388,14 @@ function nuGetPHP($phpid) {
 
 	$s						= "SELECT sph_php, sph_code FROM zzzzsys_php WHERE zzzzsys_php_id = ? ";
 	$t						= nuRunQuery($s, array($phpid));
-	$r						= db_fetch_object($t);
 
-	if(is_bool($r) || trim($r->sph_php) == ''){return '';}
+	$php = '';
+	if (db_num_rows($t) == 1) {
+		$php = db_fetch_object($t);	
+	}
 
-	return $r;
+	return $php;
+
 }
 
 function nuEval($phpid){
@@ -1552,7 +1558,7 @@ function nuIsValidEmail($email){
 	return filter_var($email, FILTER_VALIDATE_EMAIL) !== false;
 }
 
-function nuSendEmail($args_to, $from_email = '', $from_name = '', $body = '', $subject = '', $attachments = array(), $html = false, $cc = '', $bcc = '', $reply_to = array() , $priority = '') {
+function nuSendEmail($args_to, $from_email = '', $from_name = '', $body = '', $subject = '', $attachments = array(), $html = false, $cc = '', $bcc = '', $reply_to = array() , $priority = '', $smtp_options = array()) {
 
 	if (is_array($args_to) && strnatcmp(phpversion(),'7.1.0') >= 0) {				// Prior to PHP 7.1, this function only worked on numerical arrays.
 
@@ -1567,11 +1573,12 @@ function nuSendEmail($args_to, $from_email = '', $from_name = '', $body = '', $s
 			'reply_to' => array() ,
 			'attachments' => array() ,
 			'html' => true,
-			'priority' => ''
+			'priority' => '',
+			'smtp_options' => array()
 		);
 
 		$args = array_merge($defaults, array_intersect_key($args_to, $defaults));
-		list($to, $from_email, $from_name, $cc, $bcc, $body, $subject, $reply_to, $attachments, $html, $priority) = array_values($args);
+		list($to, $from_email, $from_name, $cc, $bcc, $body, $subject, $reply_to, $attachments, $html, $priority, $smtp_options) = array_values($args);
 
 	}
 	else {
@@ -1582,7 +1589,7 @@ function nuSendEmail($args_to, $from_email = '', $from_name = '', $body = '', $s
 	$cc_list = explode(',', $cc);
 	$bcc_list = explode(',', $bcc);
 
-	return nuEmail($to_list, $from_email, $from_name, $body, $subject, $attachments, $html, $cc_list, $bcc_list, $reply_to, "0", "SMTP", $priority);
+	return nuEmail($to_list, $from_email, $from_name, $body, $subject, $attachments, $html, $cc_list, $bcc_list, $reply_to, "0", "SMTP", $priority, $smtp_options);
 
 }
 
@@ -2118,16 +2125,19 @@ function nuGetProperty($p, $a = null) {
 function nuSetProperty($i, $nj, $global = false) {
 
 	if ($global) {
-		$s = "SELECT sss_hashcookies FROM zzzzsys_session WHERE zzzzsys_session_id = ? ";
+		$s = "SELECT IFNULL(sss_hashcookies,'') AS sss_hashcookies FROM zzzzsys_session WHERE zzzzsys_session_id = ? ";
 		$t = nuRunQuery($s, array($_SESSION['nubuilder_session_data']['SESSION_ID']));
-		$r = db_fetch_object($t);
-		$j = json_decode($r->sss_hashcookies, true);
 
-		$j[$i] = $nj;
+		if (db_num_rows($t) == 1) {
+			$r = db_fetch_object($t);
+			$j = json_decode($r->sss_hashcookies, true);
 
-		$J = json_encode($j);
-		$s = "UPDATE zzzzsys_session SET sss_hashcookies = ? WHERE zzzzsys_session_id = ? ";
-		$t = nuRunQuery($s, array($J, $_SESSION['nubuilder_session_data']['SESSION_ID']));
+			$j[$i] = $nj;
+
+			$J = json_encode($j);
+			$s = "UPDATE zzzzsys_session SET sss_hashcookies = ? WHERE zzzzsys_session_id = ? ";
+			$t = nuRunQuery($s, array($J, $_SESSION['nubuilder_session_data']['SESSION_ID']));
+		}
 	} else {
 		$_POST['nuHash'][$i] = $nj;
 	}
@@ -2160,7 +2170,7 @@ function nuSetGlobalPropertiesJS() {
 		$js .= "nuSetProperty('". $p ."','" . addslashes($v) ."');\n";
 	}
 
-	if ($js != '') nuAddJavascript($js);
+	if ($js != '') nuAddJavaScript($js);
 
 }
 
@@ -2212,7 +2222,7 @@ function nuSanitizeFilename($file) {
 
 function nuGetEmailTemplateData($code, $language = '', $group = '') {
 
-    $sql = "
+	$sql = "
 			SELECT
 				`zzzzsys_email_template_id`,
 				`emt_form_id`,
@@ -2255,6 +2265,40 @@ function nuGetEmailTemplateData($code, $language = '', $group = '') {
 		"language" => $row->emt_language,
 		"id" => $row->zzzzsys_email_template_id
 	);
+
+}
+
+function nuSendEmailFromTemplate($template) {
+
+	$params = array(
+		'to' => $template['to'],
+		'cc' => $template['cc'],
+		'bcc' => $template['bcc'],
+		'body' => nl2br($template['body']),
+		'subject' => $template['subject']
+	);
+
+	foreach ($params as $key => $value) {
+		$params[$key] = nuReplaceHashVariables($value);
+	}
+
+	return nuSendEmail($params);
+
+}
+
+function nuIncludeConfigPHPFiles() {
+	
+	global $nuConfigIncludePHP;
+
+	if (isset($nuConfigIncludePHP) && $nuConfigIncludePHP != '') {
+		if (!is_array($nuConfigIncludePHP)) {
+			require_once($nuConfigIncludePHP);
+		} else {
+			foreach ($nuConfigIncludePHP as $file) {
+				require_once($file);
+			}
+		}
+	}
 
 }
 

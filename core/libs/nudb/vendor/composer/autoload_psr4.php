@@ -6,7 +6,6 @@ $vendorDir = dirname(dirname(__FILE__));
 $baseDir = dirname($vendorDir);
 
 return array(
-    'phpseclib3\\' => array($vendorDir . '/phpseclib/phpseclib/phpseclib'),
     'Williamdes\\MariaDBMySQLKBS\\' => array($vendorDir . '/williamdes/mariadb-mysql-kbs/src'),
     'Webmozart\\Assert\\' => array($vendorDir . '/webmozart/assert/src'),
     'Twig\\' => array($vendorDir . '/twig/twig/src'),
@@ -33,6 +32,8 @@ return array(
     'PragmaRX\\Google2FAQRCode\\Tests\\' => array($vendorDir . '/pragmarx/google2fa-qrcode/tests'),
     'PragmaRX\\Google2FAQRCode\\' => array($vendorDir . '/pragmarx/google2fa-qrcode/src'),
     'PhpMyAdmin\\Twig\\Extensions\\' => array($vendorDir . '/phpmyadmin/twig-i18n-extension/src'),
+    'PhpMyAdmin\\Tests\\Selenium\\' => array($baseDir . '/test/selenium'),
+    'PhpMyAdmin\\Tests\\' => array($baseDir . '/test/classes'),
     'PhpMyAdmin\\SqlParser\\' => array($vendorDir . '/phpmyadmin/sql-parser/src'),
     'PhpMyAdmin\\ShapeFile\\' => array($vendorDir . '/phpmyadmin/shapefile/src'),
     'PhpMyAdmin\\MoTranslator\\' => array($vendorDir . '/phpmyadmin/motranslator/src'),

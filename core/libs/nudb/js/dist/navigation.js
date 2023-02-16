@@ -1,5 +1,3 @@
-"use strict";
-
 /**
  * function used in or for navigation panel
  *
@@ -163,7 +161,7 @@ Navigation.loadChildNodes = function (isNode, $expandElem, callback) {
     };
   }
 
-  $.get('index.php?route=/navigation&ajax_request=1', params, function (data) {
+  $.post('index.php?route=/navigation&ajax_request=1', params, function (data) {
     if (typeof data !== 'undefined' && data.success === true) {
       $destination.find('div.list_container').remove(); // FIXME: Hack, there shouldn't be a list container there
 
@@ -424,22 +422,6 @@ $(function () {
   });
   $(document).on('mouseout', '#pma_navigation_tree.highlight li:not(.fast_filter)', function () {
     $(this).removeClass('activePointer');
-  });
-  /** New index */
-
-  $(document).on('click', '#pma_navigation_tree li.new_index a.ajax', function (event) {
-    event.preventDefault();
-    var url = $(this).attr('href').substr($(this).attr('href').indexOf('?') + 1) + CommonParams.get('arg_separator') + 'ajax_request=true';
-    var title = Messages.strAddIndex;
-    Functions.indexEditorDialog(url, title);
-  });
-  /** Edit index */
-
-  $(document).on('click', 'li.index a.ajax', function (event) {
-    event.preventDefault();
-    var url = $(this).attr('href').substr($(this).attr('href').indexOf('?') + 1) + CommonParams.get('arg_separator') + 'ajax_request=true';
-    var title = Messages.strEditIndex;
-    Functions.indexEditorDialog(url, title);
   });
   /** New view */
 
@@ -787,7 +769,7 @@ Navigation.showCurrent = function () {
   function loadAndHighlightTableOrView($dbItem, itemName) {
     var $container = $dbItem.children('div.list_container');
     var $expander;
-    var $whichItem = isItemInContainer($container, itemName, 'li.table, li.view'); // If item already there in some container
+    var $whichItem = isItemInContainer($container, itemName, 'li.nav_node_table, li.view'); // If item already there in some container
 
     if ($whichItem) {
       // get the relevant container while may also be a subcontainer
@@ -971,16 +953,14 @@ Navigation.selectCurrentDatabase = function () {
 Navigation.treePagination = function ($this) {
   var $msgbox = Functions.ajaxShowMessage();
   var isDbSelector = $this.closest('div.pageselector').is('.dbselector');
-  var url;
-  var params;
+  var url = 'index.php?route=/navigation';
+  var params = 'ajax_request=true';
 
   if ($this[0].tagName === 'A') {
-    url = $this.attr('href');
-    params = 'ajax_request=true';
+    params += CommonParams.get('arg_separator') + $this.getPostData();
   } else {
     // tagName === 'SELECT'
-    url = 'index.php?route=/navigation';
-    params = $this.closest('form').serialize() + CommonParams.get('arg_separator') + 'ajax_request=true';
+    params += CommonParams.get('arg_separator') + $this.closest('form').serialize();
   }
 
   var searchClause = Navigation.FastFilter.getSearchClause();

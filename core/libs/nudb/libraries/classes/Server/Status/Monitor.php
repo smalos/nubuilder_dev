@@ -289,7 +289,7 @@ class Monitor
             'sum' => [],
         ];
 
-        while ($row = $this->dbi->fetchAssoc($result)) {
+        while ($row = $result->fetchAssoc()) {
             $type = mb_strtolower(
                 mb_substr(
                     $row['sql_text'],
@@ -374,7 +374,7 @@ class Monitor
         $insertTablesFirst = -1;
         $i = 0;
 
-        while ($row = $this->dbi->fetchAssoc($result)) {
+        while ($row = $result->fetchAssoc()) {
             preg_match('/^(\w+)\s/', $row['argument'], $match);
             $type = mb_strtolower($match[1]);
 
@@ -385,7 +385,7 @@ class Monitor
             $return['sum'][$type] += $row['#'];
 
             switch ($type) {
-            /** @noinspection PhpMissingBreakStatementInspection */
+                /** @noinspection PhpMissingBreakStatementInspection */
                 case 'insert':
                     // Group inserts if selected
                     if (
@@ -395,6 +395,10 @@ class Monitor
                             $matches
                         )
                     ) {
+                        if (! isset($insertTables[$matches[2]])) {
+                            $insertTables[$matches[2]] = 0;
+                        }
+
                         $insertTables[$matches[2]]++;
                         if ($insertTables[$matches[2]] > 1) {
                             $return['rows'][$insertTablesFirst]['#'] = $insertTables[$matches[2]];

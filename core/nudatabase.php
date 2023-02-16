@@ -34,33 +34,34 @@ try {
 }
 
 $GLOBALS['sys_table_prefix'] = array(
-    'access' => 'sal',
-    'access_form' => 'slf',
-    'access_php' => 'slp',
-    'access_report' => 'srp',
-    'browse' => 'sbr',
-    'cloner' => 'clo',
-    'code_snippet' => 'cot',
-    'config' => 'cfg',
-    'debug' => 'deb',
-    'event' => 'sev',
-    'file' => 'sfi',
-    'form' => 'sfo',
-    'format' => 'srm',
-    'info' => 'inf',
-    'note' => 'not',
-    'note_category' => 'hoc',
-    'object' => 'sob',
-    'php' => 'sph',
-    'report' => 'sre',
-    'select' => 'sse',
-    'select_clause' => 'ssc',
-    'session' => 'sss',
-    'setup' => 'set',
-    'tab' => 'syt',
-    'timezone' => 'stz',
-    'translate' => 'trl',
-    'user' => 'sus'
+	'access' => 'sal',
+	'access_form' => 'slf',
+	'access_php' => 'slp',
+	'access_report' => 'srp',
+	'browse' => 'sbr',
+	'cloner' => 'clo',
+	'code_snippet' => 'cot',
+	'config' => 'cfg',
+	'debug' => 'deb',
+	'event' => 'sev',
+	'file' => 'sfi',
+	'form' => 'sfo',
+	'format' => 'srm',
+	'info' => 'inf',
+	'note' => 'not',
+	'note_category' => 'hoc',
+	'object' => 'sob',
+	'php' => 'sph',
+	'report' => 'sre',
+	'select' => 'sse',
+	'select_clause' => 'ssc',
+	'session' => 'sss',
+	'setup' => 'set',
+	'sso_login' => 'sso',
+	'tab' => 'syt',
+	'timezone' => 'stz',
+	'translate' => 'trl',
+	'user' => 'sus'
 );
 
 function nuRunQueryNoDebug($s, $a = array(), $isInsert = false){
@@ -407,14 +408,46 @@ function db_quote($s) {
 
 }
 
+
+function nuViewExists($view) {
+
+	$sql = "SELECT table_name as TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'VIEW' AND table_schema = DATABASE() AND TABLE_NAME = ?";
+	$qry = nuRunQuery($sql, array($view));
+
+	return db_num_rows($qry);
+
+}
+
+function nuCanCreateView() {
+
+	$qry = nuRunQuery("SHOW GRANTS FOR CURRENT_USER()");
+	$canCreateView = false;
+
+	while ($row = db_fetch_row($qry)) {
+		if (strpos($row[0], 'CREATE VIEW') !== false) {
+			$canCreateView = true;
+			break;
+		}
+	}
+
+	return $canCreateView;
+
+}
+
+
 function nuDebugResult($msg){
 
 	if(is_object($msg)){
 		$msg = print_r($msg,1);
 	}
 
-	$u = isset(nuHash()['USER_ID']) ? nuHash()['USER_ID'] : null;
-	$u = $u == null && isset($_POST['nuSTATE']['username']) ? $_POST['nuSTATE']['username'] : $u;
+	$userId = null;
+	if (function_exists('nuHash')) {
+		$h = nuHash();
+		$userId = isset($h) && isset($h['USER_ID']) ? $h['USER_ID'] : null;
+		$userId = $userId == null && isset($_POST['nuSTATE']['username']) ? $_POST['nuSTATE']['username'] : $userId;
+	}
+
 	$id = nuID();
 
 	$s = "INSERT INTO zzzzsys_debug (zzzzsys_debug_id, deb_message, deb_added, deb_user_id) VALUES (:id , :message, :added, :user_id)";
@@ -423,7 +456,7 @@ function nuDebugResult($msg){
 		"id"		=> $id,
 		"message"	=> $msg,
 		"added"		=> time(),
-		"user_id"	=> $u
+		"user_id"	=> $userId
 	);
 
 	nuRunQuery($s, $params);

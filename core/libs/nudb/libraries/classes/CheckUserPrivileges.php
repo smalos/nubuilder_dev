@@ -196,7 +196,7 @@ class CheckUserPrivileges
         $re0 = '(^|(\\\\\\\\)+|[^\\\\])'; // non-escaped wildcards
         $re1 = '(^|[^\\\\])(\\\)+'; // escaped wildcards
 
-        while ($row = $this->dbi->fetchRow($showGrantsResult)) {
+        while ($row = $showGrantsResult->fetchRow()) {
             [
                 $showGrantsString,
                 $showGrantsDbName,
@@ -280,8 +280,8 @@ class CheckUserPrivileges
              * @todo collect $GLOBALS['db_to_create'] into an array,
              * to display a drop-down in the "Create database" dialog
              */
-             // we don't break, we want all possible databases
-             //break;
+            // we don't break, we want all possible databases
+            //break;
         }
 
         // must also cacheUnset() them in

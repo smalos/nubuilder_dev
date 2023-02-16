@@ -47,6 +47,8 @@ use function time;
 use function trim;
 use function urlencode;
 
+use const ENT_COMPAT;
+
 /**
  * PhpMyAdmin\Export class
  */
@@ -209,7 +211,7 @@ class Export
             }
         } else {
             // We export as html - replace special chars
-            echo htmlspecialchars((string) $line);
+            echo htmlspecialchars((string) $line, ENT_COMPAT);
         }
 
         return true;
@@ -547,16 +549,18 @@ class Export
          */
         $backButton = '<p>[ <a href="';
         if ($exportType === 'server') {
-            $backButton .= Url::getFromRoute('/server/export') . '" data-post="' . Url::getCommon([], '');
+            $backButton .= Url::getFromRoute('/server/export') . '" data-post="' . Url::getCommon([], '', false);
         } elseif ($exportType === 'database') {
-            $backButton .= Url::getFromRoute('/database/export') . '" data-post="' . Url::getCommon(['db' => $db], '');
+            $backButton .= Url::getFromRoute('/database/export') . '" data-post="' . Url::getCommon(
+                ['db' => $db],
+                '',
+                false
+            );
         } else {
             $backButton .= Url::getFromRoute('/table/export') . '" data-post="' . Url::getCommon(
-                [
-                    'db' => $db,
-                    'table' => $table,
-                ],
-                ''
+                ['db' => $db, 'table' => $table],
+                '',
+                false
             );
         }
 
@@ -795,7 +799,7 @@ class Export
 
                         $size = (int) $this->dbi->fetchValue($query);
                         //Converting the size to MB
-                        $size /= 1024 / 1024;
+                        $size /= 1024 * 1024;
                         if ($size > $tableSize) {
                             continue;
                         }

@@ -86,13 +86,7 @@ final class ReplaceController extends AbstractController
          */
         $goto_include = false;
 
-        $this->addScriptFiles([
-            'makegrid.js',
-            'vendor/stickyfill.min.js',
-            'sql.js',
-            'indexes.js',
-            'gis_data_editor.js',
-        ]);
+        $this->addScriptFiles(['makegrid.js', 'sql.js', 'indexes.js', 'gis_data_editor.js']);
 
         $insertRows = $_POST['insert_rows'] ?? null;
         if (is_numeric($insertRows) && $insertRows != $GLOBALS['cfg']['InsertRows']) {
@@ -314,33 +308,35 @@ final class ReplaceController extends AbstractController
                 // delete $file_to_insert temporary variable
                 $file_to_insert->cleanUp();
 
-                $current_value = $this->insertEdit->getCurrentValueForDifferentTypes(
-                    $possibly_uploaded_val,
-                    $key,
-                    $multi_edit_columns_type,
-                    $current_value,
-                    $multi_edit_auto_increment,
-                    $rownumber,
-                    $multi_edit_columns_name,
-                    $multi_edit_columns_null,
-                    $multi_edit_columns_null_prev,
-                    $is_insert,
-                    $using_key,
-                    $where_clause,
-                    $table,
-                    $multi_edit_funcs
-                );
-
-                $current_value_as_an_array = $this->insertEdit->getCurrentValueAsAnArrayForMultipleEdit(
-                    $multi_edit_funcs,
-                    $multi_edit_salt,
-                    $gis_from_text_functions,
-                    $current_value,
-                    $gis_from_wkb_functions,
-                    $func_optional_param,
-                    $func_no_param,
-                    $key
-                );
+                if (empty($multi_edit_funcs[$key])) {
+                    $current_value_as_an_array = $this->insertEdit->getCurrentValueForDifferentTypes(
+                        $possibly_uploaded_val,
+                        $key,
+                        $multi_edit_columns_type,
+                        $current_value,
+                        $multi_edit_auto_increment,
+                        $rownumber,
+                        $multi_edit_columns_name,
+                        $multi_edit_columns_null,
+                        $multi_edit_columns_null_prev,
+                        $is_insert,
+                        $using_key,
+                        $where_clause,
+                        $table,
+                        $multi_edit_funcs
+                    );
+                } else {
+                    $current_value_as_an_array = $this->insertEdit->getCurrentValueAsAnArrayForMultipleEdit(
+                        $multi_edit_funcs,
+                        $multi_edit_salt,
+                        $gis_from_text_functions,
+                        $current_value,
+                        $gis_from_wkb_functions,
+                        $func_optional_param,
+                        $func_no_param,
+                        $key
+                    );
+                }
 
                 if (! isset($multi_edit_virtual, $multi_edit_virtual[$key])) {
                     [

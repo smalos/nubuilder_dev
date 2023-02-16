@@ -27,7 +27,6 @@ if ( !isset($_SESSION['nubuilder_session_data']['NB_PATH']) || dirname($_SESSION
 	die;
 
 }
-
 ?>
 
 <!DOCTYPE html>
@@ -41,7 +40,7 @@ if ( !isset($_SESSION['nubuilder_session_data']['NB_PATH']) || dirname($_SESSION
 
 <?php
 
-function nuInclude($pfile, $type){
+function nuInclude($pfile, $type, $refreshCache = true){
 
 	if ($pfile == '') return;
 
@@ -53,19 +52,19 @@ function nuInclude($pfile, $type){
 	}
 
 	foreach ($a as $value) {
-		$timestamp = date("YmdHis"); //-- Add timestamp so JavaScript changes are effective immediately
+		$timestamp =  $refreshCache ? date("YmdHis") : 1; //-- Add timestamp so JavaScript changes are effective immediately if $refreshCache is true
 		if ($type == 'script') print "<script src='$value?ts=$timestamp' type='text/javascript'></script>\n";
 		if ($type == 'stylesheet') print "<link rel='stylesheet' href='$value?ts=$timestamp' />\n";
 	}
 
 }
 
-function nuJSIndexInclude($pfile){
-	nuInclude($pfile, 'script');
+function nuJSIndexInclude($pfile, $refreshCache = true){
+	nuInclude($pfile, 'script', $refreshCache);
 }
 
-function nuCSSIndexInclude($pfile){
-	nuInclude($pfile, 'stylesheet');
+function nuCSSIndexInclude($pfile, $refreshCache = true){
+	nuInclude($pfile, 'stylesheet', $refreshCache);
 }
 
 function nuJSChartsInclude(){
@@ -106,7 +105,15 @@ function nuHeader(){
 
 }
 
-nuJSIndexInclude('core/libs/jquery/jquery.js');
+function nuLastLoggedInUser() {
+    if(isset($_SESSION['nuLastUser']['user_id'])) {
+        return $_SESSION['nuLastUser']['user_id'];
+    } else {
+        return "";
+    }
+}
+
+nuJSIndexInclude('core/libs/jquery/jquery-3.6.3.min.js', false);
 nuJSIndexInclude('core/nuwysiwyg.js');
 nuJSIndexInclude('core/nuformclass.js');
 nuJSIndexInclude('core/nuform.js');
@@ -120,13 +127,6 @@ nuJSChartsInclude();
 nuJSIndexInclude('core/libs/ctxmenu/ctxmenu.min.js');
 nuJSIndexInclude('core/libs/vanillajs-datepicker/datepicker-full.min.js');
 nuJSIndexInclude('core/libs/jquery/jquery-confirm.min.js');
-
-if (isset($nuConfigIncludeQuill) && $nuConfigIncludeQuill == true) {
-	nuJSIndexInclude('core/libs/quill/quill.min.js');
-	nuJSIndexInclude('core/libs/quill/modules/quill-divider.js');
-	nuCSSIndexInclude('core/libs/quill/themes/quill.snow.css');
-}
-
 nuCSSIndexInclude('core/libs/uppy/uppy.min.css');
 nuJSIndexInclude('core/libs/uppy/uppy.min.js');
 
@@ -158,6 +158,13 @@ function nuValidCaller(o){
 
 	if(o === null){return false;}
 	return o.hasOwnProperty('nuVersion');
+}
+
+function nuSSOLoginRequest(u, p) {
+  const btn = document.getElementById('submitSSO');
+  btn.style.opacity = 0.5;
+  btn.style.cursor = "wait";
+  location.replace("/sso/login");
 }
 
 function nuLoginRequest(u, p){
@@ -208,6 +215,10 @@ window.nuDocumentID		= Date.now();
 window.nuHASH				= [];
 
 <?php
+    global $nuConfigLogonMode;
+    global $nuConfigHideNonSsoLogonExcept;
+    $nuConfigLoginScreenTopRow = (isset($nuConfigLoginScreenTopRow)?$nuConfigLoginScreenTopRow:'');
+    $loginTopRow            = addslashes($nuConfigLoginScreenTopRow);
 	$nuWelcomeBodyInnerHTML	= (isset($nuWelcomeBodyInnerHTML)?$nuWelcomeBodyInnerHTML:'');
 	$welcome				= addslashes($nuWelcomeBodyInnerHTML);
 	$nuHeader				= nuHeader();
@@ -262,10 +273,12 @@ window.nuHASH				= [];
 	}else{
 
 		if($opener == ''){
-				$h2 = nuGetJS_login($nuBrowseFunction, $target, $welcome, $nuForm, $nuRecord, $isSession);
-			}else{
-				$h2 = nuGetJS_action_screen($nuBrowseFunction, $target, $welcome, $opener, $search, $like);
-		}
+		    $lastUser = nuLastLoggedInUser();
+			$onlySsoExcept = (isset($nuConfigSsoOnlyExcept) ? $nuConfigSsoOnlyExcept : array());
+		    $h2 = nuGetJS_login($nuBrowseFunction, $target, $loginTopRow, $welcome, $nuForm, $nuRecord, $isSession, $nuConfigLogonMode, $onlySsoExcept, $lastUser);
+        } else {
+			$h2 = nuGetJS_action_screen($nuBrowseFunction, $target, $welcome, $opener, $search, $like);
+	   }
 
 	}
 
@@ -316,9 +329,10 @@ window.nuHASH				= [];
 
 	}
 
-	// focus select2 search field when clicked
-	$(document).on('select2:open', () => {
-		document.querySelector('.select2-search__field').focus();
+	$(document).on('select2:open', (element) => {
+		const targetId = element.target.id;
+		const searchField = document.querySelector(\"[aria-controls='select2-\"+targetId+\"-results']\");
+		searchField.focus();
 	});
 
 	document.addEventListener('focus', nuOnFocus, true);

@@ -1,5 +1,3 @@
-"use strict";
-
 /**
  * This object handles ajax requests for pages. It also
  * handles the reloading of the main menu and scripts.
@@ -495,6 +493,15 @@ var AJAX = {
    */
   responseHandler: function (data) {
     if (typeof data === 'undefined' || data === null) {
+      return;
+    } // Can be a string when an error occurred and only HTML was returned.
+
+
+    if (typeof data === 'string') {
+      Functions.ajaxRemoveMessage(AJAX.$msgbox);
+      Functions.ajaxShowMessage($(data).text(), false, 'error');
+      AJAX.active = false;
+      AJAX.xhr = null;
       return;
     }
 

@@ -2,7 +2,7 @@
 	header("Content-Type: application/json");
 	header("Cache-Control: no-cache, must-revalidate");
 
-	$nuState = isset($_POST['nuSTATE']) ? $_POST['nuSTATE'] : null; 
+	$nuState = isset($_POST['nuSTATE']) ? $_POST['nuSTATE'] : null;
 	if ($nuState == null && !empty($_FILES["file"])) {
 		require_once('nuupload.php');
 		echo nuUploadFile();
@@ -12,7 +12,7 @@
 	if ($nuState == null) {
 		http_response_code(400);
 		return;
-	}	
+	}
 
 	$_POST['nuSTATE'] = json_decode($nuState, true);
 
@@ -24,16 +24,8 @@
 	require_once('nudata.php');
 	require_once('nudrag.php');
 	require_once('nudatabase.php');
-
-	if (isset($nuConfigIncludePHP) && $nuConfigIncludePHP != '') {
-		if (!is_array($nuConfigIncludePHP)) {
-			require_once($nuConfigIncludePHP);
-		} else {
-			foreach ($nuConfigIncludePHP as $file) {
-				require_once($file);
-			}
-		}
-	}
+	
+	nuIncludeConfigPHPFiles();
 
 	$_POST['nuCounter']						= rand(0, 999);
 	$_POST['nuErrors']						= array();
@@ -86,6 +78,7 @@
 
 		if($CT == 'logout')																	nuLogout();
 		if($CT == 'login')																	nuRunLoginProcedure('nuStartup');
+		if($CT == 'ssologin')																nuSsoLoginCheckParams();
 
 		if($CT == 'getform' || $CT == 'getphp' || $CT == 'login' || $CT == 'getreport') {
 			nuBeforeEdit($F, $R);$f->forms[0] =												nuGetFormObject($F, $R, 0);

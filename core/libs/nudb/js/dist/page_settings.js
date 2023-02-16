@@ -1,5 +1,3 @@
-"use strict";
-
 /**
  * @fileoverview    function used for page-related settings
  * @name            Page-related settings
@@ -9,19 +7,31 @@
  * @required    js/functions.js
  */
 function showSettings(selector) {
-  var buttons = {};
+  var buttons = {
+    [Messages.strApply]: {
+      text: Messages.strApply,
+      class: 'btn btn-primary'
+    },
+    [Messages.strCancel]: {
+      text: Messages.strCancel,
+      class: 'btn btn-secondary'
+    }
+  };
 
-  buttons[Messages.strApply] = function () {
+  buttons[Messages.strApply].click = function () {
     $('.config-form').trigger('submit');
   };
 
-  buttons[Messages.strCancel] = function () {
+  buttons[Messages.strCancel].click = function () {
     $(this).dialog('close');
   }; // Keeping a clone to restore in case the user cancels the operation
 
 
   var $clone = $(selector + ' .page_settings').clone(true);
   $(selector).dialog({
+    classes: {
+      'ui-dialog-titlebar-close': 'btn-close'
+    },
     title: Messages.strPageSettings,
     width: 700,
     minHeight: 250,

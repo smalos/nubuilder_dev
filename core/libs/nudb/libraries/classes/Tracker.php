@@ -575,7 +575,7 @@ class Tracker
         $sqlQuery .= " AND `version` = '" . $dbi->escapeString($version)
             . "' ORDER BY `version` DESC LIMIT 1";
 
-        $mixed = $dbi->fetchAssoc($dbi->queryAsControlUser($sqlQuery));
+        $mixed = $dbi->queryAsControlUser($sqlQuery)->fetchAssoc();
 
         // PHP 7.4 fix for accessing array offset on null
         if ($mixed === []) {
@@ -950,7 +950,7 @@ class Tracker
         " AND `db_name` = '" . $dbi->escapeString($dbname ?? '') . "' " .
         " AND `table_name` = '"
         . $dbi->escapeString($result['tablename']) . "' " .
-        " AND `version` = '" . $dbi->escapeString($version ?? '') . "' ";
+        " AND `version` = '" . $dbi->escapeString((string) $version) . "' ";
 
         $dbi->queryAsControlUser($sqlQuery);
     }

@@ -371,7 +371,7 @@ function nuRunPHP(pCode, iframe, rbs) {
 }
 
 
-function nuRunPHPHidden(i, rbs, params) {
+function nuRunPHPHidden(code, rbs, params) {
 
 	if (arguments.length == 1) {
 
@@ -389,7 +389,7 @@ function nuRunPHPHidden(i, rbs, params) {
 	last.form_id = 'doesntmatter';
 	last.params = params ? params: null;
 	last.hash_record_id = last.record_id;
-	last.record_id = i;					//-- php code
+	last.record_id = code;					//-- php code
 	last.nuFORMdata = nuFORM.data();
 	last.hash = nuHashFromEditForm();
 
@@ -408,11 +408,10 @@ function nuRunPHPHidden(i, rbs, params) {
 
 }
 
-function nuRunPHPHiddenWithParams(i, paramName, paramValue, rbs) {
-	nuSetProperty(paramName, nuBase64encode(JSON.stringify(paramValue)));
-	nuRunPHPHidden(i, rbs);
+function nuRunPHPHiddenWithParams(code, paramName, paramValue, rbs) {
+	nuSetProperty(paramName, btoa(JSON.stringify(paramValue)));
+	nuRunPHPHidden(code, rbs);
 }
-
 
 function nuSystemUpdate() {
 
@@ -685,7 +684,22 @@ function nuPrintAction() {
 
 function nuUpdateData(action, instruction, close) {
 
-	if (action == 'save' && window.nuBeforeSave) { if (nuBeforeSave() === false) { return; } }
+	if (action == 'save') {
+
+		if (window.nuBeforeSaveGlobal) {
+			if (nuBeforeSaveGlobal() === false) { 
+				return; 
+			}
+		}
+
+		if (window.nuBeforeSave) { 
+			if (nuBeforeSave() === false) { 
+				return; 
+			} 
+		}
+
+	}
+
 	if (action != 'save' && window.nuBeforeDelete) {
 		if (nuBeforeDelete() === false) {
 			$('#nuDelete').prop('checked', false);

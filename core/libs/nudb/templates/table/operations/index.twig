@@ -11,7 +11,7 @@
         <div class="row g-3">
           <div class="col-auto">
             <label class="visually-hidden" for="tableOrderFieldSelect">{% trans 'Column' %}</label>
-            <select id="tableOrderFieldSelect" class="form-control" name="order_field" aria-describedby="tableOrderFieldSelectHelp">
+            <select id="tableOrderFieldSelect" class="form-select" name="order_field" aria-describedby="tableOrderFieldSelectHelp">
               {% for column in columns %}
                 <option value="{{ column.Field }}">{{ column.Field }}</option>
               {% endfor %}
@@ -53,7 +53,7 @@
         <div class="col-auto">
           <div class="input-group">
             {% if database_list is not empty %}
-              <select id="moveTableDatabaseInput" class="form-control" name="target_db" aria-label="{% trans 'Database' %}">
+              <select id="moveTableDatabaseInput" class="form-select" name="target_db" aria-label="{% trans 'Database' %}">
                 {% for each_db in database_list %}
                   <option value="{{ each_db.name }}"{{ each_db.is_selected ? ' selected' }}>{{ each_db.name }}</option>
                 {% endfor %}
@@ -135,7 +135,7 @@
           </label>
         </div>
         <div class="col-6">
-          <select class="form-control" name="new_tbl_storage_engine" id="newTableStorageEngineSelect">
+          <select class="form-select" name="new_tbl_storage_engine" id="newTableStorageEngineSelect">
             {% for engine in storage_engines %}
               <option value="{{ engine.name }}"{% if engine.comment is not empty %} title="{{ engine.comment }}"{% endif %}
                 {{- engine.name|lower == storage_engine|lower or (storage_engine is empty and engine.is_default) ? ' selected' }}>
@@ -151,7 +151,7 @@
           <label for="collationSelect">{% trans 'Collation' %}</label>
         </div>
         <div class="col-6">
-          <select class="form-control" id="collationSelect" lang="en" dir="ltr" name="tbl_collation">
+          <select class="form-select" id="collationSelect" lang="en" dir="ltr" name="tbl_collation">
             <option value=""></option>
             {% for charset in charsets %}
               <optgroup label="{{ charset.getName() }}" title="{{ charset.getDescription() }}">
@@ -177,7 +177,7 @@
             <label for="new_pack_keys">PACK_KEYS</label>
           </div>
           <div class="col-6">
-            <select class="form-control" name="new_pack_keys" id="new_pack_keys">
+            <select class="form-select" name="new_pack_keys" id="new_pack_keys">
               <option value="DEFAULT"{{ pack_keys == 'DEFAULT' ? ' selected' }}>DEFAULT</option>
               <option value="0"{{ pack_keys == '0' ? ' selected' }}>0</option>
               <option value="1"{{ pack_keys == '1' ? ' selected' }}>1</option>
@@ -227,7 +227,7 @@
             <label for="new_row_format">ROW_FORMAT</label>
           </div>
           <div class="col-12">
-            <select class="form-control" id="new_row_format" name="new_row_format">
+            <select class="form-select" id="new_row_format" name="new_row_format">
               {% for row_format in row_formats %}
                 <option value="{{ row_format }}"{{ row_format == row_format_current|upper ? ' selected' }}>{{ row_format }}</option>
               {% endfor %}
@@ -254,7 +254,7 @@
         <div class="col-auto">
           <div class="input-group">
             {% if database_list is not empty %}
-              <select class="form-control" name="target_db" aria-label="{% trans 'Database' %}">
+              <select class="form-select" name="target_db" aria-label="{% trans 'Database' %}">
                 {% for each_db in database_list %}
                   <option value="{{ each_db.name }}"{{ each_db.is_selected ? ' selected' }}>{{ each_db.name }}</option>
                 {% endfor %}
@@ -335,7 +335,7 @@
   <ul class="list-group list-group-flush" id="tbl_maintenance">
     {% if storage_engine in ['MYISAM', 'ARIA', 'INNODB', 'BERKELEYDB', 'TOKUDB'] %}
       <li class="list-group-item">
-        <a href="{{ url('/table/maintenance/analyze') }}" data-post="{{ get_common({'db': db, 'table': table, 'selected_tbl': [table]}) }}">
+        <a href="{{ url('/table/maintenance/analyze') }}" data-post="{{ get_common({'db': db, 'table': table, 'selected_tbl': [table]}, '', false) }}">
           {% trans 'Analyze table' %}
         </a>
         {{ show_mysql_docu('ANALYZE_TABLE') }}
@@ -344,7 +344,7 @@
 
     {% if storage_engine in ['MYISAM', 'ARIA', 'INNODB', 'TOKUDB'] %}
       <li class="list-group-item">
-        <a href="{{ url('/table/maintenance/check') }}" data-post="{{ get_common({'db': db, 'table': table, 'selected_tbl': [table]}) }}">
+        <a href="{{ url('/table/maintenance/check') }}" data-post="{{ get_common({'db': db, 'table': table, 'selected_tbl': [table]}, '', false) }}">
           {% trans 'Check table' %}
         </a>
         {{ show_mysql_docu('CHECK_TABLE') }}
@@ -352,7 +352,7 @@
     {% endif %}
 
     <li class="list-group-item">
-      <a href="{{ url('/table/maintenance/checksum') }}" data-post="{{ get_common({'db': db, 'table': table, 'selected_tbl': [table]}) }}">
+      <a href="{{ url('/table/maintenance/checksum') }}" data-post="{{ get_common({'db': db, 'table': table, 'selected_tbl': [table]}, '', false) }}">
         {% trans 'Checksum table' %}
       </a>
       {{ show_mysql_docu('CHECKSUM_TABLE') }}
@@ -360,7 +360,7 @@
 
     {% if storage_engine == 'INNODB' %}
       <li class="list-group-item">
-        <a class="maintain_action ajax" href="{{ url('/sql') }}" data-post="{{ get_common(url_params|merge({'sql_query': 'ALTER TABLE ' ~ backquote(table) ~ ' ENGINE = InnoDB;'})) }}">
+        <a class="maintain_action ajax" href="{{ url('/sql') }}" data-post="{{ get_common(url_params|merge({'sql_query': 'ALTER TABLE ' ~ backquote(table) ~ ' ENGINE = InnoDB;'}), '', false) }}">
           {% trans 'Defragment table' %}
         </a>
         {{ show_mysql_docu('InnoDB_File_Defragmenting') }}
@@ -372,7 +372,7 @@
         'sql_query': 'FLUSH TABLE ' ~ backquote(table),
         'message_to_show': 'Table %s has been flushed.'|trans|format(table|e),
         'reload': true
-      })) }}">
+      }), '', false) }}">
         {% trans 'Flush the table (FLUSH)' %}
       </a>
       {{ show_mysql_docu('FLUSH') }}
@@ -380,7 +380,7 @@
 
     {% if storage_engine in ['MYISAM', 'ARIA', 'INNODB', 'BERKELEYDB', 'TOKUDB'] %}
       <li class="list-group-item">
-        <a href="{{ url('/table/maintenance/optimize') }}" data-post="{{ get_common({'db': db, 'table': table, 'selected_tbl': [table]}) }}">
+        <a href="{{ url('/table/maintenance/optimize') }}" data-post="{{ get_common({'db': db, 'table': table, 'selected_tbl': [table]}, '', false) }}">
           {% trans 'Optimize table' %}
         </a>
         {{ show_mysql_docu('OPTIMIZE_TABLE') }}
@@ -389,7 +389,7 @@
 
     {% if storage_engine in ['MYISAM', 'ARIA'] %}
       <li class="list-group-item">
-        <a href="{{ url('/table/maintenance/repair') }}" data-post="{{ get_common({'db': db, 'table': table, 'selected_tbl': [table]}) }}">
+        <a href="{{ url('/table/maintenance/repair') }}" data-post="{{ get_common({'db': db, 'table': table, 'selected_tbl': [table]}, '', false) }}">
           {% trans 'Repair table' %}
         </a>
         {{ show_mysql_docu('REPAIR_TABLE') }}
@@ -405,12 +405,13 @@
       {% if not is_view %}
         <li class="list-group-item">
           {{ link_or_button(
-            url('/sql', url_params|merge({
+            url('/sql'),
+            url_params|merge({
               'sql_query': 'TRUNCATE TABLE ' ~ backquote(db) ~ '.' ~ backquote(table),
               'goto': url('/table/structure'),
               'reload': true,
               'message_to_show': 'Table %s has been emptied.'|trans|format(table)|e
-            })),
+            }),
             'Empty the table (TRUNCATE)'|trans,
             {
               'id': 'truncate_tbl_anchor',
@@ -422,12 +423,13 @@
         </li>
         <li class="list-group-item">
           {{ link_or_button(
-            url('/sql', url_params|merge({
+            url('/sql'),
+            url_params|merge({
               'sql_query': 'DELETE FROM ' ~ backquote(db) ~ '.' ~ backquote(table),
               'goto': url('/table/structure'),
               'reload': true,
               'message_to_show': 'Table %s has been emptied.'|trans|format(table)|e
-            })),
+            }),
             'Empty the table (DELETE FROM)'|trans,
             {
               'id': 'delete_tbl_anchor',
@@ -440,14 +442,15 @@
       {% endif %}
       <li class="list-group-item">
         {{ link_or_button(
-          url('/sql', url_params|merge({
+          url('/sql'),
+          url_params|merge({
             'sql_query': 'DROP TABLE ' ~ backquote(db) ~ '.' ~ backquote(table),
             'goto': url('/database/operations'),
             'reload': true,
             'purge': true,
             'message_to_show': is_view ? 'View %s has been dropped.'|trans|format(table)|e : 'Table %s has been dropped.'|trans|format(table)|e,
             'table': table
-          })),
+          }),
           'Delete the table (DROP)'|trans,
           {
             'id': 'drop_tbl_anchor',
@@ -475,7 +478,7 @@
       <div class="card-body">
         <div class="mb-3">
           <label for="partition_name">{% trans 'Partition' %}</label>
-          <select class="form-control resize-vertical" id="partition_name" name="partition_name[]" multiple required>
+          <select class="form-select resize-vertical" id="partition_name" name="partition_name[]" multiple required>
             {% for partition in partitions %}
               <option value="{{ partition }}"{{ loop.first ? ' selected' }}>{{ partition }}</option>
             {% endfor %}

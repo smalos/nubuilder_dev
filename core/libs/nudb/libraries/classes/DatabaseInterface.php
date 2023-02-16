@@ -54,6 +54,7 @@ use function stripos;
 use function strlen;
 use function strtolower;
 use function strtoupper;
+use function strtr;
 use function substr;
 use function syslog;
 use function trigger_error;
@@ -139,6 +140,9 @@ class DatabaseInterface implements DbalInterface
     /** @var Cache */
     private $cache;
 
+    /** @var float */
+    public $lastQueryExecutionTime = 0;
+
     /**
      * @param DbiExtension $ext Object to be used for database queries
      */
@@ -210,10 +214,7 @@ class DatabaseInterface implements DbalInterface
             return false;
         }
 
-        $time = 0;
-        if ($debug) {
-            $time = microtime(true);
-        }
+        $time = microtime(true);
 
         $result = $this->extension->realQuery($query, $this->links[$link], $options);
 
@@ -221,14 +222,14 @@ class DatabaseInterface implements DbalInterface
             $GLOBALS['cached_affected_rows'] = $this->affectedRows($link, false);
         }
 
+        $this->lastQueryExecutionTime = microtime(true) - $time;
         if ($debug) {
-            $time = microtime(true) - $time;
             $errorMessage = $this->getError($link);
             Utilities::debugLogQueryIntoSession(
                 $query,
                 $errorMessage !== '' ? $errorMessage : null,
                 $result,
-                $time
+                $this->lastQueryExecutionTime
             );
             if ($GLOBALS['cfg']['DBG']['sqllog']) {
                 $warningsCount = 0;
@@ -244,7 +245,7 @@ class DatabaseInterface implements DbalInterface
                         'SQL[%s?route=%s]: %0.3f(W:%d,C:%s,L:0x%02X) > %s',
                         basename($_SERVER['SCRIPT_NAME']),
                         Routing::getCurrentRoute(),
-                        $time,
+                        $this->lastQueryExecutionTime,
                         $warningsCount,
                         $cache_affected_rows ? 'y' : 'n',
                         $link,
@@ -323,6 +324,10 @@ class DatabaseInterface implements DbalInterface
      */
     public function getTables(string $database, $link = self::CONNECT_USER): array
     {
+        if ($database === '') {
+            return [];
+        }
+
         $tables = $this->fetchResult(
             'SHOW TABLES FROM ' . Util::backquote($database) . ';',
             null,
@@ -501,9 +506,7 @@ class DatabaseInterface implements DbalInterface
                             ) . '\')';
                     } else {
                         $sql .= " `Name` LIKE '"
-                            . Util::escapeMysqlWildcards(
-                                $this->escapeString($table, $link)
-                            )
+                            . $this->escapeMysqlLikeString($table, $link)
                             . "%'";
                     }
 
@@ -901,7 +904,7 @@ class DatabaseInterface implements DbalInterface
         $sql = QueryGenerator::getColumnsSql(
             $database,
             $table,
-            Util::escapeMysqlWildcards($this->escapeString($column)),
+            $this->escapeMysqlLikeString($column),
             $full
         );
         /** @var array<string, array> $fields */
@@ -1031,9 +1034,9 @@ class DatabaseInterface implements DbalInterface
      * @param string $var  mysql server variable name
      * @param int    $type DatabaseInterface::GETVAR_SESSION |
      *                     DatabaseInterface::GETVAR_GLOBAL
-     * @param mixed  $link mysql link resource|object
+     * @param int    $link mysql link resource|object
      *
-     * @return mixed   value for mysql server variable
+     * @return false|string|null value for mysql server variable
      */
     public function getVariable(
         string $var,
@@ -1059,7 +1062,7 @@ class DatabaseInterface implements DbalInterface
      *
      * @param string $var   variable name
      * @param string $value value to set
-     * @param mixed  $link  mysql link resource|object
+     * @param int    $link  mysql link resource|object
      */
     public function setVariable(
         string $var,
@@ -1084,16 +1087,7 @@ class DatabaseInterface implements DbalInterface
         $version = $this->fetchSingleRow('SELECT @@version, @@version_comment');
 
         if (is_array($version)) {
-            $this->versionString = $version['@@version'] ?? '';
-            $this->versionInt = Utilities::versionToInt($this->versionString);
-            $this->versionComment = $version['@@version_comment'] ?? '';
-            if (stripos($this->versionString, 'mariadb') !== false) {
-                $this->isMariaDb = true;
-            }
-
-            if (stripos($this->versionComment, 'percona') !== false) {
-                $this->isPercona = true;
-            }
+            $this->setVersion($version);
         }
 
         if ($this->versionInt > 50503) {
@@ -1920,37 +1914,6 @@ class DatabaseInterface implements DbalInterface
     }
 
     /**
-     * returns array of rows with associative keys from $result
-     *
-     * @param ResultInterface $result result set identifier
-     */
-    public function fetchAssoc(ResultInterface $result): array
-    {
-        return $result->fetchAssoc();
-    }
-
-    /**
-     * returns array of rows with numeric keys from $result
-     *
-     * @param ResultInterface $result result set identifier
-     */
-    public function fetchRow(ResultInterface $result): array
-    {
-        return $result->fetchRow();
-    }
-
-    /**
-     * Adjusts the result pointer to an arbitrary row in the result
-     *
-     * @param ResultInterface $result database result
-     * @param int             $offset offset to seek
-     */
-    public function dataSeek(ResultInterface $result, int $offset): bool
-    {
-        return $result->seek($offset);
-    }
-
-    /**
      * Check if there are any more query results from a multi query
      *
      * @param int $link link type
@@ -2148,18 +2111,6 @@ class DatabaseInterface implements DbalInterface
     }
 
     /**
-     * return number of fields in given $result
-     *
-     * @param ResultInterface $result result set identifier
-     *
-     * @return int field count
-     */
-    public function numFields(ResultInterface $result): int
-    {
-        return $result->numFields();
-    }
-
-    /**
      * returns properly escaped string for use in MySQL queries
      *
      * @param string $str  string to be escaped
@@ -2174,6 +2125,19 @@ class DatabaseInterface implements DbalInterface
         }
 
         return $this->extension->escapeString($this->links[$link], $str);
+    }
+
+    /**
+     * returns properly escaped string for use in MySQL LIKE clauses
+     *
+     * @param string $str  string to be escaped
+     * @param int    $link optional database link to use
+     *
+     * @return string a MySQL escaped LIKE string
+     */
+    public function escapeMysqlLikeString(string $str, int $link = self::CONNECT_USER)
+    {
+        return $this->escapeString(strtr($str, ['\\' => '\\\\', '_' => '\\_', '%' => '\\%']), $link);
     }
 
     /**
@@ -2307,6 +2271,22 @@ class DatabaseInterface implements DbalInterface
     public function isPercona(): bool
     {
         return $this->isPercona;
+    }
+
+    /**
+     * Set version
+     *
+     * @param array $version Database version information
+     * @phpstan-param array<array-key, mixed> $version
+     */
+    public function setVersion(array $version): void
+    {
+        $this->versionString = $version['@@version'] ?? '';
+        $this->versionInt = Utilities::versionToInt($this->versionString);
+        $this->versionComment = $version['@@version_comment'] ?? '';
+
+        $this->isMariaDb = stripos($this->versionString, 'mariadb') !== false;
+        $this->isPercona = stripos($this->versionComment, 'percona') !== false;
     }
 
     /**

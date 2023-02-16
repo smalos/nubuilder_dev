@@ -366,7 +366,7 @@ tr:last-child td.condition {
  */
 td.null {
   font-style: italic;
-  color: #7d7d7d;
+  color: #7d7d7d !important;
 }
 
 table {
@@ -818,6 +818,7 @@ table#chartGrid {
   div.monitorChart {
     background: #ebebeb;
     border: none;
+    min-width: 1px;
   }
 }
 
@@ -1194,10 +1195,6 @@ input#import_merge {
   background: #000;
   z-index: 1000;
   overflow: hidden;
-}
-
-#tablestructure tbody label {
-  margin: 0.3rem 0;
 }
 
 #structure-action-links a {
@@ -1672,12 +1669,6 @@ input#auto_increment_opt {
   }
 }
 
-.sticky {
-  position: -webkit-sticky;
-  position: sticky;
-  top: 60px;
-}
-
 .pma_table {
   td {
     position: static;
@@ -1780,10 +1771,13 @@ input#auto_increment_opt {
   box-shadow: 0 0.2em 0.5em #333;
   margin-left: 75%;
   right: 0;
+  max-width: 100%;
+  overflow-wrap: break-word;
 
   .lDiv div {
     padding: 0.2em 0.5em 0.2em;
     padding-left: 0.2em;
+    white-space: nowrap;
 
     &:hover {
       background: #ddd;
@@ -2756,10 +2750,6 @@ body .ui-dialog {
     overflow-x: auto;
   }
 
-  .sticky {
-    top: 0;
-  }
-
   body#loginform div.container {
     width: 100%;
   }
@@ -2872,4 +2862,8 @@ body .ui-dialog {
 #previewSqlModal {
   z-index: 1056;
   top: 100px;
+}
+
+.table-responsive-md .data {
+  z-index: 9;
 }

@@ -10,8 +10,8 @@
 declare(strict_types=1);
 
 /**
- * This is needed for cookie based authentication to encrypt password in
- * cookie. Needs to be 32 chars long.
+ * This is needed for cookie based authentication to encrypt the cookie.
+ * Needs to be a 32-bytes long string of random bytes. See FAQ 2.10.
  */
 $cfg['blowfish_secret'] = ''; /* YOU MUST FILL IN THIS FOR COOKIE AUTH! */
 
@@ -146,6 +146,13 @@ $cfg['SaveDir'] = '';
  * default = 'ask'
  */
 //$cfg['SendErrorReports'] = 'always';
+
+/**
+ * 'URLQueryEncryption' defines whether phpMyAdmin will encrypt sensitive data from the URL query string.
+ * 'URLQueryEncryptionSecretKey' is a 32 bytes long secret key used to encrypt/decrypt the URL query string.
+ */
+//$cfg['URLQueryEncryption'] = true;
+//$cfg['URLQueryEncryptionSecretKey'] = '';
 
 /**
  * You can find more configuration options in the documentation

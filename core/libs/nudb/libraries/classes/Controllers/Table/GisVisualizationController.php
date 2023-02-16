@@ -135,11 +135,7 @@ final class GisVisualizationController extends AbstractController
             return;
         }
 
-        $this->addScriptFiles([
-            'vendor/openlayers/OpenLayers.js',
-            'vendor/jquery/jquery.svg.js',
-            'table/gis_visualization.js',
-        ]);
+        $this->addScriptFiles(['vendor/openlayers/OpenLayers.js', 'table/gis_visualization.js']);
 
         // If all the rows contain SRID, use OpenStreetMaps on the initial loading.
         if (! isset($_POST['displayVisualization'])) {
@@ -175,7 +171,7 @@ final class GisVisualizationController extends AbstractController
                 'session_max_rows' => $rows,
                 'pos' => $pos,
                 'visualizationSettings[spatialColumn]' => $visualizationSettings['spatialColumn'],
-                'visualizationSettings[labelColumn]' => $visualizationSettings['labelColumn'],
+                'visualizationSettings[labelColumn]' => $visualizationSettings['labelColumn'] ?? null,
             ]
         ));
 

@@ -1,5 +1,3 @@
-"use strict";
-
 /**
  * @fileoverview    functions used wherever an sql query form is used
  *
@@ -8,8 +6,6 @@
  *
  * @test-module Sql
  */
-
-/* global Stickyfill */
 
 /* global isStorageSupported */
 // js/config.js
@@ -677,9 +673,11 @@ AJAX.registerOnload('sql.js', function () {
     var uniqueId = $(this).data('for');
     var $targetTable = $('.table_results[data-uniqueId=\'' + uniqueId + '\']');
     var $headerCells = $targetTable.find('th[data-column]');
-    var targetColumns = []; // To handle colspan=4, in case of edit,copy etc options.
+    var targetColumns = []; // To handle colspan=4, in case of edit, copy, etc options (Table row links). Add 3 dummy <TH> elements - only when the Table row links are NOT on the "Right"
 
-    var dummyTh = $('.edit_row_anchor').length !== 0 ? '<th class="hide dummy_th"></th><th class="hide dummy_th"></th><th class="hide dummy_th"></th>' : ''; // Selecting columns that will be considered for filtering and searching.
+    var rowLinksLocation = $targetTable.find('thead > tr > th').first();
+    var dummyTh = rowLinksLocation[0].getAttribute('colspan') !== null ? '<th class="hide dummy_th"></th><th class="hide dummy_th"></th><th class="hide dummy_th"></th>' : ''; // Selecting columns that will be considered for filtering and searching.
+    // Selecting columns that will be considered for filtering and searching.
 
     $headerCells.each(function () {
       targetColumns.push($(this).text().trim());
@@ -889,6 +887,9 @@ Sql.browseForeignDialog = function ($thisA) {
   $.post($thisA.attr('href'), params, function (data) {
     // Creates browse foreign value dialog
     $dialog = $('<div>').append(data.message).dialog({
+      classes: {
+        'ui-dialog-titlebar-close': 'btn-close'
+      },
       title: Messages.strBrowseForeignValues,
       width: Math.min($(window).width() - 100, 700),
       maxHeight: $(window).height() - 100,
@@ -1073,9 +1074,3 @@ AJAX.registerOnload('sql.js', function () {
   Sql.makeProfilingChart();
   Sql.initProfilingTables();
 });
-/**
- * Polyfill to make table headers sticky.
- */
-
-var elements = $('.sticky');
-Stickyfill.add(elements);

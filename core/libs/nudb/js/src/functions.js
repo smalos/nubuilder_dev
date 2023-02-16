@@ -520,7 +520,7 @@ Functions.checkPasswordStrength = function (value, meterObject, meterObjectLabel
         customDict.push(username);
     }
 
-    zxcvbnts.core.ZxcvbnOptions.setOptions({ dictionary: { userInputs: customDict } });
+    zxcvbnts.core.zxcvbnOptions.setOptions({ dictionary: { userInputs: customDict } });
     var zxcvbnObject = zxcvbnts.core.zxcvbn(value);
     var strength = zxcvbnObject.score;
     strength = parseInt(strength);
@@ -1187,6 +1187,9 @@ Functions.insertQuery = function (queryType) {
                         codeMirrorEditor.setValue(data.sql);
                     }
                     $('#querymessage').html('');
+                },
+                error: function () {
+                    $('#querymessage').html('');
                 }
             });
         }
@@ -1844,7 +1847,7 @@ Functions.ajaxShowMessage = function (message, timeout, type) {
         selfClosing = false;
     }
     // Figure out whether (or after how long) to remove the notification
-    if (newTimeOut === undefined) {
+    if (newTimeOut === undefined || newTimeOut === null) {
         newTimeOut = 5000;
     } else if (newTimeOut === false) {
         selfClosing = false;
@@ -2398,7 +2401,7 @@ Functions.confirm = function (question, url, callbackFn, openCallback) {
     var buttonOptions = [
         {
             text: Messages.strOK,
-            'class': 'submitOK',
+            'class': 'btn btn-primary submitOK',
             click: function () {
                 $(this).dialog('close');
                 if (typeof callbackFn === 'function') {
@@ -2408,7 +2411,7 @@ Functions.confirm = function (question, url, callbackFn, openCallback) {
         },
         {
             text: Messages.strCancel,
-            'class': 'submitCancel',
+            'class': 'btn btn-secondary submitCancel',
             click: function () {
                 $(this).dialog('close');
             }
@@ -2418,6 +2421,9 @@ Functions.confirm = function (question, url, callbackFn, openCallback) {
     $('<div></div>', { 'id': 'confirm_dialog', 'title': Messages.strConfirm })
         .prepend(question)
         .dialog({
+            classes: {
+                'ui-dialog-titlebar-close': 'btn-close'
+            },
             buttons: buttonOptions,
             close: function () {
                 $(this).remove();
@@ -2787,10 +2793,20 @@ AJAX.registerOnload('functions.js', function () {
         var $msgbox = Functions.ajaxShowMessage();
 
         /**
-         * @var button_options  Object containing options to be passed to jQueryUI's dialog
+         * @var buttonOptions Object containing options to be passed to jQueryUI's dialog
          */
-        var buttonOptions = {};
-        buttonOptions[Messages.strGo] = function () {
+        var buttonOptions = {
+            [Messages.strGo]: {
+                text: Messages.strGo,
+                'class': 'btn btn-primary',
+            },
+            [Messages.strCancel]: {
+                text: Messages.strCancel,
+                'class': 'btn btn-secondary',
+            },
+        };
+
+        buttonOptions[Messages.strGo].click = function () {
             event.preventDefault();
 
             /**
@@ -2827,7 +2843,7 @@ AJAX.registerOnload('functions.js', function () {
             }); // end $.post()
         };
 
-        buttonOptions[Messages.strCancel] = function () {
+        buttonOptions[Messages.strCancel].click = function () {
             $(this).dialog('close');
         };
         $.get($(this).attr('href'), { 'ajax_request': true }, function (data) {
@@ -2842,6 +2858,9 @@ AJAX.registerOnload('functions.js', function () {
 
             $('<div id="change_password_dialog"></div>')
                 .dialog({
+                    classes: {
+                        'ui-dialog-titlebar-close': 'btn-close'
+                    },
                     title: Messages.strChangePassword,
                     width: 600,
                     close: function () {
@@ -2966,13 +2985,19 @@ Functions.autoPopulate = function (inputId, offset) {
     }
     var colDefault = centralColumnList[db + '_' + table][offset].col_default.toUpperCase();
     var $input4 = $('#' + newInputId + '4');
-    if (colDefault !== '' && colDefault !== 'NULL' && colDefault !== 'CURRENT_TIMESTAMP' && colDefault !== 'CURRENT_TIMESTAMP()') {
-        $input4.val('USER_DEFINED');
-        $input4.next().next().show();
-        $input4.next().next().val(centralColumnList[db + '_' + table][offset].col_default);
+    if (colDefault === 'NULL' || colDefault === 'CURRENT_TIMESTAMP' || colDefault === 'CURRENT_TIMESTAMP()') {
+        if (colDefault === 'CURRENT_TIMESTAMP()') {
+            colDefault = 'CURRENT_TIMESTAMP';
+        }
+        $input4.val(colDefault);
+        $input4.siblings('.default_value').hide();
+    } if (colDefault === '') {
+        $input4.val('NONE');
+        $input4.siblings('.default_value').hide();
     } else {
-        $input4.val(centralColumnList[db + '_' + table][offset].col_default);
-        $input4.next().next().hide();
+        $input4.val('USER_DEFINED');
+        $input4.siblings('.default_value').show();
+        $input4.siblings('.default_value').val(centralColumnList[db + '_' + table][offset].col_default);
     }
     $('#' + newInputId + '5').val(centralColumnList[db + '_' + table][offset].col_collation);
     var $input6 = $('#' + newInputId + '6');
@@ -3373,6 +3398,39 @@ AJAX.registerOnload('functions.js', function () {
 Functions.indexDialogModal = function (routeUrl, url, title, callbackSuccess, callbackFailure) {
     /* Remove the hidden dialogs if there are*/
     var modal = $('#indexDialogModal');
+
+    const indexDialogPreviewModal = document.getElementById('indexDialogPreviewModal');
+    indexDialogPreviewModal.addEventListener('shown.bs.modal', () => {
+        const modalBody = indexDialogPreviewModal.querySelector('.modal-body');
+        const $form = $('#index_frm');
+        const formUrl = $form.attr('action');
+        const sep = CommonParams.get('arg_separator');
+        const formData = $form.serialize() +
+            sep + 'do_save_data=1' +
+            sep + 'preview_sql=1' +
+            sep + 'ajax_request=1';
+        $.post({
+            url: formUrl,
+            data: formData,
+            success: response => {
+                if (! response.success) {
+                    modalBody.innerHTML = '<div class="alert alert-danger" role="alert">' + Messages.strErrorProcessingRequest + '</div>';
+                    return;
+                }
+
+                modalBody.innerHTML = response.sql_data;
+                Functions.highlightSql($('#indexDialogPreviewModal'));
+            },
+            error: () => {
+                modalBody.innerHTML = '<div class="alert alert-danger" role="alert">' + Messages.strErrorProcessingRequest + '</div>';
+            }
+        });
+    });
+    indexDialogPreviewModal.addEventListener('hidden.bs.modal', () => {
+        indexDialogPreviewModal.querySelector('.modal-body').innerHTML = '<div class="spinner-border" role="status">' +
+            '<span class="visually-hidden">' + Messages.strLoading + '</span></div>';
+    });
+
     /**
      * @var button_options Object that stores the options
      *                     passed to jQueryUI dialog
@@ -3402,7 +3460,7 @@ Functions.indexDialogModal = function (routeUrl, url, title, callbackSuccess, ca
                     .insertAfter('#index_header');
                 var $editIndexDialog = $('#indexDialogModal');
                 if ($editIndexDialog.length > 0) {
-                    $editIndexDialog.dialog('close');
+                    $editIndexDialog.modal('hide');
                 }
                 $('div.no_indexes_defined').hide();
                 if (callbackSuccess) {
@@ -3424,11 +3482,7 @@ Functions.indexDialogModal = function (routeUrl, url, title, callbackSuccess, ca
             }
         }); // end $.post()
     });
-    $('#indexDialogModalPreviewButton').on('click', function () {
-        // Function for Previewing SQL
-        var $form = $('#index_frm');
-        Functions.previewSql($form);
-    });
+
     var $msgbox = Functions.ajaxShowMessage();
     $.post(routeUrl, url, function (data) {
         if (typeof data !== 'undefined' && data.success === false) {
@@ -4505,8 +4559,10 @@ Functions.getImage = function (image, alternate, attributes) {
  * @param {object}     value       Configuration value.
  */
 Functions.configSet = function (key, value) {
+    // Updating value in local storage.
     var serialized = JSON.stringify(value);
     localStorage.setItem(key, serialized);
+
     $.ajax({
         url: 'index.php?route=/config/set',
         type: 'POST',
@@ -4518,15 +4574,12 @@ Functions.configSet = function (key, value) {
             value: serialized,
         },
         success: function (data) {
-            // Updating value in local storage.
-            if (! data.success) {
-                if (data.error) {
-                    Functions.ajaxShowMessage(data.error);
-                } else {
-                    Functions.ajaxShowMessage(data.message);
+            if (data.success !== true) {
+                // Try to find a message to display
+                if (data.error || data.message || false) {
+                    Functions.ajaxShowMessage(data.error || data.message);
                 }
             }
-            // Eventually, call callback.
         }
     });
 };
@@ -4541,11 +4594,12 @@ Functions.configSet = function (key, value) {
  *
  * @param {string}     key             Configuration key.
  * @param {boolean}    cached          Configuration type.
- * @param {Function}   successCallback The callback to call after the value is received
+ * @param {Function}   successCallback The callback to call after the value is successfully received
+ * @param {Function}   failureCallback The callback to call when the value can not be received
  *
  * @return {void}
  */
-Functions.configGet = function (key, cached, successCallback) {
+Functions.configGet = function (key, cached, successCallback, failureCallback) {
     var isCached = (typeof cached !== 'undefined') ? cached : true;
     var value = localStorage.getItem(key);
     if (isCached && value !== undefined && value !== null) {
@@ -4564,12 +4618,23 @@ Functions.configGet = function (key, cached, successCallback) {
             key: key
         },
         success: function (data) {
-            // Updating value in local storage.
-            if (data.success) {
-                localStorage.setItem(key, JSON.stringify(data.value));
-            } else {
-                Functions.ajaxShowMessage(data.message);
+            if (data.success !== true) {
+                // Try to find a message to display
+                if (data.error || data.message || false) {
+                    Functions.ajaxShowMessage(data.error || data.message);
+                }
+
+                // Call the callback if it is defined
+                if (typeof failureCallback === 'function') {
+                    failureCallback();
+                }
+
+                // return here, exit non success mode
+                return;
             }
+
+            // Updating value in local storage.
+            localStorage.setItem(key, JSON.stringify(data.value));
             // Call the callback if it is defined
             if (typeof successCallback === 'function') {
                 // Feed it the value previously saved like on async mode

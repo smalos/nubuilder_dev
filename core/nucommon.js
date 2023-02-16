@@ -2,9 +2,11 @@ window.nuDialog = new nuCreateDialog('');
 window.nuFORM = new nuFormObject();
 window.nuRESPONSIVE = new nuResponseForm();
 window.nuOnLoad = null;
+window.nuBeforeSaveGlobal = null;
 window.nuLoadBrowseGlobal = null;
 window.nuLoadEditGlobal = null;
 window.nuOnLookupPopulatedGlobal = null;
+window.nuOnPopupOpenedGlobal = null;
 window.nuHideMessage = true;
 window.nuDragID = 1000;
 window.nuLastForm = '';
@@ -399,25 +401,40 @@ function nuFormatAjaxErrorMessage(jqXHR, exception) {
 
 }
 
-function nuLogin(nuconfigNuWelcomeBodyInnerHTML) {
+function nuLogin(loginTopRow, nuconfigNuWelcomeBodyInnerHTML, logonMode='normal', onlySsoExcept={}, lastUser="") {
 
 	var HTML = String(nuconfigNuWelcomeBodyInnerHTML).trim();
+	loginTopRow = String(loginTopRow).trim();
 	window.nuSESSION = '';
 	window.nuFORM = new nuFormObject();
 
 	$('body').html('');
 
-	var h = `
-
-			<div id='outer' style='width:100%'>
-			<form id='nuLoginForm' action='#' method='post' onsubmit='return false'>
-				<div id='login' class='nuLogin'>
-					<table>
+	var defaulTopRow = `
 						<tr>
 							<td align='center' style='padding:0px 0px 0px 33px; text-align:center;'>
 							<img src='core/graphics/logo.png'><br><br>
 							</td>
 						</tr>
+			`;
+
+	var topRow = loginTopRow == '' ? defaulTopRow : loginTopRow;
+
+	var h1 = `
+			<div id='outer' style='width:100%'>
+			<form id='nuLoginForm' action='#' method='post' onsubmit='return false'>
+				<div id='login' class='nuLogin'>
+					<table align="center">`
+						+ topRow + `
+			`;
+	var h2sso = `
+						<tr>
+							<td align='center' style='text-align:center' colspan='2'>
+								<input id='submitSSO' style='width:90px' type='submit' class='nuButton' onclick='nuSSOLoginRequest()' value='SSO Log in'/>
+								<br><br>
+							</td>
+						</tr>`;
+	var h3normal = `
 						<tr>
 							<td><div style='width:90px; margin-bottom: 5px;'>Username</div><input class='nuLoginInput' id='nuusername' autocomplete='off' /><br><br></td>
 						</tr>
@@ -428,14 +445,28 @@ function nuLogin(nuconfigNuWelcomeBodyInnerHTML) {
 							<td style='text-align:center' colspan='2'><br><br>
 								<input id='submit' style='width:90px' type='submit' class='nuButton' onclick='nuLoginRequest()' value='Log in'/>
 							</td>
-						</tr>
+						</tr>`;
+	var h4 = `
 					</table>
 				</div>
 			</form>
 			</div>
-
-
 	`;
+
+
+	if(logonMode == 'normal') {
+		var h = h1 + h3normal + h4;
+	} else if (logonMode == 'sso') {
+		var h = h1 + h2sso + h4;
+	} else if (logonMode == 'both') {
+		if (lastUser in onlySsoExcept || "allusers" in onlySsoExcept) {  // Selectively show username/password login option if found in 'onlySsoExcept' dictionary - most users only see SSO button
+			var h = h1 + h2sso + h3normal + h4;
+		} else {
+			var h = h1 + h2sso + h4;
+		}
+	} else {  // Original/normal mode
+		var h = h1 + h3normal + h4;
+	}
 
 	var H = HTML == '' ? h : HTML;
 
@@ -545,6 +576,11 @@ function nuPopup(f, r, filter) {
 		.css('visibility', 'hidden')
 		.append('<iframe style="border-style:none;right:5px;top:35px;width:400px;height:400px;position:absolute" id="nuWindow" src="index.php?opener=' + id + '&browsefunction=browse&iframe=1"></iframe>')
 		.prepend('<div id="nuDraggingBox" style="position:absolute; bottom:0px; right:0px; width:20px; height:20px; z-index:200"></div>');
+		
+
+	if (window.nuOnPopupOpenedGlobal) {
+		nuOnPopupOpenedGlobal(f, r, filter);
+	}
 
 }
 
@@ -811,7 +847,7 @@ function nuBindCtrlEvents() {
 			const $nuRecord = $("#nuRECORD");
 			const scrollBy = e.key === 'PageDown' ? 400 : -400;
 			$nuRecord.scrollTop($nuRecord.scrollTop() + scrollBy);
-        }
+		}
 
 		if (e.key == 'Escape') {
 
@@ -855,8 +891,8 @@ function nuBindCtrlEvents() {
 					nuShowFormInfo();
 				} else if (e.code == 'KeyE' && g) {					//-- e		Database
 					nuVendorLogin('PMA');
-				} else if (e.code == 'KeyI' && g) {					//-- e		Sessions
-					nuForm("nusession","","", "", 2);					
+				} else if (e.code == 'KeyI' && g) {					//-- i		Sessions
+					nuForm("nusession","","", "", 2);
 				} else if (e.code == 'KeyQ' && g) {					//-- e		File Manager
 					nuVendorLogin("TFM");
 				} else if (e.code == 'KeyB' && g) {					//-- b		Backup
@@ -869,7 +905,7 @@ function nuBindCtrlEvents() {
 					nuPopup("nudebug", "");
 				} else if (e.code == 'KeyY' && g) {					//-- y		Current Properties
 					nuPrettyPrintMessage(e, nuCurrentProperties());
-				} else if (e.code == 'Keyl') {						//-- l		Log out
+				} else if (e.code == 'KeyL') {						//-- l		Log out
 					nuAskLogout();
 				}
 
@@ -908,7 +944,7 @@ function nuBindCtrlEvents() {
 					nuDeleteAction();
 				} else if (e.code == 'ArrowRight') {				//-- ->		Select next tab
 					nuSelectNextTab(1);
-				} else if (e.code == 'ArrowLeft') {				//-- <-		Select previous tab
+				} else if (e.code == 'ArrowLeft') {					//-- <-		Select previous tab
 					nuSelectNextTab(-1);
 				}
 
@@ -961,13 +997,13 @@ function nuUnbindDragEvents() {
 function nuTranslate(obj) {
 
 	if (Array.isArray(obj)) {
-		
+
 		let arr = obj;
 		arr.forEach(function(item, index) {
 			const l = nuLANGUAGE.find(elem => elem.english === item);
 			arr[index] = !l ? item : l.translation;
 		})
-		
+
 		return arr;
 
 	} else {
@@ -2086,7 +2122,7 @@ function nuDownBrowseResize(e, p) {
 	window.nuBROWSERESIZE.moving_element = target;
 	window.nuBROWSERESIZE.x_position = e.clientX;
 
-	$('#' + target).css('background-color', '#badeeb');
+	$('#' + target).addClass('nuBrowseResize');
 
 }
 
@@ -2096,7 +2132,7 @@ function nuEndBrowseResize(e) {
 
 	window.nuBROWSERESIZE.mouse_down = false;
 	window.nuBROWSERESIZE.moving_element = '';
-	$('.nuBrowseTitle').css('background-color', '');
+	$('.nuBrowseTitle').removeClass('nuBrowseResize');
 
 }
 
@@ -2168,22 +2204,22 @@ function nuIsIframe() {
 
 }
 
-// After clicking a nuActionButton (Save, Delete, Print, Clone etc.), disable it for 1.3 secs to prevent a user from double-clicking it.
+// After clicking a button (Save, Delete, Print, Clone etc.), disable it for 1.3 secs to prevent a user from double-clicking it.
 
 function nuPreventButtonDblClick() {
 
 	$('.nuActionButton, .nuButton, #nuLogout').not(".nuAllowDblClick").click(function () {
+		const button = $(this);
+		if (button.hasClass('nuReadonly') || button.hasClass('nuAllowDblClick')) {
+			return;
+		}
 
-		if ($(this).hasClass('nuReadonly') || $(this).hasClass('nuAllowDblClick')) return;
+		const id = button.attr("id");
+		nuDisable(id);
 
-		var id = $(this).attr("id");
-
-		$('#' + id).prop('disabled', true);
-
-		setTimeout(
-			function () {
-				$('#' + id).prop('disabled', false);
-			}, 1300);
+		setTimeout(function () {
+			nuEnable(id);
+		}, 1300);
 	});
 
 }
@@ -2241,15 +2277,15 @@ function nuBrowseAdditionalNavButtons() {
 
 	if (nuFormType() == 'browse') {
 
-		var disabled = {
+		const disabled = {
 			'opacity': '0.3',
 			'pointer-events': 'none'
 		};
 
-		var currentPage = Number($('#browsePage').val());
-		var lastPage = nuCurrentProperties().pages;
+		const currentPage = Number($('#browsePage').val());
+		const lastPage = nuCurrentProperties().pages;
 
-		var html = '<span id="nuFirst" class="nuBrowsePage"><i class="fa fa-step-backward" style="font-size: 16px" onclick="nuGetPage(0)">&nbsp;&nbsp;&nbsp;&nbsp;</i></span>';
+		let html = '<span id="nuFirst" class="nuBrowsePage"><i class="fa fa-step-backward" style="font-size: 16px" onclick="nuGetPage(1)">&nbsp;&nbsp;&nbsp;&nbsp;</i></span>';
 		$(html).insertBefore("#nuLast");
 
 		html = '<span id="nuEnd" class="nuBrowsePage">&nbsp;&nbsp;&nbsp;&nbsp;<i class="fa fa-step-forward nuBrowsePage" style="font-size: 16px" onclick="nuGetPage(' + lastPage + ')"></i></span>';

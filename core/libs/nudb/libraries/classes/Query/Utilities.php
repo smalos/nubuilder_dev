@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace PhpMyAdmin\Query;
 
+use PhpMyAdmin\Dbal\ResultInterface;
 use PhpMyAdmin\Error;
 use PhpMyAdmin\Url;
 
@@ -12,6 +13,7 @@ use function array_slice;
 use function debug_backtrace;
 use function explode;
 use function htmlspecialchars;
+use function htmlspecialchars_decode;
 use function intval;
 use function md5;
 use function sprintf;
@@ -144,9 +146,13 @@ class Utilities
 
         // produces f.e.:
         // return -1 * strnatcasecmp($a['SCHEMA_TABLES'], $b['SCHEMA_TABLES'])
-        $compare = $cfg['NaturalOrder']
-            ? strnatcasecmp($a[$sortBy], $b[$sortBy])
-            : strcasecmp($a[$sortBy], $b[$sortBy]);
+        $compare = $cfg['NaturalOrder'] ? strnatcasecmp(
+            (string) $a[$sortBy],
+            (string) $b[$sortBy]
+        ) : strcasecmp(
+            (string) $a[$sortBy],
+            (string) $b[$sortBy]
+        );
 
         return ($sortOrder === 'ASC' ? 1 : -1) * $compare;
     }
@@ -166,21 +172,21 @@ class Utilities
     /**
      * Stores query data into session data for debugging purposes
      *
-     * @param string      $query        Query text
-     * @param string|null $errorMessage Error message from getError()
-     * @param object|bool $result       Query result
-     * @param int|float   $time         Time to execute query
+     * @param string                $query        Query text
+     * @param string|null           $errorMessage Error message from getError()
+     * @param ResultInterface|false $result       Query result
+     * @param int|float             $time         Time to execute query
      */
     public static function debugLogQueryIntoSession(string $query, ?string $errorMessage, $result, $time): void
     {
         $dbgInfo = [];
 
         if ($result === false && $errorMessage !== null) {
-            $dbgInfo['error'] = '<span class="text-danger">'
-                . htmlspecialchars($errorMessage) . '</span>';
+            // because Utilities::formatError is applied in DbiMysqli
+            $dbgInfo['error'] = htmlspecialchars_decode($errorMessage);
         }
 
-        $dbgInfo['query'] = htmlspecialchars($query);
+        $dbgInfo['query'] = $query;
         $dbgInfo['time'] = $time;
         // Get and slightly format backtrace, this is used
         // in the javascript console.

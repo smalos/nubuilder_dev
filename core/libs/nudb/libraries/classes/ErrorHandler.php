@@ -5,15 +5,18 @@ declare(strict_types=1);
 namespace PhpMyAdmin;
 
 use ErrorException;
+use Throwable;
 
 use function __;
 use function array_splice;
 use function count;
 use function defined;
 use function error_reporting;
+use function get_class;
 use function headers_sent;
 use function htmlspecialchars;
 use function set_error_handler;
+use function set_exception_handler;
 use function trigger_error;
 
 use const E_COMPILE_ERROR;
@@ -68,6 +71,7 @@ class ErrorHandler
          * rely on PHPUnit doing it's own error handling which we break here.
          */
         if (! defined('TESTSUITE')) {
+            set_exception_handler([$this, 'handleException']);
             set_error_handler([$this, 'handleError']);
         }
 
@@ -225,6 +229,21 @@ class ErrorHandler
     }
 
     /**
+     * Hides exception if it's not in the development environment.
+     */
+    public function handleException(Throwable $exception): void
+    {
+        $config = $GLOBALS['config'] ?? null;
+        $this->hideLocation = ! $config instanceof Config || $config->get('environment') !== 'development';
+        $this->addError(
+            get_class($exception) . ': ' . $exception->getMessage(),
+            (int) $exception->getCode(),
+            $exception->getFile(),
+            $exception->getLine()
+        );
+    }
+
+    /**
      * Add an error; can also be called directly (with or without escaping)
      *
      * The following error types cannot be handled with a user defined function:
@@ -256,8 +275,11 @@ class ErrorHandler
         $error = new Error($errno, $errstr, $errfile, $errline);
         $error->setHideLocation($this->hideLocation);
 
-        // do not repeat errors
-        $this->errors[$error->getHash()] = $error;
+        // Deprecation errors will be shown in development environment, as they will have a different number.
+        if ($error->getNumber() !== E_DEPRECATED) {
+            // do not repeat errors
+            $this->errors[$error->getHash()] = $error;
+        }
 
         switch ($error->getNumber()) {
             case E_STRICT:
@@ -284,7 +306,9 @@ class ErrorHandler
             default:
                 // FATAL error, display it and exit
                 $this->dispFatalError($error);
-                exit;
+                if (! defined('TESTSUITE')) {
+                    exit;
+                }
         }
     }
 
@@ -315,7 +339,9 @@ class ErrorHandler
 
         echo $error->getDisplay();
         $this->dispPageEnd();
-        exit;
+        if (! defined('TESTSUITE')) {
+            exit;
+        }
     }
 
     /**

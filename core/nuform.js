@@ -46,10 +46,10 @@ var promot;
 function nuBuildForm(f) {
 
 	window.nuOnSetSelect2Options = null;
-	window.nuSERVERRESPONSE = f;						// can be overwritten by nuAddJavascript()
+	window.nuSERVERRESPONSE = f;						// can be overwritten by nuAddJavaScript()
 
 	if (f.record_id != '-2') {
-		nuAddJavascript(f.javascript_bc);
+		nuAddJavaScript(f.javascript_bc);
 	}
 
 	$('#nubody').off('.nuresizecolumn').css('transform', 'scale(1)');
@@ -72,9 +72,7 @@ function nuBuildForm(f) {
 
 	}
 
-	if (formType == 'browse') {
-		window.nuTimesSaved = -1;
-	} else {
+	if (formType == 'edit' && nuCurrentProperties().form_type !== 'Launch') {
 
 		window.nuTimesSaved = window.nuTimesSaved + 1;
 
@@ -82,6 +80,8 @@ function nuBuildForm(f) {
 			window.nuTimesSaved = 0;
 		}
 
+	} else {
+		window.nuTimesSaved = -1;
 	}
 
 	window.nuLastForm = f.form_id;
@@ -108,6 +108,8 @@ function nuBuildForm(f) {
 	window.nuOnSetCalendarOptions = null;
 	window.nuOnLookupPopulated = null;
 	window.nuCalculated = null;
+	window.nuOnPropertySet = null;
+	window.nuPortraitScreenShowTabTitles = true;
 	window.nuBrowseFunction = window.nuDefaultBrowseFunction;
 	window.nuCLONE = false;
 	window.nuSERVERRESPONSELU = [];
@@ -225,7 +227,7 @@ function nuBuildForm(f) {
 	if (f.record_id == '-2') {			// Arrange Objects
 		nuCreateDragOptionsBox(f);
 	} else {
-		nuAddJavascript(f.javascript);
+		nuAddJavaScript(f.javascript);
 	}
 
 	nuDragTitleEvents();
@@ -726,7 +728,7 @@ function nuAddActionButton(id, value, func, text, e) {
 	}
 
 	if (typeof(value) == 'object') {
-		value = nuUXOptions.nuMobileView ? value['valueMobile'] : nuTranslate(nuDefine(value('value')));
+		value = nuUXOptions.nuMobileView ? value['valueMobile'] : nuTranslate(nuDefine('value'));
 	} else {
 		value = nuTranslate(nuDefine(value));
 	}
@@ -3342,29 +3344,34 @@ function nuMainForm() {
 
 }
 
-function nuSetBrowseTitle(t) {
-	nuSetTitle(t, true);
+function nuSetBrowseTitle(title) {
+	nuSetTitle(title, true);
 }
 
-function nuSetTitle(t, browse) {
+function nuSetTitle(title, browse) {
 
 	if (nuFormType() == 'browse' && !browse == true) {
 		return;
 	}
+	
+	title = nuEscapeHTML(title);
 
-	nuFORM.setProperty('title', t);
+	nuFORM.setProperty('title', title);
 
-	let b = $('.nuBreadcrumb').length;
-	if (b === 0 && !nuIsIframe()) {
-		$('#nuHomeGap').append(nuEscapeHTML(t));
-	} else {
-		let h = '<div id="nuarrow' + (b - 1) + '" class="nuBreadcrumbArrow">&nbsp;<i class="fa fa-caret-right"></i>&nbsp;</div>';
+	const $notBreadcrumb = $('.nuNotBreadcrumb');
 
-		if (nuFORM.breadcrumbs.length == 1) {
-			h = '';
+	if ($('.nuBreadcrumb').length === 0 && !nuIsIframe()) {
+		
+		if ($notBreadcrumb.length > 0) {
+			$notBreadcrumb.html(title);
+		} else {
+			$('#nuHomeGap').append(title);
 		}
+	} else {
+		const bc  = $('.nuBreadcrumb').length;
+		const h =  bc == 1 ? '' : '<div id="nuarrow' + (bc - 1) + '" class="nuBreadcrumbArrow">&nbsp;<i class="fa fa-caret-right"></i>&nbsp;</div>';
 
-		$('#nuBreadcrumb' + b).html(h + nuEscapeHTML(t));
+		$('#nuBreadcrumb' + bc).html(h + title);
 	}
 
 }
@@ -5062,7 +5069,7 @@ function nuFormsUnsaved() {
 
 }
 
-function nuAddJavascript(js) {
+function nuAddJavaScript(js) {
 
 	var s = document.createElement('script');
 	s.innerHTML = "\n\n" + js + "\n\n";
@@ -5946,7 +5953,7 @@ function nuPortraitScreen(columns) {
 		const jtab = $('#nuTab' + obj[i].tab);
 		let tabVisible = jtab.nuIsVisible()
 
-		if (obj[i].tab != b && tabVisible) {
+		if (obj[i].tab != b && tabVisible && ! window.nuPortraitScreenShowTabTitles == false ) {
 
 			if ($('.nuTab').length > 1) {
 				b = obj[i].tab;
@@ -6203,7 +6210,7 @@ function nuAddBrowseAdditionalNavButtons() {
 		var currentPage = Number($('#browsePage').val());
 		var lastPage = nuCurrentProperties().pages;
 
-		var html = '<span id="nuFirst" class="nuBrowsePage" style="font-size: 15px;"><i class="fa fa-step-backward ml-5 mr-5" onclick="nuGetPage(0)">&nbsp;&nbsp;&nbsp;&nbsp;</i></span>';
+		var html = '<span id="nuFirst" class="nuBrowsePage" style="font-size: 15px;"><i class="fa fa-step-backward ml-5 mr-5" onclick="nuGetPage(1)">&nbsp;&nbsp;&nbsp;&nbsp;</i></span>';
 		$(html).insertBefore("#nuLast");
 
 		html = '<span id="nuEnd" class="nuBrowsePage" style="font-size: 15px;">&nbsp;&nbsp;&nbsp;&nbsp;<i class="fa fa-step-forward ml-5 mr-5" onclick="nuGetPage(' + lastPage + ')"></i></span>';

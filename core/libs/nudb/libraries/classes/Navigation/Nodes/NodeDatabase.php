@@ -454,7 +454,7 @@ class NodeDatabase extends Node
             $handle = $dbi->tryQuery($query);
             if ($handle !== false) {
                 $count = 0;
-                if ($dbi->dataSeek($handle, $pos)) {
+                if ($handle->seek($pos)) {
                     while ($arr = $handle->fetchRow()) {
                         if ($count >= $maxItems) {
                             break;
@@ -657,7 +657,7 @@ class NodeDatabase extends Node
                 ];
                 $ret = '<span class="dbItemControls">'
                     . '<a href="' . Url::getFromRoute('/navigation') . '" data-post="'
-                    . Url::getCommon($params, '') . '"'
+                    . Url::getCommon($params, '', false) . '"'
                     . ' class="showUnhide ajax">'
                     . Generator::getImage(
                         'show',

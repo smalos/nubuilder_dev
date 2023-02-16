@@ -1,5 +1,3 @@
-"use strict";
-
 /* global DesignerOfflineDB */
 // js/designer/database.js
 // eslint-disable-next-line no-unused-vars
@@ -63,7 +61,7 @@ DesignerPage.saveToSelectedPage = function (db, pageId, pageName, tablePositions
 };
 
 DesignerPage.createNewPage = function (db, pageName, callback) {
-  var newPage = new DesignerObjects.PdfPage(db, pageName);
+  var newPage = new DesignerObjects.PdfPage(db, pageName, []);
   DesignerOfflineDB.addObject('pdf_pages', newPage, function (pgNr) {
     newPage.pgNr = pgNr;
 

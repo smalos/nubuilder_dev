@@ -184,7 +184,6 @@ class SearchController extends AbstractController
 
         $this->addScriptFiles([
             'makegrid.js',
-            'vendor/stickyfill.min.js',
             'sql.js',
             'table/select.js',
             'table/change.js',
@@ -222,7 +221,7 @@ class SearchController extends AbstractController
             . Util::backquote($_POST['table']) . ' WHERE ' . $_POST['where_clause'];
         $result = $this->dbi->query($row_info_query . ';');
         $fields_meta = $this->dbi->getFieldsMeta($result);
-        while ($row = $this->dbi->fetchAssoc($result)) {
+        while ($row = $result->fetchAssoc()) {
             // for bit fields we need to convert them to printable form
             $i = 0;
             foreach ($row as $col => $val) {

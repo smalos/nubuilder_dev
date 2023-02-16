@@ -100,10 +100,9 @@ $cfg['TranslationWarningThreshold'] = 80;
 $cfg['AllowThirdPartyFraming'] = false;
 
 /**
- * The 'cookie' auth_type uses AES algorithm to encrypt the password. If
- * at least one server configuration uses 'cookie' auth_type, enter here a
- * pass phrase that will be used by AES. The maximum length seems to be 46
- * characters.
+ * The 'cookie' auth_type uses the Sodium extension to encrypt the cookies. If at least one server configuration
+ * uses 'cookie' auth_type, enter here a generated string of random bytes to be used as an encryption key. The
+ * encryption key must be 32 bytes long.
  *
  * @global string $cfg['blowfish_secret']
  */
@@ -607,6 +606,13 @@ $cfg['Servers'][$i]['tracking_add_drop_table'] = true;
 $cfg['Servers'][$i]['tracking_add_drop_database'] = true;
 
 /**
+ * Whether to show or hide detailed MySQL/MariaDB connection errors on the login page.
+ *
+ * @global bool $cfg['Servers'][$i]['hide_connection_errors']
+ */
+$cfg['Servers'][$i]['hide_connection_errors'] = false;
+
+/**
  * Default server (0 = no default server)
  *
  * If you have more than one server configured, you can set $cfg['ServerDefault']
@@ -793,7 +799,7 @@ $cfg['Confirm'] = true;
  *
  * @global string $cfg['CookieSameSite']
  */
- $cfg['CookieSameSite'] = 'Strict';
+$cfg['CookieSameSite'] = 'Strict';
 
 /**
  * recall previous login in cookie authentication mode or not
@@ -838,6 +844,20 @@ $cfg['UseDbSearch'] = true;
  * @global boolean $cfg['IgnoreMultiSubmitErrors']
  */
 $cfg['IgnoreMultiSubmitErrors'] = false;
+
+/**
+ * Define whether phpMyAdmin will encrypt sensitive data from the URL query string.
+ *
+ * @global bool $cfg['URLQueryEncryption']
+ */
+$cfg['URLQueryEncryption'] = false;
+
+/**
+ * A secret key used to encrypt/decrypt the URL query string. Should be 32 bytes long.
+ *
+ * @global string $cfg['URLQueryEncryptionSecretKey']
+ */
+$cfg['URLQueryEncryptionSecretKey'] = '';
 
 /**
  * allow login to any user entered server in cookie based authentication
@@ -1834,6 +1854,11 @@ $cfg['Export']['json_pretty_print'] = false;
  * @global string $cfg['Export']['json_unicode']
  */
 $cfg['Export']['json_unicode'] = true;
+
+/**
+ * @global string $cfg['Export']['remove_definer_from_definitions']
+ */
+$cfg['Export']['remove_definer_from_definitions'] = false;
 
 /**
  * @global string $cfg['Export']['sql_structure_or_data']
@@ -2840,7 +2865,7 @@ $cfg['LinkLengthLimit'] = 1000;
 /**
  * Additional string to allow in CSP headers.
  */
- $cfg['CSPAllow'] = '';
+$cfg['CSPAllow'] = '';
 
 /**
  * Disable the table maintenance mass operations, like optimizing or

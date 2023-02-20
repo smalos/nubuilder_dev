@@ -160,6 +160,8 @@ input, select, textarea, .nuSubform , iframe, .nuImage, .nuHtml {
 .nuHomeRespButton > :nth-child(1) {
     width: 90%;
 
+    /*min-width:50%;*/
+    /*max-width: 90%;*/
 
 }
 .nuHomeRespButton > :nth-child(2) {
@@ -180,7 +182,7 @@ input, select, textarea, .nuSubform , iframe, .nuImage, .nuHtml {
 .nuHomeButtonWrapper {
 
     display: grid;
-    grid-template-columns: 300px 300px 300px;
+    grid-template-columns: minmax(auto,300px) minmax(auto,300px) minmax(auto,300px);
 
     flex-flow: row wrap;
     row-gap: 15px;
@@ -192,6 +194,7 @@ input, select, textarea, .nuSubform , iframe, .nuImage, .nuHtml {
 .nuHomeButtonWrapper.nuHomeRespButton .input_button_left {
 
     width: 80%;
+    
 }
 
 .nuObjectWrapper .nuButton {
@@ -222,7 +225,8 @@ input, select, textarea, .nuSubform , iframe, .nuImage, .nuHtml {
     }
     .nuHomeButtonWrapper {
         display: flex;
-        width: 95vw;
+        min-width: 50vw;
+        max-width:80vw;
         flex-direction: column;
 
     }

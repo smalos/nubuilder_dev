@@ -35,7 +35,7 @@ if (nuFormType() == 'edit') {
             if (oType == 'lookup') {
                 
                   $("#"+id+",#label_"+id+",#"+id+"code, #"+id+"button,#"+id+"description").wrapAll('<div  class="nuObjectWrapper nuLookupWrapper"></div>');
-                  $("#"+id+"code, #"+id+"button,#"+id+"description").wrapAll('<div class="nuLuWrapper"></div>');//, #sal_zzzzsys_form_id_open_button
+                  $("#"+id+"code, #"+id+"button,#"+id+"description , #sal_zzzzsys_form_id_open_button").wrapAll('<div class="nuLuWrapper"></div>');//, #sal_zzzzsys_form_id_open_button
                   
             }
             
@@ -56,7 +56,7 @@ if (nuFormType() == 'edit') {
             if (o[i].input == 'button') {
 
 
-                $("#"+id+"").wrapAll('<div class="nuObjectWrapper nuRespButton"></div>');//02/02/23 Added Class:nuRespButton .not('#sal_zzzzsys_form_id_open_button')
+                $("#"+id+"").not('#sal_zzzzsys_form_id_open_button').wrapAll('<div class="nuObjectWrapper nuRespButton"></div>');//02/02/23 Added Class:nuRespButton .not('#sal_zzzzsys_form_id_open_button')
         
              //$(".nuLookupButton").unwrap();
             }

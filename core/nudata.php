@@ -10,8 +10,8 @@ function nuValidateSubforms(){
 	for($d = 0 ; $d < $countNuData ; $d++){
 
 		$sf			= $nudata[$d];
-		$a			= array();
-		$L			= array();
+		$a			= [];
+		$L			= [];
 		$s	= '
 				SELECT
 					sob_subform_zzzzsys_form_id,
@@ -281,7 +281,7 @@ function nuUpdateDatabase(){
 		$nudata = $_POST['nudata'];
 	}
 
-	$S = array();
+	$S = [];
 
 	$countNuData = count($nudata);
 	for($d = 0 ; $d < $countNuData ; $d++){
@@ -305,7 +305,7 @@ function nuUpdateDatabase(){
 		if($names != null && is_array($names)){
 			$CTSTN = $names;
 		}else{
-			$CTSTN = array();
+			$CTSTN = [];
 		}
 
 		$log		= in_array($table . '_nulog', $CTSTN);
@@ -322,9 +322,9 @@ function nuUpdateDatabase(){
 
 			if($editedRow){
 
-				$F					= array();
-				$I					= array();
-				$V					= array();
+				$F					= [];
+				$I					= [];
+				$V					= [];
 				$edit				= $edited[$r];
 				$row				= $rows[$r];
 				$pv					= $row[0];
@@ -345,8 +345,8 @@ function nuUpdateDatabase(){
 
 				}
 
-				$V					= array();																		//-- primary key id
-				$I					= array();
+				$V					= [];																		//-- primary key id
+				$I					= [];
 
 				if($nv != 'autoid'){
 
@@ -619,10 +619,10 @@ function nuUpdateRow($r, $p, $row, $FK){
 
 	}
 
-	$set			= array();
+	$set			= [];
 	$columns		= db_field_names($r->sfo_table);
 	$objects		= nuEditObjects($r->zzzzsys_form_id);
-	$q				= array();
+	$q				= [];
 
 	$countF = count($row['f']);
 	for($i = 0 ; $i < $countF ; $i++){
@@ -649,7 +649,7 @@ function nuUpdateRow($r, $p, $row, $FK){
 
 function nuEditObjects($id){
 
-	$a	= array();
+	$a	= [];
 	$s	= "SELECT sob_all_id FROM zzzzsys_object WHERE sob_all_zzzzsys_form_id = '$id' ORDER BY sob_all_order";
 	$t	= nuRunQuery($s);
 
@@ -724,8 +724,8 @@ function nuAutoNumbers($form_id){
 					AND sob_input_type				= 'nuAutoNumber'
 				";
 
-	$t			= nuRunQuery($s, array($form_id));
-	$a			= array();
+	$t			= nuRunQuery($s, [$form_id]);
+	$a			= [];
 
 	while($r = db_fetch_object($t)){
 		$a[]	= $r->sob_all_id;
@@ -741,7 +741,7 @@ function nuFormatValue($row, $i){
 	$field		= $row['f'][$i];
 
 	$s			= "SELECT sob_all_type, sob_select_multiple, sob_input_type, zzzzsys_object_id FROM zzzzsys_object WHERE sob_all_zzzzsys_form_id = ? AND sob_all_id = ? ";
-	$t			= nuRunQuery($s, array($form_id, $field));
+	$t			= nuRunQuery($s, [$form_id, $field]);
 	$r			= db_fetch_object($t);
 
 	if($r->sob_all_type == 'select' and $r->sob_select_multiple == '1' and $row['v'][$i] != ''){
@@ -835,13 +835,13 @@ function nuSubformObject($id){
 function nuDeleteForm($f){
 
 	$s		= "DELETE FROM zzzzsys_browse WHERE sbr_zzzzsys_form_id = ? ";
-	$t		= nuRunQuery($s, array($f));
+	$t		= nuRunQuery($s, [$f]);
 	$s		= "DELETE FROM zzzzsys_tab WHERE syt_zzzzsys_form_id = ? ";
-	$t		= nuRunQuery($s, array($f));
+	$t		= nuRunQuery($s, [$f]);
 	$s		= "DELETE FROM zzzzsys_php WHERE zzzzsys_php_id LIKE CONCAT(?, '_') ";
-	$t		= nuRunQuery($s, array($f));
+	$t		= nuRunQuery($s, [$f]);
 	$s		= "DELETE FROM zzzzsys_object WHERE sob_all_type = 'run' AND sob_run_zzzzsys_form_id = ? ";
-	$t		= nuRunQuery($s, array($f));
+	$t		= nuRunQuery($s, [$f]);
 	$s		= "SELECT * FROM zzzzsys_object WHERE sob_all_zzzzsys_form_id = ? ";
 	$t		= nuRunQuery($s);
 
@@ -849,14 +849,14 @@ function nuDeleteForm($f){
 
 		$i	= $r->zzzzsys_object;
 		$s	= "DELETE FROM zzzzsys_event WHERE sev_zzzzsys_object_id = ? ";
-		$t	= nuRunQuery($s, array($i));
+		$t	= nuRunQuery($s, [$i]);
 		$s	= "DELETE FROM zzzzsys_php WHERE zzzzsys_php_id LIKE CONCAT(?, '_')";
-		$t	= nuRunQuery($s, array($i));
+		$t	= nuRunQuery($s, [$i]);
 
 	}
 
 	$s		= "DELETE FROM zzzzsys_object WHERE sob_all_type = 'run' AND sob_run_zzzzsys_form_id = ? ";
-	$t		= nuRunQuery($s, array($f));
+	$t		= nuRunQuery($s, [$f]);
 
 }
 
@@ -865,7 +865,7 @@ function nuGetFile(){
 	$f		= $_POST['nuSTATE']['fileCode'];
 
 	$s		= "SELECT sfi_json FROM zzzzsys_file WHERE sfi_code = ? ";
-	$t		= nuRunQuery($s, array($f));
+	$t		= nuRunQuery($s, [$f]);
 	$r		= db_fetch_object($t);
 
 	return db_num_rows($t) == 1 ? $r->sfi_json : null;
@@ -895,7 +895,7 @@ function nuLogout(){
 
 	$s		= "DELETE FROM zzzzsys_session WHERE zzzzsys_session_id = ? ";
 
-	nuRunQuery($s, array($i));
+	nuRunQuery($s, [$i]);
 
 }
 

@@ -97,7 +97,7 @@ function nuUpdateSystemRecords(){
 
 	$ts			= nuBuildTableSchema();
 	$t			= nuListSystemTables();
-	$new		= array();
+	$new		= [];
 
 	$countTables = count($t);
 	for($i = 0 ; $i < $countTables ; $i++){
@@ -255,16 +255,24 @@ function nuAlterSystemTables(){
 
 	nuRunQueryNoDebug("ALTER TABLE `zzzzsys_debug` ADD `deb_user_id` VARCHAR(25) NULL DEFAULT NULL AFTER `deb_added`;");
 
+	nuRunQueryNoDebug("ALTER TABLE `zzzzsys_code_snippet` CHANGE `cot_updated_on` `cot_updated_on` TIMESTAMP on update CURRENT_TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP;");
+
+	/*
+	nuRunQueryNoDebug("ALTER TABLE `zzzzsys_cloner` ADD `clo_tables_include` MEDIUMTEXT NULL DEFAULT NULL AFTER `clo_iframe_forms`;");
+	nuRunQueryNoDebug("ALTER TABLE `zzzzsys_cloner` ADD `clo_tables_exclude` MEDIUMTEXT NULL DEFAULT NULL AFTER `clo_tables_include`;");
+	*/
+	
+
 	$setupColumns = db_field_names('zzzzsys_setup');
 	if(array_search('set_languages_included', $setupColumns) == false){
 		nuRunQueryNoDebug("ALTER TABLE `zzzzsys_setup` ADD `set_languages_included` VARCHAR(1000) NULL DEFAULT NULL AFTER `set_language`;");
-		nuRunQuery('UPDATE `zzzzsys_setup` SET set_languages_included = ?', array('["Afrikaans","Arabic","Armenian","Catalan","Chinese","Czech","Danish","Dutch", "French","German","Greek","Hindi","Italian","Malay","Polish","Portuguese","Romanian","Russian","Slovak","Spanish","Tamil","Vietnamese"]'));
+		nuRunQuery('UPDATE `zzzzsys_setup` SET set_languages_included = ?', ['["Afrikaans","Arabic","Armenian","Catalan","Chinese","Czech","Danish","Dutch", "French","German","Greek","Hindi","Italian","Malay","Polish","Portuguese","Romanian","Russian","Slovak","Spanish","Tamil","Vietnamese"]']);
 	}
 
 	if(array_search('set_style', $setupColumns) == false){
 		nuRunQueryNoDebug("ALTER TABLE `zzzzsys_setup` ADD `set_style` LONGTEXT NULL DEFAULT NULL AFTER `set_header`;");
 		$style = "/* Define your own styles, override styles from nubuilder4.css */\r\n\r\n/*\r\n .nuActionButton {\r\n background-color: #579cb7\r\n}\r\n\r\n*/";
-		nuRunQuery('UPDATE `zzzzsys_setup` SET set_style = ?', array($style));
+		nuRunQuery('UPDATE `zzzzsys_setup` SET set_style = ?', [$style]);
 	}
 
 	nuRunQueryNoDebug("ALTER TABLE `pdf_temp` ADD `pdf_code` VARCHAR(100) NULL DEFAULT NULL AFTER `pdf_added_by`;");
@@ -388,7 +396,7 @@ function nuAppendToSystemTables(){
 
 function nuSystemList(){
 
-	$t	= array();
+	$t	= [];
 		$t[]	= 'zzzzsys_access';
 		$t[]	= 'zzzzsys_access_form';
 		$t[]	= 'zzzzsys_access_php';
@@ -461,9 +469,9 @@ function nuGetIncludedLanguages(){
 	$r		= db_fetch_row($t);
 
 	$v = str_replace('"', '', $r[0]);
-	$v = str_replace(array('[',']') , '' , $v );
+	$v = str_replace(['[',']'] , '' , $v );
 
-	return $v == '' ? array() : explode(",", $v);
+	return $v == '' ? [] : explode(",", $v);
 
 }
 

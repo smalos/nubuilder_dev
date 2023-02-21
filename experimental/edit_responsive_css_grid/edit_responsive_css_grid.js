@@ -13,7 +13,7 @@ if (nuFormType() == 'edit') {
 
     if (isResponsive()) {
 
-
+       var frmid = window.nuFORM.getProperty('form_id');
 
         var o = nuSERVERRESPONSE.objects;
         for (let i = 0; i < o.length; i++) {
@@ -35,9 +35,11 @@ if (nuFormType() == 'edit') {
             if (oType == 'lookup') {
                 
                   $("#"+id+",#label_"+id+",#"+id+"code, #"+id+"button,#"+id+"description").wrapAll('<div  class="nuObjectWrapper nuLookupWrapper"></div>');
-                  $("#"+id+"code, #"+id+"button,#"+id+"description, #sal_zzzzsys_form_id_open_button").wrapAll('<div class="nuLuWrapper"></div>');
+                  $("#"+id+"code, #"+id+"button,#"+id+"description").wrapAll('<div class="nuLuWrapper"></div>');//, #sal_zzzzsys_form_id_open_button
                   
             }
+            
+            
 
             if (oType == 'file') {
 
@@ -54,9 +56,16 @@ if (nuFormType() == 'edit') {
             if (o[i].input == 'button') {
 
 
-                $("#"+id+"").not('#sal_zzzzsys_form_id_open_button').wrapAll('<div class="nuObjectWrapper nuRespButton"></div>');//02/02/23 Added Class:nuRespButton 
-//.not("#sal_zzzzsys_form_id_open_button")
+                $("#"+id+"").wrapAll('<div class="nuObjectWrapper nuRespButton"></div>');//02/02/23 Added Class:nuRespButton .not('#sal_zzzzsys_form_id_open_button')
+        
+             //$(".nuLookupButton").unwrap();
             }
+            
+            // if (frmid =='nuaccess' && oType == 'lookup'){
+            //     $("#"+id+",#label_"+id+",#"+id+"code, #"+id+"button,#"+id+"description, #sal_zzzzsys_form_id_open_button").wrapAll('<div  class="nuObjectWrapper nuLookupWrapper"></div>');
+            //     $("#"+id+"code, #"+id+"button,#"+id+"description").wrapAll('<div class="nuLuWrapper"></div>');
+                
+            // }
 
             if (o[i].tab === 0 && oType == 'subform') { //subforms in tab one only-responsive + scroll on small screens
 
@@ -114,11 +123,25 @@ if (nuFormType() == 'edit') {
          $("#edit_php, #menu_procedures").wrapAll('<div class="nuHomeRespButton"></div>');
          $("#run_setup, #menu_setup").wrapAll('<div class="nuHomeRespButton"></div>');
          
-         $(".nuHomeRespButton").wrapAll('<div class="nuHomeButtonWrapper"></div>');//nuHomeButtonWrapper
+         $(".nuHomeRespButton").wrapAll('<div class="nuHomeButtonWrapper"></div>');
+        $(".nuHomeButtonWrapper").wrapAll('<fieldset></fieldset>');
+       
+//              if (frmid == 'nuaccess'){
+                 
+//                   $(".nuObjectWrapper").wrapAll('<fieldset ></fieldset>');
+        
+//                 // $(".nuObjectWrapper").wrapAll('<fieldset></fieldset>');
+       
+
+// }
+
+
+         
+      
+         
         $(".nuContentBoxTitle").remove();
         $('div:empty').remove(); 
-        //$("#sal_zzzzsys_form_id_open_button").unwrap();
-        // $(".nuContainer").contents().wrapAll('<div class="nuContentBox"> </div>');
+        
 
 
 

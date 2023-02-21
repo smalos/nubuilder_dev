@@ -1,7 +1,7 @@
-import Bold from './bold';
+import Bold from './bold'
 
 class Italic extends Bold {}
-Italic.blotName = 'italic';
-Italic.tagName = ['EM', 'I'];
+Italic.blotName = 'italic'
+Italic.tagName = ['EM', 'I']
 
-export default Italic;
+export default Italic

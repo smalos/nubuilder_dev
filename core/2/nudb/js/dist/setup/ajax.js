@@ -1,13 +1,13 @@
-"use strict";
+'use strict'
 
 /* eslint-disable no-unused-vars */
 
 /**
  * Dummy implementation of the ajax page loader
  */
-var AJAX = {
+const AJAX = {
   registerOnload: function (idx, func) {
-    $(func);
+    $(func)
   },
   registerTeardown: function (idx, func) {}
-};
+}

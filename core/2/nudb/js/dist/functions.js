@@ -1,4 +1,4 @@
-"use strict";
+'use strict'
 
 /* global isStorageSupported */
 // js/config.js
@@ -28,100 +28,100 @@
  * general function, usually for data manipulation pages
  *
  */
-var Functions = {};
+const Functions = {}
 /**
  * @var sqlBoxLocked lock for the sqlbox textarea in the querybox
  */
 // eslint-disable-next-line no-unused-vars
 
-var sqlBoxLocked = false;
+let sqlBoxLocked = false
 /**
  * @var {array}, holds elements which content should only selected once
  */
 
-var onlyOnceElements = [];
+const onlyOnceElements = []
 /**
  * @var {number} ajaxMessageCount Number of AJAX messages shown since page load
  */
 
-var ajaxMessageCount = 0;
+let ajaxMessageCount = 0
 /**
  * @var codeMirrorEditor object containing CodeMirror editor of the query editor in SQL tab
  */
 
-var codeMirrorEditor = false;
+let codeMirrorEditor = false
 /**
  * @var codeMirrorInlineEditor object containing CodeMirror editor of the inline query editor
  */
 
-var codeMirrorInlineEditor = false;
+let codeMirrorInlineEditor = false
 /**
  * @var {boolean} sqlAutoCompleteInProgress shows if Table/Column name autocomplete AJAX is in progress
  */
 
-var sqlAutoCompleteInProgress = false;
+let sqlAutoCompleteInProgress = false
 /**
  * @var sqlAutoComplete object containing list of columns in each table
  */
 
-var sqlAutoComplete = false;
+let sqlAutoComplete = false
 /**
  * @var {string} sqlAutoCompleteDefaultTable string containing default table to autocomplete columns
  */
 
-var sqlAutoCompleteDefaultTable = '';
+let sqlAutoCompleteDefaultTable = ''
 /**
  * @var {array} centralColumnList array to hold the columns in central list per db.
  */
 
-var centralColumnList = [];
+const centralColumnList = []
 /**
  * @var {array} primaryIndexes array to hold 'Primary' index columns.
  */
 // eslint-disable-next-line no-unused-vars
 
-var primaryIndexes = [];
+const primaryIndexes = []
 /**
  * @var {array} uniqueIndexes array to hold 'Unique' index columns.
  */
 // eslint-disable-next-line no-unused-vars
 
-var uniqueIndexes = [];
+const uniqueIndexes = []
 /**
  * @var {array} indexes array to hold 'Index' columns.
  */
 // eslint-disable-next-line no-unused-vars
 
-var indexes = [];
+const indexes = []
 /**
  * @var {array} fulltextIndexes array to hold 'Fulltext' columns.
  */
 // eslint-disable-next-line no-unused-vars
 
-var fulltextIndexes = [];
+const fulltextIndexes = []
 /**
  * @var {array} spatialIndexes array to hold 'Spatial' columns.
  */
 // eslint-disable-next-line no-unused-vars
 
-var spatialIndexes = [];
+const spatialIndexes = []
 /**
  * Make sure that ajax requests will not be cached
  * by appending a random variable to their parameters
  */
 
 $.ajaxPrefilter(function (options, originalOptions) {
-  var nocache = new Date().getTime() + '' + Math.floor(Math.random() * 1000000);
+  const nocache = new Date().getTime() + '' + Math.floor(Math.random() * 1000000)
 
   if (typeof options.data === 'string') {
-    options.data += '&_nocache=' + nocache + '&token=' + encodeURIComponent(CommonParams.get('token'));
+    options.data += '&_nocache=' + nocache + '&token=' + encodeURIComponent(CommonParams.get('token'))
   } else if (typeof options.data === 'object') {
     options.data = $.extend(originalOptions.data, {
-      '_nocache': nocache,
-      'token': CommonParams.get('token')
-    });
+      _nocache: nocache,
+      token: CommonParams.get('token')
+    })
   }
-});
+})
 /**
  * Adds a date/time picker to an element
  *
@@ -132,18 +132,17 @@ $.ajaxPrefilter(function (options, originalOptions) {
 
 Functions.addDatepicker = function ($thisElement, type, options) {
   if (type !== 'date' && type !== 'time' && type !== 'datetime' && type !== 'timestamp') {
-    return;
+    return
   }
 
-  var showTimepicker = true;
+  let showTimepicker = true
 
   if (type === 'date') {
-    showTimepicker = false;
+    showTimepicker = false
   } // Getting the current Date and time
 
-
-  var currentDateTime = new Date();
-  var defaultOptions = {
+  const currentDateTime = new Date()
+  const defaultOptions = {
     timeInput: true,
     hour: currentDateTime.getHours(),
     minute: currentDateTime.getMinutes(),
@@ -156,7 +155,7 @@ Functions.addDatepicker = function ($thisElement, type, options) {
     showSecond: true,
     showMillisec: true,
     showMicrosec: true,
-    showTimepicker: showTimepicker,
+    showTimepicker,
     showButtonPanel: false,
     changeYear: true,
     dateFormat: 'yy-mm-dd',
@@ -168,7 +167,7 @@ Functions.addDatepicker = function ($thisElement, type, options) {
     beforeShow: function (input, inst) {
       // Remember that we came from the datepicker; this is used
       // in table/change.js by verificationsAfterFieldChange()
-      $thisElement.data('comes_from', 'datepicker');
+      $thisElement.data('comes_from', 'datepicker')
 
       if ($(input).closest('.cEdit').length > 0) {
         setTimeout(function () {
@@ -176,120 +175,118 @@ Functions.addDatepicker = function ($thisElement, type, options) {
             top: 0,
             left: 0,
             position: 'relative'
-          });
-        }, 0);
+          })
+        }, 0)
       }
 
       setTimeout(function () {
         // Fix wrong timepicker z-index, doesn't work without timeout
-        $('#ui-timepicker-div').css('z-index', $('#ui-datepicker-div').css('z-index')); // Integrate tooltip text into dialog
+        $('#ui-timepicker-div').css('z-index', $('#ui-datepicker-div').css('z-index')) // Integrate tooltip text into dialog
 
-        var tooltip = $thisElement.uiTooltip('instance');
+        const tooltip = $thisElement.uiTooltip('instance')
 
         if (typeof tooltip !== 'undefined') {
-          tooltip.disable();
-          var $note = $('<p class="note"></div>');
-          $note.text(tooltip.option('content'));
-          $('div.ui-datepicker').append($note);
+          tooltip.disable()
+          const $note = $('<p class="note"></div>')
+          $note.text(tooltip.option('content'))
+          $('div.ui-datepicker').append($note)
         }
-      }, 0);
+      }, 0)
     },
     onSelect: function () {
-      $thisElement.data('datepicker').inline = true;
+      $thisElement.data('datepicker').inline = true
     },
     onClose: function () {
       // The value is no more from the date picker
-      $thisElement.data('comes_from', '');
+      $thisElement.data('comes_from', '')
 
       if (typeof $thisElement.data('datepicker') !== 'undefined') {
-        $thisElement.data('datepicker').inline = false;
+        $thisElement.data('datepicker').inline = false
       }
 
-      var tooltip = $thisElement.uiTooltip('instance');
+      const tooltip = $thisElement.uiTooltip('instance')
 
       if (typeof tooltip !== 'undefined') {
-        tooltip.enable();
+        tooltip.enable()
       }
     }
-  };
+  }
 
   if (type === 'time') {
-    $thisElement.timepicker($.extend(defaultOptions, options)); // Add a tip regarding entering MySQL allowed-values for TIME data-type
+    $thisElement.timepicker($.extend(defaultOptions, options)) // Add a tip regarding entering MySQL allowed-values for TIME data-type
 
-    Functions.tooltip($thisElement, 'input', Messages.strMysqlAllowedValuesTipTime);
+    Functions.tooltip($thisElement, 'input', Messages.strMysqlAllowedValuesTipTime)
   } else {
-    $thisElement.datetimepicker($.extend(defaultOptions, options));
+    $thisElement.datetimepicker($.extend(defaultOptions, options))
   }
-};
+}
 /**
  * Add a date/time picker to each element that needs it
  * (only when jquery-ui-timepicker-addon.js is loaded)
  */
 
-
 Functions.addDateTimePicker = function () {
   if ($.timepicker !== undefined) {
     $('input.timefield, input.datefield, input.datetimefield').each(function () {
-      var decimals = $(this).parent().attr('data-decimals');
-      var type = $(this).parent().attr('data-type');
-      var showMillisec = false;
-      var showMicrosec = false;
-      var timeFormat = 'HH:mm:ss';
-      var hourMax = 23; // check for decimal places of seconds
+      const decimals = $(this).parent().attr('data-decimals')
+      const type = $(this).parent().attr('data-type')
+      let showMillisec = false
+      let showMicrosec = false
+      let timeFormat = 'HH:mm:ss'
+      let hourMax = 23 // check for decimal places of seconds
 
       if (decimals > 0 && type.indexOf('time') !== -1) {
         if (decimals > 3) {
-          showMillisec = true;
-          showMicrosec = true;
-          timeFormat = 'HH:mm:ss.lc';
+          showMillisec = true
+          showMicrosec = true
+          timeFormat = 'HH:mm:ss.lc'
         } else {
-          showMillisec = true;
-          timeFormat = 'HH:mm:ss.l';
+          showMillisec = true
+          timeFormat = 'HH:mm:ss.l'
         }
       }
 
       if (type === 'time') {
-        hourMax = 99;
+        hourMax = 99
       }
 
       Functions.addDatepicker($(this), type, {
-        showMillisec: showMillisec,
-        showMicrosec: showMicrosec,
-        timeFormat: timeFormat,
-        hourMax: hourMax,
+        showMillisec,
+        showMicrosec,
+        timeFormat,
+        hourMax,
         firstDay: firstDayOfCalendar
-      }); // Add a tip regarding entering MySQL allowed-values
+      }) // Add a tip regarding entering MySQL allowed-values
       // for TIME and DATE data-type
 
       if ($(this).hasClass('timefield')) {
-        Functions.tooltip($(this), 'input', Messages.strMysqlAllowedValuesTipTime);
+        Functions.tooltip($(this), 'input', Messages.strMysqlAllowedValuesTipTime)
       } else if ($(this).hasClass('datefield')) {
-        Functions.tooltip($(this), 'input', Messages.strMysqlAllowedValuesTipDate);
+        Functions.tooltip($(this), 'input', Messages.strMysqlAllowedValuesTipDate)
       }
-    });
+    })
   }
-};
+}
 /**
  * Handle redirect and reload flags sent as part of AJAX requests
  *
  * @param data ajax response data
  */
 
-
 Functions.handleRedirectAndReload = function (data) {
   if (parseInt(data.redirect_flag) === 1) {
     // add one more GET param to display session expiry msg
     if (window.location.href.indexOf('?') === -1) {
-      window.location.href += '?session_expired=1';
+      window.location.href += '?session_expired=1'
     } else {
-      window.location.href += CommonParams.get('arg_separator') + 'session_expired=1';
+      window.location.href += CommonParams.get('arg_separator') + 'session_expired=1'
     }
 
-    window.location.reload();
+    window.location.reload()
   } else if (parseInt(data.reload_flag) === 1) {
-    window.location.reload();
+    window.location.reload()
   }
-};
+}
 /**
  * Creates an SQL editor which supports auto completing etc.
  *
@@ -301,101 +298,99 @@ Functions.handleRedirectAndReload = function (data) {
  * @return {object|null}
  */
 
-
 Functions.getSqlEditor = function ($textarea, options, resize, lintOptions) {
-  var resizeType = resize;
+  let resizeType = resize
 
   if ($textarea.length > 0 && typeof CodeMirror !== 'undefined') {
     // merge options for CodeMirror
-    var defaults = {
+    const defaults = {
       lineNumbers: true,
       matchBrackets: true,
       extraKeys: {
         'Ctrl-Space': 'autocomplete'
       },
       hintOptions: {
-        'completeSingle': false,
-        'completeOnSingleClick': true
+        completeSingle: false,
+        completeOnSingleClick: true
       },
       indentUnit: 4,
       mode: 'text/x-mysql',
       lineWrapping: true
-    };
+    }
 
     if (CodeMirror.sqlLint) {
       $.extend(defaults, {
         gutters: ['CodeMirror-lint-markers'],
         lint: {
-          'getAnnotations': CodeMirror.sqlLint,
-          'async': true,
-          'lintOptions': lintOptions
+          getAnnotations: CodeMirror.sqlLint,
+          async: true,
+          lintOptions
         }
-      });
+      })
     }
 
-    $.extend(true, defaults, options); // create CodeMirror editor
+    $.extend(true, defaults, options) // create CodeMirror editor
 
-    var codemirrorEditor = CodeMirror.fromTextArea($textarea[0], defaults); // allow resizing
+    const codemirrorEditor = CodeMirror.fromTextArea($textarea[0], defaults) // allow resizing
 
     if (!resizeType) {
-      resizeType = 'vertical';
+      resizeType = 'vertical'
     }
 
-    var handles = '';
+    let handles = ''
 
     if (resizeType === 'vertical') {
-      handles = 's';
+      handles = 's'
     }
 
     if (resizeType === 'both') {
-      handles = 'all';
+      handles = 'all'
     }
 
     if (resizeType === 'horizontal') {
-      handles = 'e, w';
+      handles = 'e, w'
     }
 
     $(codemirrorEditor.getWrapperElement()).css('resize', resizeType).resizable({
-      handles: handles,
+      handles,
       resize: function () {
-        codemirrorEditor.setSize($(this).width(), $(this).height());
+        codemirrorEditor.setSize($(this).width(), $(this).height())
       }
-    }); // enable autocomplete
+    }) // enable autocomplete
 
-    codemirrorEditor.on('inputRead', Functions.codeMirrorAutoCompleteOnInputRead); // page locking
+    codemirrorEditor.on('inputRead', Functions.codeMirrorAutoCompleteOnInputRead) // page locking
 
     codemirrorEditor.on('change', function (e) {
       e.data = {
         value: 3,
         content: codemirrorEditor.isClean()
-      };
-      AJAX.lockPageHandler(e);
-    });
-    return codemirrorEditor;
+      }
+      AJAX.lockPageHandler(e)
+    })
+    return codemirrorEditor
   }
 
-  return null;
-};
+  return null
+}
 /**
  * Clear text selection
  */
 
-
 Functions.clearSelection = function () {
   if (document.selection && document.selection.empty) {
-    document.selection.empty();
+    document.selection.empty()
   } else if (window.getSelection) {
-    var sel = window.getSelection();
+    const sel = window.getSelection()
 
     if (sel.empty) {
-      sel.empty();
+      sel.empty()
     }
 
     if (sel.removeAllRanges) {
-      sel.removeAllRanges();
+      sel.removeAllRanges()
     }
   }
-};
+}
 /**
  * Create a jQuery UI tooltip
  *
@@ -407,22 +402,21 @@ Functions.clearSelection = function () {
  *
  */
 
-
 Functions.tooltip = function ($elements, item, myContent, additionalOptions) {
   if ($('#no_hint').length > 0) {
-    return;
+    return
   }
 
-  var defaultOptions = {
+  const defaultOptions = {
     content: myContent,
     items: item,
     tooltipClass: 'tooltip',
     track: true,
     show: false,
     hide: false
-  };
-  $elements.uiTooltip($.extend(true, defaultOptions, additionalOptions));
-};
+  }
+  $elements.uiTooltip($.extend(true, defaultOptions, additionalOptions))
+}
 /**
  * HTML escaping
  *
@@ -430,14 +424,13 @@ Functions.tooltip = function ($elements, item, myContent, additionalOptions) {
  * @return {string | false}
  */
 
-
 Functions.escapeHtml = function (unsafe) {
   if (typeof unsafe !== 'undefined') {
-    return unsafe.toString().replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+    return unsafe.toString().replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;')
   } else {
-    return false;
+    return false
   }
-};
+}
 /**
  * JavaScript escaping
  *
@@ -445,36 +438,33 @@ Functions.escapeHtml = function (unsafe) {
  * @return {string | false}
  */
 
-
 Functions.escapeJsString = function (unsafe) {
   if (typeof unsafe !== 'undefined') {
-    return unsafe.toString().replace('\x00', '').replace('\\', '\\\\').replace('\'', '\\\'').replace('&#039;', '\\&#039;').replace('"', '\\"').replace('&quot;', '\\&quot;').replace('\n', '\n').replace('\r', '\r').replace(/<\/script/gi, '</\' + \'script');
+    return unsafe.toString().replace('\x00', '').replace('\\', '\\\\').replace('\'', '\\\'').replace('&#039;', '\\&#039;').replace('"', '\\"').replace('&quot;', '\\&quot;').replace('\n', '\n').replace('\r', '\r').replace(/<\/script/gi, '</\' + \'script')
   } else {
-    return false;
+    return false
   }
-};
+}
 /**
  * @param {string} s
  * @return {string}
  */
-
 
 Functions.escapeBacktick = function (s) {
-  return s.replace('`', '``');
-};
+  return s.replace('`', '``')
+}
 /**
  * @param {string} s
  * @return {string}
  */
 
-
 Functions.escapeSingleQuote = function (s) {
-  return s.replace('\\', '\\\\').replace('\'', '\\\'');
-};
+  return s.replace('\\', '\\\\').replace('\'', '\\\'')
+}
 
 Functions.sprintf = function () {
-  return sprintf.apply(this, arguments);
-};
+  return sprintf.apply(this, arguments)
+}
 /**
  * Hides/shows the default value input field, depending on the default type
  * Ticks the NULL checkbox if NULL is chosen as default value.
@@ -482,19 +472,18 @@ Functions.sprintf = function () {
  * @param {JQuery<HTMLElement>} $defaultType
  */
 
-
 Functions.hideShowDefaultValue = function ($defaultType) {
   if ($defaultType.val() === 'USER_DEFINED') {
-    $defaultType.siblings('.default_value').show().trigger('focus');
+    $defaultType.siblings('.default_value').show().trigger('focus')
   } else {
-    $defaultType.siblings('.default_value').hide();
+    $defaultType.siblings('.default_value').hide()
 
     if ($defaultType.val() === 'NULL') {
-      var $nullCheckbox = $defaultType.closest('tr').find('.allow_null');
-      $nullCheckbox.prop('checked', true);
+      const $nullCheckbox = $defaultType.closest('tr').find('.allow_null')
+      $nullCheckbox.prop('checked', true)
     }
   }
-};
+}
 /**
  * Hides/shows the input field for column expression based on whether
  * VIRTUAL/PERSISTENT is selected
@@ -502,32 +491,30 @@ Functions.hideShowDefaultValue = function ($defaultType) {
  * @param $virtuality virtuality dropdown
  */
 
-
 Functions.hideShowExpression = function ($virtuality) {
   if ($virtuality.val() === '') {
-    $virtuality.siblings('.expression').hide();
+    $virtuality.siblings('.expression').hide()
   } else {
-    $virtuality.siblings('.expression').show();
+    $virtuality.siblings('.expression').show()
   }
-};
+}
 /**
  * Show notices for ENUM columns; add/hide the default value
  *
  */
 
-
 Functions.verifyColumnsProperties = function () {
   $('select.column_type').each(function () {
-    Functions.showNoticeForEnum($(this));
-    Functions.showWarningForIntTypes();
-  });
+    Functions.showNoticeForEnum($(this))
+    Functions.showWarningForIntTypes()
+  })
   $('select.default_type').each(function () {
-    Functions.hideShowDefaultValue($(this));
-  });
+    Functions.hideShowDefaultValue($(this))
+  })
   $('select.virtuality').each(function () {
-    Functions.hideShowExpression($(this));
-  });
-};
+    Functions.hideShowExpression($(this))
+  })
+}
 /**
  * Add a hidden field to the form to indicate that this will be an
  * Ajax request (only if this hidden field does not exist)
@@ -535,52 +522,51 @@ Functions.verifyColumnsProperties = function () {
  * @param {object} $form the form
  */
 
-
 Functions.prepareForAjaxRequest = function ($form) {
   if (!$form.find('input:hidden').is('#ajax_request_hidden')) {
-    $form.append('<input type="hidden" id="ajax_request_hidden" name="ajax_request" value="true">');
+    $form.append('<input type="hidden" id="ajax_request_hidden" name="ajax_request" value="true">')
   }
-};
+}
 
 Functions.checkPasswordStrength = function (value, meterObject, meterObjectLabel, username) {
   // List of words we don't want to appear in the password
-  var customDict = ['phpmyadmin', 'mariadb', 'mysql', 'php', 'my', 'admin'];
+  const customDict = ['phpmyadmin', 'mariadb', 'mysql', 'php', 'my', 'admin']
 
   if (username !== null) {
-    customDict.push(username);
+    customDict.push(username)
   }
 
   zxcvbnts.core.ZxcvbnOptions.setOptions({
     dictionary: {
       userInputs: customDict
     }
-  });
-  var zxcvbnObject = zxcvbnts.core.zxcvbn(value);
-  var strength = zxcvbnObject.score;
-  strength = parseInt(strength);
-  meterObject.val(strength);
+  })
+  const zxcvbnObject = zxcvbnts.core.zxcvbn(value)
+  let strength = zxcvbnObject.score
+  strength = parseInt(strength)
+  meterObject.val(strength)
 
   switch (strength) {
     case 0:
-      meterObjectLabel.html(Messages.strExtrWeak);
-      break;
+      meterObjectLabel.html(Messages.strExtrWeak)
+      break
 
     case 1:
-      meterObjectLabel.html(Messages.strVeryWeak);
-      break;
+      meterObjectLabel.html(Messages.strVeryWeak)
+      break
 
     case 2:
-      meterObjectLabel.html(Messages.strWeak);
-      break;
+      meterObjectLabel.html(Messages.strWeak)
+      break
 
     case 3:
-      meterObjectLabel.html(Messages.strGood);
-      break;
+      meterObjectLabel.html(Messages.strGood)
+      break
 
     case 4:
-      meterObjectLabel.html(Messages.strStrong);
+      meterObjectLabel.html(Messages.strStrong)
   }
-};
+}
 /**
  * Generate a new password and copy it to the password input areas
  *
@@ -589,85 +575,83 @@ Functions.checkPasswordStrength = function (value, meterObject, meterObjectLabel
  * @return {boolean} always true
  */
 
-
 Functions.suggestPassword = function (passwordForm) {
   // restrict the password to just letters and numbers to avoid problems:
   // "editors and viewers regard the password as multiple words and
   // things like double click no longer work"
-  var pwchars = 'abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWYXZ@!_.*/()[]-';
-  var passwordlength = 16; // do we want that to be dynamic?  no, keep it simple :)
+  const pwchars = 'abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWYXZ@!_.*/()[]-'
+  const passwordlength = 16 // do we want that to be dynamic?  no, keep it simple :)
 
-  var passwd = passwordForm.generated_pw; // eslint-disable-next-line compat/compat
+  const passwd = passwordForm.generated_pw // eslint-disable-next-line compat/compat
 
-  var randomWords = new Int32Array(passwordlength);
-  passwd.value = '';
-  var i; // First we're going to try to use a built-in CSPRNG
+  const randomWords = new Int32Array(passwordlength)
+  passwd.value = ''
+  let i // First we're going to try to use a built-in CSPRNG
   // eslint-disable-next-line compat/compat
 
   if (window.crypto && window.crypto.getRandomValues) {
     // eslint-disable-next-line compat/compat
-    window.crypto.getRandomValues(randomWords);
+    window.crypto.getRandomValues(randomWords)
   } else if (window.msCrypto && window.msCrypto.getRandomValues) {
     // Because of course IE calls it msCrypto instead of being standard
-    window.msCrypto.getRandomValues(randomWords);
+    window.msCrypto.getRandomValues(randomWords)
   } else {
     // Fallback to Math.random
     for (i = 0; i < passwordlength; i++) {
-      randomWords[i] = Math.floor(Math.random() * pwchars.length);
+      randomWords[i] = Math.floor(Math.random() * pwchars.length)
     }
   }
 
   for (i = 0; i < passwordlength; i++) {
-    passwd.value += pwchars.charAt(Math.abs(randomWords[i]) % pwchars.length);
+    passwd.value += pwchars.charAt(Math.abs(randomWords[i]) % pwchars.length)
   }
 
-  var $jQueryPasswordForm = $(passwordForm);
-  passwordForm.elements.pma_pw.value = passwd.value;
-  passwordForm.elements.pma_pw2.value = passwd.value;
-  var meterObj = $jQueryPasswordForm.find('meter[name="pw_meter"]').first();
-  var meterObjLabel = $jQueryPasswordForm.find('span[name="pw_strength"]').first();
-  Functions.checkPasswordStrength(passwd.value, meterObj, meterObjLabel);
-  return true;
-};
+  const $jQueryPasswordForm = $(passwordForm)
+  passwordForm.elements.pma_pw.value = passwd.value
+  passwordForm.elements.pma_pw2.value = passwd.value
+  const meterObj = $jQueryPasswordForm.find('meter[name="pw_meter"]').first()
+  const meterObjLabel = $jQueryPasswordForm.find('span[name="pw_strength"]').first()
+  Functions.checkPasswordStrength(passwd.value, meterObj, meterObjLabel)
+  return true
+}
 /**
  * for PhpMyAdmin\Display\ChangePassword and /user-password
  */
 
-
 Functions.displayPasswordGenerateButton = function () {
-  var generatePwdRow = $('<tr></tr>').addClass('align-middle');
-  $('<td></td>').html(Messages.strGeneratePassword).appendTo(generatePwdRow);
-  var pwdCell = $('<td></td>').appendTo(generatePwdRow);
-  var pwdButton = $('<input>').attr({
+  const generatePwdRow = $('<tr></tr>').addClass('align-middle')
+  $('<td></td>').html(Messages.strGeneratePassword).appendTo(generatePwdRow)
+  const pwdCell = $('<td></td>').appendTo(generatePwdRow)
+  const pwdButton = $('<input>').attr({
     type: 'button',
     id: 'button_generate_password',
     value: Messages.strGenerate
   }).addClass('btn btn-secondary button').on('click', function () {
-    Functions.suggestPassword(this.form);
-  });
-  var pwdTextbox = $('<input>').attr({
+    Functions.suggestPassword(this.form)
+  })
+  const pwdTextbox = $('<input>').attr({
     type: 'text',
     name: 'generated_pw',
     id: 'generated_pw'
-  });
-  pwdCell.append(pwdButton).append(pwdTextbox);
+  })
+  pwdCell.append(pwdButton).append(pwdTextbox)
 
   if (document.getElementById('button_generate_password') === null) {
-    $('#tr_element_before_generate_password').parent().append(generatePwdRow);
+    $('#tr_element_before_generate_password').parent().append(generatePwdRow)
   }
 
-  var generatePwdDiv = $('<div></div>').addClass('item');
+  const generatePwdDiv = $('<div></div>').addClass('item')
   $('<label></label>').attr({
     for: 'button_generate_password'
-  }).html(Messages.strGeneratePassword + ':').appendTo(generatePwdDiv);
-  var optionsSpan = $('<span></span>').addClass('options').appendTo(generatePwdDiv);
-  pwdButton.clone(true).appendTo(optionsSpan);
-  pwdTextbox.clone(true).appendTo(generatePwdDiv);
+  }).html(Messages.strGeneratePassword + ':').appendTo(generatePwdDiv)
+  const optionsSpan = $('<span></span>').addClass('options').appendTo(generatePwdDiv)
+  pwdButton.clone(true).appendTo(optionsSpan)
+  pwdTextbox.clone(true).appendTo(generatePwdDiv)
 
   if (document.getElementById('button_generate_password') === null) {
-    $('#div_element_before_generate_password').parent().append(generatePwdDiv);
+    $('#div_element_before_generate_password').parent().append(generatePwdDiv)
   }
-};
+}
 /**
  * selects the content of a given object, f.e. a textarea
  *
@@ -676,20 +660,19 @@ Functions.displayPasswordGenerateButton = function () {
  * @param {boolean} onlyOnce boolean if true this is only done once f.e. only on first focus
  */
 
-
 Functions.selectContent = function (element, lock, onlyOnce) {
   if (onlyOnce && onlyOnceElements[element.name]) {
-    return;
+    return
   }
 
-  onlyOnceElements[element.name] = true;
+  onlyOnceElements[element.name] = true
 
   if (lock) {
-    return;
+    return
   }
 
-  element.select();
-};
+  element.select()
+}
 /**
  * Displays a confirmation box before submitting a "DROP/DELETE/ALTER" query.
  * This function is called while clicking links
@@ -700,26 +683,25 @@ Functions.selectContent = function (element, lock, onlyOnce) {
  * @return {boolean} whether to run the query or not
  */
 
-
 Functions.confirmLink = function (theLink, theSqlQuery) {
   // Confirmation is not required in the configuration file
   // or browser is Opera (crappy js implementation)
   if (Messages.strDoYouReally === '' || typeof window.opera !== 'undefined') {
-    return true;
+    return true
   }
 
-  var isConfirmed = confirm(Functions.sprintf(Messages.strDoYouReally, theSqlQuery));
+  const isConfirmed = confirm(Functions.sprintf(Messages.strDoYouReally, theSqlQuery))
 
   if (isConfirmed) {
     if (typeof theLink.href !== 'undefined') {
-      theLink.href += CommonParams.get('arg_separator') + 'is_js_confirmed=1';
+      theLink.href += CommonParams.get('arg_separator') + 'is_js_confirmed=1'
     } else if (typeof theLink.form !== 'undefined') {
-      theLink.form.action += '?is_js_confirmed=1';
+      theLink.form.action += '?is_js_confirmed=1'
     }
   }
 
-  return isConfirmed;
-};
+  return isConfirmed
+}
 /**
  * Confirms a "DROP/DELETE/ALTER" query before
  * submitting it if required.
@@ -733,11 +715,10 @@ Functions.confirmLink = function (theLink, theSqlQuery) {
  * @see Functions.checkSqlQuery()
  */
 
-
 Functions.confirmQuery = function (theForm1, sqlQuery1) {
   // Confirmation is not required in the configuration file
   if (Messages.strDoYouReally === '') {
-    return true;
+    return true
   } // Confirms a "DROP/DELETE/ALTER/TRUNCATE" statement
   //
   // TODO: find a way (if possible) to use the parser-analyser
@@ -745,40 +726,37 @@ Functions.confirmQuery = function (theForm1, sqlQuery1) {
   // For now, I just added a ^ to check for the statement at
   // beginning of expression
 
-
-  var doConfirmRegExp0 = new RegExp('^\\s*DROP\\s+(IF EXISTS\\s+)?(TABLE|PROCEDURE)\\s', 'i');
-  var doConfirmRegExp1 = new RegExp('^\\s*ALTER\\s+TABLE\\s+((`[^`]+`)|([A-Za-z0-9_$]+))\\s+DROP\\s', 'i');
-  var doConfirmRegExp2 = new RegExp('^\\s*DELETE\\s+FROM\\s', 'i');
-  var doConfirmRegExp3 = new RegExp('^\\s*TRUNCATE\\s', 'i');
-  var doConfirmRegExp4 = new RegExp('^(?=.*UPDATE\\b)^((?!WHERE).)*$', 'i');
+  const doConfirmRegExp0 = new RegExp('^\\s*DROP\\s+(IF EXISTS\\s+)?(TABLE|PROCEDURE)\\s', 'i')
+  const doConfirmRegExp1 = new RegExp('^\\s*ALTER\\s+TABLE\\s+((`[^`]+`)|([A-Za-z0-9_$]+))\\s+DROP\\s', 'i')
+  const doConfirmRegExp2 = new RegExp('^\\s*DELETE\\s+FROM\\s', 'i')
+  const doConfirmRegExp3 = new RegExp('^\\s*TRUNCATE\\s', 'i')
+  const doConfirmRegExp4 = new RegExp('^(?=.*UPDATE\\b)^((?!WHERE).)*$', 'i')
 
   if (doConfirmRegExp0.test(sqlQuery1) || doConfirmRegExp1.test(sqlQuery1) || doConfirmRegExp2.test(sqlQuery1) || doConfirmRegExp3.test(sqlQuery1) || doConfirmRegExp4.test(sqlQuery1)) {
-    var message;
+    let message
 
     if (sqlQuery1.length > 100) {
-      message = sqlQuery1.substr(0, 100) + '\n    ...';
+      message = sqlQuery1.substr(0, 100) + '\n    ...'
     } else {
-      message = sqlQuery1;
+      message = sqlQuery1
     }
 
-    var isConfirmed = confirm(Functions.sprintf(Messages.strDoYouReally, message)); // statement is confirmed -> update the
+    const isConfirmed = confirm(Functions.sprintf(Messages.strDoYouReally, message)) // statement is confirmed -> update the
     // "is_js_confirmed" form field so the confirm test won't be
     // run on the server side and allows to submit the form
 
     if (isConfirmed) {
-      theForm1.elements.is_js_confirmed.value = 1;
-      return true;
+      theForm1.elements.is_js_confirmed.value = 1
+      return true
     } else {
       // statement is rejected -> do not submit the form
-      window.focus();
-      return false;
+      window.focus()
+      return false
     } // end if (handle confirm box result)
-
   } // end if (display confirm box)
 
-
-  return true;
-};
+  return true
+}
 /**
  * Displays an error message if the user submitted the sql query form with no
  * sql query, else checks for "DROP/DELETE/ALTER" statements
@@ -790,44 +768,43 @@ Functions.confirmQuery = function (theForm1, sqlQuery1) {
  * @see Functions.confirmQuery()
  */
 
-
 Functions.checkSqlQuery = function (theForm) {
   // get the textarea element containing the query
-  var sqlQuery;
+  let sqlQuery
 
   if (codeMirrorEditor) {
-    codeMirrorEditor.save();
-    sqlQuery = codeMirrorEditor.getValue();
+    codeMirrorEditor.save()
+    sqlQuery = codeMirrorEditor.getValue()
   } else {
-    sqlQuery = theForm.elements.sql_query.value;
+    sqlQuery = theForm.elements.sql_query.value
   }
 
-  var spaceRegExp = new RegExp('\\s+');
+  const spaceRegExp = new RegExp('\\s+')
 
   if (typeof theForm.elements.sql_file !== 'undefined' && theForm.elements.sql_file.value.replace(spaceRegExp, '') !== '') {
-    return true;
+    return true
   }
 
   if (typeof theForm.elements.id_bookmark !== 'undefined' && (theForm.elements.id_bookmark.value !== null || theForm.elements.id_bookmark.value !== '') && theForm.elements.id_bookmark.selectedIndex !== 0) {
-    return true;
+    return true
   }
 
-  var result = false; // Checks for "DROP/DELETE/ALTER" statements
+  let result = false // Checks for "DROP/DELETE/ALTER" statements
 
   if (sqlQuery.replace(spaceRegExp, '') !== '') {
-    result = Functions.confirmQuery(theForm, sqlQuery);
+    result = Functions.confirmQuery(theForm, sqlQuery)
   } else {
-    alert(Messages.strFormEmpty);
+    alert(Messages.strFormEmpty)
   }
 
   if (codeMirrorEditor) {
-    codeMirrorEditor.focus();
+    codeMirrorEditor.focus()
   } else if (codeMirrorInlineEditor) {
-    codeMirrorInlineEditor.focus();
+    codeMirrorInlineEditor.focus()
   }
 
-  return result;
-};
+  return result
+}
 /**
  * Check if a form's element is empty.
  * An element containing only spaces is also considered empty
@@ -838,12 +815,11 @@ Functions.checkSqlQuery = function (theForm) {
  * @return {boolean} whether the form field is empty or not
  */
 
-
 Functions.emptyCheckTheField = function (theForm, theFieldName) {
-  var theField = theForm.elements[theFieldName];
-  var spaceRegExp = new RegExp('\\s+');
-  return theField.value.replace(spaceRegExp, '') === '';
-};
+  const theField = theForm.elements[theFieldName]
+  const spaceRegExp = new RegExp('\\s+')
+  return theField.value.replace(spaceRegExp, '') === ''
+}
 /**
  * Ensures a value submitted in a form is numeric and is in a range
  *
@@ -856,160 +832,157 @@ Functions.emptyCheckTheField = function (theForm, theFieldName) {
  * @return {boolean}  whether a valid number has been submitted or not
  */
 
-
 Functions.checkFormElementInRange = function (theForm, theFieldName, message, minimum, maximum) {
-  var theField = theForm.elements[theFieldName];
-  var val = parseInt(theField.value, 10);
-  var min = 0;
-  var max = Number.MAX_VALUE;
+  const theField = theForm.elements[theFieldName]
+  const val = parseInt(theField.value, 10)
+  let min = 0
+  let max = Number.MAX_VALUE
 
   if (typeof minimum !== 'undefined') {
-    min = minimum;
+    min = minimum
   }
 
   if (typeof maximum !== 'undefined' && maximum !== null) {
-    max = maximum;
+    max = maximum
   }
 
   if (isNaN(val)) {
-    theField.select();
-    alert(Messages.strEnterValidNumber);
-    theField.focus();
-    return false;
+    theField.select()
+    alert(Messages.strEnterValidNumber)
+    theField.focus()
+    return false
   } else if (val < min || val > max) {
-    theField.select();
-    alert(Functions.sprintf(message, val));
-    theField.focus();
-    return false;
+    theField.select()
+    alert(Functions.sprintf(message, val))
+    theField.focus()
+    return false
   } else {
-    theField.value = val;
+    theField.value = val
   }
 
-  return true;
-};
+  return true
+}
 
 Functions.checkTableEditForm = function (theForm, fieldsCnt) {
   // TODO: avoid sending a message if user just wants to add a line
   // on the form but has not completed at least one field name
-  var atLeastOneField = 0;
-  var i;
-  var elm;
-  var elm2;
-  var elm3;
-  var val;
-  var id;
+  let atLeastOneField = 0
+  let i
+  let elm
+  let elm2
+  let elm3
+  let val
+  let id
 
   for (i = 0; i < fieldsCnt; i++) {
-    id = '#field_' + i + '_2';
-    elm = $(id);
-    val = elm.val();
+    id = '#field_' + i + '_2'
+    elm = $(id)
+    val = elm.val()
 
     if (val === 'VARCHAR' || val === 'CHAR' || val === 'BIT' || val === 'VARBINARY' || val === 'BINARY') {
-      elm2 = $('#field_' + i + '_3');
-      val = parseInt(elm2.val(), 10);
-      elm3 = $('#field_' + i + '_1');
+      elm2 = $('#field_' + i + '_3')
+      val = parseInt(elm2.val(), 10)
+      elm3 = $('#field_' + i + '_1')
 
       if (isNaN(val) && elm3.val() !== '') {
-        elm2.select();
-        alert(Messages.strEnterValidLength);
-        elm2.focus();
-        return false;
+        elm2.select()
+        alert(Messages.strEnterValidLength)
+        elm2.focus()
+        return false
       }
     }
 
     if (atLeastOneField === 0) {
-      id = 'field_' + i + '_1';
+      id = 'field_' + i + '_1'
 
       if (!Functions.emptyCheckTheField(theForm, id)) {
-        atLeastOneField = 1;
+        atLeastOneField = 1
       }
     }
   }
 
   if (atLeastOneField === 0) {
-    var theField = theForm.elements.field_0_1;
-    alert(Messages.strFormEmpty);
-    theField.focus();
-    return false;
+    const theField = theForm.elements.field_0_1
+    alert(Messages.strFormEmpty)
+    theField.focus()
+    return false
   } // at least this section is under jQuery
 
-
-  var $input = $('input.textfield[name=\'table\']');
+  const $input = $('input.textfield[name=\'table\']')
 
   if ($input.val() === '') {
-    alert(Messages.strFormEmpty);
-    $input.trigger('focus');
-    return false;
+    alert(Messages.strFormEmpty)
+    $input.trigger('focus')
+    return false
   }
 
-  return true;
-};
+  return true
+}
 /**
  * True if last click is to check a row.
  */
 
-
-var lastClickChecked = false;
+let lastClickChecked = false
 /**
  * Zero-based index of last clicked row.
  * Used to handle the shift + click event in the code above.
  */
 
-var lastClickedRow = -1;
+let lastClickedRow = -1
 /**
  * Zero-based index of last shift clicked row.
  */
 
-var lastShiftClickedRow = -1;
-var idleSecondsCounter = 0;
-var incInterval;
-var updateTimeout;
+let lastShiftClickedRow = -1
+let idleSecondsCounter = 0
+let incInterval
+let updateTimeout
 AJAX.registerTeardown('functions.js', function () {
-  clearTimeout(updateTimeout);
-  clearInterval(incInterval);
-  $(document).off('mousemove');
-});
+  clearTimeout(updateTimeout)
+  clearInterval(incInterval)
+  $(document).off('mousemove')
+})
 AJAX.registerOnload('functions.js', function () {
   document.onclick = function () {
-    idleSecondsCounter = 0;
-  };
+    idleSecondsCounter = 0
+  }
 
   $(document).on('mousemove', function () {
-    idleSecondsCounter = 0;
-  });
+    idleSecondsCounter = 0
+  })
 
   document.onkeypress = function () {
-    idleSecondsCounter = 0;
-  };
+    idleSecondsCounter = 0
+  }
 
-  function guid() {
-    function s4() {
-      return Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
+  function guid () {
+    function s4 () {
+      return Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1)
     }
 
-    return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
+    return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4()
   }
 
-  function SetIdleTime() {
-    idleSecondsCounter++;
+  function SetIdleTime () {
+    idleSecondsCounter++
   }
 
-  function UpdateIdleTime() {
-    var href = 'index.php?route=/';
-    var guid = 'default';
+  function UpdateIdleTime () {
+    const href = 'index.php?route=/'
+    let guid = 'default'
 
     if (isStorageSupported('sessionStorage')) {
-      guid = window.sessionStorage.guid;
+      guid = window.sessionStorage.guid
     }
 
-    var params = {
-      'ajax_request': true,
-      'server': CommonParams.get('server'),
-      'db': CommonParams.get('db'),
-      'guid': guid,
-      'access_time': idleSecondsCounter,
-      'check_timeout': 1
-    };
+    const params = {
+      ajax_request: true,
+      server: CommonParams.get('server'),
+      db: CommonParams.get('db'),
+      guid,
+      access_time: idleSecondsCounter,
+      check_timeout: 1
+    }
     $.ajax({
       type: 'POST',
       url: href,
@@ -1018,75 +991,74 @@ AJAX.registerOnload('functions.js', function () {
         if (data.success) {
           if (CommonParams.get('LoginCookieValidity') - idleSecondsCounter < 0) {
             /* There is other active window, let's reset counter */
-            idleSecondsCounter = 0;
+            idleSecondsCounter = 0
           }
 
-          var remaining = Math.min(
+          const remaining = Math.min(
           /* Remaining login validity */
-          CommonParams.get('LoginCookieValidity') - idleSecondsCounter,
-          /* Remaining time till session GC */
-          CommonParams.get('session_gc_maxlifetime'));
-          var interval = 1000;
+            CommonParams.get('LoginCookieValidity') - idleSecondsCounter,
+            /* Remaining time till session GC */
+            CommonParams.get('session_gc_maxlifetime'))
+          let interval = 1000
 
           if (remaining > 5) {
             // max value for setInterval() function
-            interval = Math.min((remaining - 1) * 1000, Math.pow(2, 31) - 1);
+            interval = Math.min((remaining - 1) * 1000, Math.pow(2, 31) - 1)
           }
 
-          updateTimeout = window.setTimeout(UpdateIdleTime, interval);
+          updateTimeout = window.setTimeout(UpdateIdleTime, interval)
         } else {
           // timeout occurred
-          clearInterval(incInterval);
+          clearInterval(incInterval)
 
           if (isStorageSupported('sessionStorage')) {
-            window.sessionStorage.clear();
+            window.sessionStorage.clear()
           } // append the login form on the page, disable all the forms which were not disabled already, close all the open jqueryui modal boxes
 
-
           if (!$('#modalOverlay').length) {
-            $('fieldset').not(':disabled').attr('disabled', 'disabled').addClass('disabled_for_expiration');
-            $('body').append(data.error);
+            $('fieldset').not(':disabled').attr('disabled', 'disabled').addClass('disabled_for_expiration')
+            $('body').append(data.error)
             $('.ui-dialog').each(function () {
-              $('#' + $(this).attr('aria-describedby')).dialog('close');
-            });
-            $('#input_username').trigger('focus');
+              $('#' + $(this).attr('aria-describedby')).dialog('close')
+            })
+            $('#input_username').trigger('focus')
           } else {
-            CommonParams.set('token', data.new_token);
-            $('input[name=token]').val(data.new_token);
+            CommonParams.set('token', data.new_token)
+            $('input[name=token]').val(data.new_token)
           }
 
-          idleSecondsCounter = 0;
-          Functions.handleRedirectAndReload(data);
+          idleSecondsCounter = 0
+          Functions.handleRedirectAndReload(data)
         }
       }
-    });
+    })
   }
 
   if (CommonParams.get('logged_in')) {
-    incInterval = window.setInterval(SetIdleTime, 1000);
-    var sessionTimeout = Math.min(CommonParams.get('LoginCookieValidity'), CommonParams.get('session_gc_maxlifetime'));
+    incInterval = window.setInterval(SetIdleTime, 1000)
+    const sessionTimeout = Math.min(CommonParams.get('LoginCookieValidity'), CommonParams.get('session_gc_maxlifetime'))
 
     if (isStorageSupported('sessionStorage')) {
-      window.sessionStorage.setItem('guid', guid());
+      window.sessionStorage.setItem('guid', guid())
     }
 
-    var interval = (sessionTimeout - 5) * 1000;
+    let interval = (sessionTimeout - 5) * 1000
 
     if (interval > Math.pow(2, 31) - 1) {
       // max value for setInterval() function
-      interval = Math.pow(2, 31) - 1;
+      interval = Math.pow(2, 31) - 1
     }
 
-    updateTimeout = window.setTimeout(UpdateIdleTime, interval);
+    updateTimeout = window.setTimeout(UpdateIdleTime, interval)
   }
-});
+})
 /**
  * Unbind all event handlers before tearing down a page
  */
 
 AJAX.registerTeardown('functions.js', function () {
-  $(document).off('click', 'input:checkbox.checkall');
-});
+  $(document).off('click', 'input:checkbox.checkall')
+})
 AJAX.registerOnload('functions.js', function () {
   /**
    * Row marking in horizontal mode (use "on" so that it works also for
@@ -1094,69 +1066,68 @@ AJAX.registerOnload('functions.js', function () {
    * this behavior.
    */
   $(document).on('click', 'input:checkbox.checkall', function (e) {
-    var $this = $(this);
-    var $tr = $this.closest('tr');
-    var $table = $this.closest('table');
+    const $this = $(this)
+    const $tr = $this.closest('tr')
+    const $table = $this.closest('table')
 
     if (!e.shiftKey || lastClickedRow === -1) {
       // usual click
-      var $checkbox = $tr.find(':checkbox.checkall');
-      var checked = $this.prop('checked');
-      $checkbox.prop('checked', checked).trigger('change');
+      const $checkbox = $tr.find(':checkbox.checkall')
+      const checked = $this.prop('checked')
+      $checkbox.prop('checked', checked).trigger('change')
 
       if (checked) {
-        $tr.addClass('marked table-active');
+        $tr.addClass('marked table-active')
       } else {
-        $tr.removeClass('marked table-active');
+        $tr.removeClass('marked table-active')
       }
 
-      lastClickChecked = checked; // remember the last clicked row
+      lastClickChecked = checked // remember the last clicked row
 
-      lastClickedRow = lastClickChecked ? $table.find('tbody tr:not(.noclick)').index($tr) : -1;
-      lastShiftClickedRow = -1;
+      lastClickedRow = lastClickChecked ? $table.find('tbody tr:not(.noclick)').index($tr) : -1
+      lastShiftClickedRow = -1
     } else {
       // handle the shift click
-      Functions.clearSelection();
-      var start;
-      var end; // clear last shift click result
+      Functions.clearSelection()
+      let start
+      let end // clear last shift click result
 
       if (lastShiftClickedRow >= 0) {
         if (lastShiftClickedRow >= lastClickedRow) {
-          start = lastClickedRow;
-          end = lastShiftClickedRow;
+          start = lastClickedRow
+          end = lastShiftClickedRow
         } else {
-          start = lastShiftClickedRow;
-          end = lastClickedRow;
+          start = lastShiftClickedRow
+          end = lastClickedRow
         }
 
-        $tr.parent().find('tr:not(.noclick)').slice(start, end + 1).removeClass('marked table-active').find(':checkbox').prop('checked', false).trigger('change');
+        $tr.parent().find('tr:not(.noclick)').slice(start, end + 1).removeClass('marked table-active').find(':checkbox').prop('checked', false).trigger('change')
       } // handle new shift click
 
-
-      var currRow = $table.find('tbody tr:not(.noclick)').index($tr);
+      const currRow = $table.find('tbody tr:not(.noclick)').index($tr)
 
       if (currRow >= lastClickedRow) {
-        start = lastClickedRow;
-        end = currRow;
+        start = lastClickedRow
+        end = currRow
       } else {
-        start = currRow;
-        end = lastClickedRow;
+        start = currRow
+        end = lastClickedRow
       }
 
-      $tr.parent().find('tr:not(.noclick)').slice(start, end + 1).addClass('marked table-active').find(':checkbox').prop('checked', true).trigger('change'); // remember the last shift clicked row
+      $tr.parent().find('tr:not(.noclick)').slice(start, end + 1).addClass('marked table-active').find(':checkbox').prop('checked', true).trigger('change') // remember the last shift clicked row
 
-      lastShiftClickedRow = currRow;
+      lastShiftClickedRow = currRow
     }
-  });
-  Functions.addDateTimePicker();
+  })
+  Functions.addDateTimePicker()
   /**
    * Add attribute to text boxes for iOS devices (based on bugID: 3508912)
    */
 
   if (navigator.userAgent.match(/(iphone|ipod|ipad)/i)) {
-    $('input[type=text]').attr('autocapitalize', 'off').attr('autocorrect', 'off');
+    $('input[type=text]').attr('autocapitalize', 'off').attr('autocorrect', 'off')
   }
-});
+})
 /**
   * Checks/unchecks all options of a <select> element
   *
@@ -1168,55 +1139,53 @@ AJAX.registerOnload('functions.js', function () {
   */
 
 Functions.setSelectOptions = function (theForm, theSelect, doCheck) {
-  $('form[name=\'' + theForm + '\'] select[name=\'' + theSelect + '\']').find('option').prop('selected', doCheck);
-  return true;
-};
+  $('form[name=\'' + theForm + '\'] select[name=\'' + theSelect + '\']').find('option').prop('selected', doCheck)
+  return true
+}
 /**
  * Sets current value for query box.
  * @param {string} query
  * @return {void}
  */
 
-
 Functions.setQuery = function (query) {
   if (codeMirrorEditor) {
-    codeMirrorEditor.setValue(query);
-    codeMirrorEditor.focus();
+    codeMirrorEditor.setValue(query)
+    codeMirrorEditor.focus()
   } else if (document.sqlform) {
-    document.sqlform.sql_query.value = query;
-    document.sqlform.sql_query.focus();
+    document.sqlform.sql_query.value = query
+    document.sqlform.sql_query.focus()
   }
-};
+}
 /**
  * Handles 'Simulate query' button on SQL query box.
  *
  * @return {void}
  */
 
-
 Functions.handleSimulateQueryButton = function () {
-  var updateRegExp = new RegExp('^\\s*UPDATE\\s+((`[^`]+`)|([A-Za-z0-9_$]+))\\s+SET\\s', 'i');
-  var deleteRegExp = new RegExp('^\\s*DELETE\\s+FROM\\s', 'i');
-  var query = '';
+  const updateRegExp = new RegExp('^\\s*UPDATE\\s+((`[^`]+`)|([A-Za-z0-9_$]+))\\s+SET\\s', 'i')
+  const deleteRegExp = new RegExp('^\\s*DELETE\\s+FROM\\s', 'i')
+  let query = ''
 
   if (codeMirrorEditor) {
-    query = codeMirrorEditor.getValue();
+    query = codeMirrorEditor.getValue()
   } else {
-    query = $('#sqlquery').val();
+    query = $('#sqlquery').val()
   }
 
-  var $simulateDml = $('#simulate_dml');
+  const $simulateDml = $('#simulate_dml')
 
   if (updateRegExp.test(query) || deleteRegExp.test(query)) {
     if (!$simulateDml.length) {
-      $('#button_submit_query').before('<input type="button" id="simulate_dml"' + 'tabindex="199" class="btn btn-primary" value="' + Messages.strSimulateDML + '">');
+      $('#button_submit_query').before('<input type="button" id="simulate_dml"' + 'tabindex="199" class="btn btn-primary" value="' + Messages.strSimulateDML + '">')
     }
   } else {
     if ($simulateDml.length) {
-      $simulateDml.remove();
+      $simulateDml.remove()
     }
   }
-};
+}
 /**
   * Create quick sql statements.
   *
@@ -1224,272 +1193,265 @@ Functions.handleSimulateQueryButton = function () {
   *
   */
 
-
 Functions.insertQuery = function (queryType) {
-  var table;
+  let table
 
   if (queryType === 'clear') {
-    Functions.setQuery('');
-    return;
+    Functions.setQuery('')
+    return
   } else if (queryType === 'format') {
     if (codeMirrorEditor) {
-      $('#querymessage').html(Messages.strFormatting + '&nbsp;<img class="ajaxIcon" src="' + themeImagePath + 'ajax_clock_small.gif" alt="">');
-      var params = {
-        'ajax_request': true,
-        'sql': codeMirrorEditor.getValue(),
-        'server': CommonParams.get('server')
-      };
+      $('#querymessage').html(Messages.strFormatting + '&nbsp;<img class="ajaxIcon" src="' + themeImagePath + 'ajax_clock_small.gif" alt="">')
+      const params = {
+        ajax_request: true,
+        sql: codeMirrorEditor.getValue(),
+        server: CommonParams.get('server')
+      }
       $.ajax({
         type: 'POST',
         url: 'index.php?route=/database/sql/format',
         data: params,
         success: function (data) {
           if (data.success) {
-            codeMirrorEditor.setValue(data.sql);
+            codeMirrorEditor.setValue(data.sql)
           }
 
-          $('#querymessage').html('');
+          $('#querymessage').html('')
         }
-      });
+      })
     }
 
-    return;
+    return
   } else if (queryType === 'saved') {
-    var db = $('input[name="db"]').val();
-    table = $('input[name="table"]').val();
-    var key = db;
+    const db = $('input[name="db"]').val()
+    table = $('input[name="table"]').val()
+    let key = db
 
     if (table !== undefined) {
-      key += '.' + table;
+      key += '.' + table
     }
 
-    key = 'autoSavedSql_' + key;
+    key = 'autoSavedSql_' + key
 
     if (isStorageSupported('localStorage') && typeof window.localStorage.getItem(key) === 'string') {
-      Functions.setQuery(window.localStorage.getItem(key));
+      Functions.setQuery(window.localStorage.getItem(key))
     } else if (Cookies.get(key)) {
-      Functions.setQuery(Cookies.get(key));
+      Functions.setQuery(Cookies.get(key))
     } else {
-      Functions.ajaxShowMessage(Messages.strNoAutoSavedQuery);
+      Functions.ajaxShowMessage(Messages.strNoAutoSavedQuery)
     }
 
-    return;
+    return
   }
 
-  var query = '';
-  var myListBox = document.sqlform.dummy;
-  table = document.sqlform.table.value;
+  let query = ''
+  const myListBox = document.sqlform.dummy
+  table = document.sqlform.table.value
 
   if (myListBox.options.length > 0) {
-    sqlBoxLocked = true;
-    var columnsList = '';
-    var valDis = '';
-    var editDis = '';
-    var NbSelect = 0;
+    sqlBoxLocked = true
+    let columnsList = ''
+    let valDis = ''
+    let editDis = ''
+    let NbSelect = 0
 
-    for (var i = 0; i < myListBox.options.length; i++) {
-      NbSelect++;
+    for (let i = 0; i < myListBox.options.length; i++) {
+      NbSelect++
 
       if (NbSelect > 1) {
-        columnsList += ', ';
-        valDis += ',';
-        editDis += ',';
+        columnsList += ', '
+        valDis += ','
+        editDis += ','
       }
 
-      columnsList += myListBox.options[i].value;
-      valDis += '\'[value-' + NbSelect + ']\'';
-      editDis += myListBox.options[i].value + '=\'[value-' + NbSelect + ']\'';
+      columnsList += myListBox.options[i].value
+      valDis += '\'[value-' + NbSelect + ']\''
+      editDis += myListBox.options[i].value + '=\'[value-' + NbSelect + ']\''
     }
 
     if (queryType === 'selectall') {
-      query = 'SELECT * FROM `' + table + '` WHERE 1';
+      query = 'SELECT * FROM `' + table + '` WHERE 1'
     } else if (queryType === 'select') {
-      query = 'SELECT ' + columnsList + ' FROM `' + table + '` WHERE 1';
+      query = 'SELECT ' + columnsList + ' FROM `' + table + '` WHERE 1'
     } else if (queryType === 'insert') {
-      query = 'INSERT INTO `' + table + '`(' + columnsList + ') VALUES (' + valDis + ')';
+      query = 'INSERT INTO `' + table + '`(' + columnsList + ') VALUES (' + valDis + ')'
     } else if (queryType === 'update') {
-      query = 'UPDATE `' + table + '` SET ' + editDis + ' WHERE 1';
+      query = 'UPDATE `' + table + '` SET ' + editDis + ' WHERE 1'
     } else if (queryType === 'delete') {
-      query = 'DELETE FROM `' + table + '` WHERE 0';
+      query = 'DELETE FROM `' + table + '` WHERE 0'
     }
 
-    Functions.setQuery(query);
-    sqlBoxLocked = false;
+    Functions.setQuery(query)
+    sqlBoxLocked = false
   }
-};
+}
 /**
   * Inserts multiple fields.
   *
   */
 
-
 Functions.insertValueQuery = function () {
-  var myQuery = document.sqlform.sql_query;
-  var myListBox = document.sqlform.dummy;
+  const myQuery = document.sqlform.sql_query
+  const myListBox = document.sqlform.dummy
 
   if (myListBox.options.length > 0) {
-    sqlBoxLocked = true;
-    var columnsList = '';
-    var NbSelect = 0;
+    sqlBoxLocked = true
+    let columnsList = ''
+    let NbSelect = 0
 
-    for (var i = 0; i < myListBox.options.length; i++) {
+    for (let i = 0; i < myListBox.options.length; i++) {
       if (myListBox.options[i].selected) {
-        NbSelect++;
+        NbSelect++
 
         if (NbSelect > 1) {
-          columnsList += ', ';
+          columnsList += ', '
         }
 
-        columnsList += myListBox.options[i].value;
+        columnsList += myListBox.options[i].value
       }
     }
     /* CodeMirror support */
 
-
     if (codeMirrorEditor) {
-      codeMirrorEditor.replaceSelection(columnsList);
-      codeMirrorEditor.focus(); // IE support
+      codeMirrorEditor.replaceSelection(columnsList)
+      codeMirrorEditor.focus() // IE support
     } else if (document.selection) {
-      myQuery.focus();
-      var sel = document.selection.createRange();
-      sel.text = columnsList; // MOZILLA/NETSCAPE support
+      myQuery.focus()
+      const sel = document.selection.createRange()
+      sel.text = columnsList // MOZILLA/NETSCAPE support
     } else if (document.sqlform.sql_query.selectionStart || document.sqlform.sql_query.selectionStart === '0') {
-      var startPos = document.sqlform.sql_query.selectionStart;
-      var endPos = document.sqlform.sql_query.selectionEnd;
-      var SqlString = document.sqlform.sql_query.value;
-      myQuery.value = SqlString.substring(0, startPos) + columnsList + SqlString.substring(endPos, SqlString.length);
-      myQuery.focus();
+      const startPos = document.sqlform.sql_query.selectionStart
+      const endPos = document.sqlform.sql_query.selectionEnd
+      const SqlString = document.sqlform.sql_query.value
+      myQuery.value = SqlString.substring(0, startPos) + columnsList + SqlString.substring(endPos, SqlString.length)
+      myQuery.focus()
     } else {
-      myQuery.value += columnsList;
+      myQuery.value += columnsList
     } // eslint-disable-next-line no-unused-vars
 
-
-    sqlBoxLocked = false;
+    sqlBoxLocked = false
   }
-};
+}
 /**
  * Updates the input fields for the parameters based on the query
  */
 
-
 Functions.updateQueryParameters = function () {
   if ($('#parameterized').is(':checked')) {
-    var query = codeMirrorEditor ? codeMirrorEditor.getValue() : $('#sqlquery').val();
-    var allParameters = query.match(/:[a-zA-Z0-9_]+/g);
-    var parameters = []; // get unique parameters
+    const query = codeMirrorEditor ? codeMirrorEditor.getValue() : $('#sqlquery').val()
+    const allParameters = query.match(/:[a-zA-Z0-9_]+/g)
+    const parameters = [] // get unique parameters
 
     if (allParameters) {
       $.each(allParameters, function (i, parameter) {
         if ($.inArray(parameter, parameters) === -1) {
-          parameters.push(parameter);
+          parameters.push(parameter)
         }
-      });
+      })
     } else {
-      $('#parametersDiv').text(Messages.strNoParam);
-      return;
+      $('#parametersDiv').text(Messages.strNoParam)
+      return
     }
 
-    var $temp = $('<div></div>');
-    $temp.append($('#parametersDiv').children());
-    $('#parametersDiv').empty();
+    const $temp = $('<div></div>')
+    $temp.append($('#parametersDiv').children())
+    $('#parametersDiv').empty()
     $.each(parameters, function (i, parameter) {
-      var paramName = parameter.substring(1);
-      var $param = $temp.find('#paramSpan_' + paramName);
+      const paramName = parameter.substring(1)
+      let $param = $temp.find('#paramSpan_' + paramName)
 
       if (!$param.length) {
-        $param = $('<span class="parameter" id="paramSpan_' + paramName + '"></span>');
-        $('<label for="param_' + paramName + '"></label>').text(parameter).appendTo($param);
-        $('<input type="text" name="parameters[' + parameter + ']" id="param_' + paramName + '">').appendTo($param);
+        $param = $('<span class="parameter" id="paramSpan_' + paramName + '"></span>')
+        $('<label for="param_' + paramName + '"></label>').text(parameter).appendTo($param)
+        $('<input type="text" name="parameters[' + parameter + ']" id="param_' + paramName + '">').appendTo($param)
       }
 
-      $('#parametersDiv').append($param);
-    });
+      $('#parametersDiv').append($param)
+    })
   } else {
-    $('#parametersDiv').empty();
+    $('#parametersDiv').empty()
   }
-};
+}
 /**
  * Get checkbox for foreign key checks
  *
  * @return {string}
  */
 
-
 Functions.getForeignKeyCheckboxLoader = function () {
-  var html = '';
-  html += '<div>';
-  html += '<div class="load-default-fk-check-value">';
-  html += Functions.getImage('ajax_clock_small');
-  html += '</div>';
-  html += '</div>';
-  return html;
-};
+  let html = ''
+  html += '<div>'
+  html += '<div class="load-default-fk-check-value">'
+  html += Functions.getImage('ajax_clock_small')
+  html += '</div>'
+  html += '</div>'
+  return html
+}
 
 Functions.loadForeignKeyCheckbox = function () {
   // Load default foreign key check value
-  var params = {
-    'ajax_request': true,
-    'server': CommonParams.get('server')
-  };
+  const params = {
+    ajax_request: true,
+    server: CommonParams.get('server')
+  }
   $.get('index.php?route=/sql/get-default-fk-check-value', params, function (data) {
-    var html = '<input type="hidden" name="fk_checks" value="0">' + '<input type="checkbox" name="fk_checks" id="fk_checks"' + (data.default_fk_check_value ? ' checked="checked"' : '') + '>' + '<label for="fk_checks">' + Messages.strForeignKeyCheck + '</label>';
-    $('.load-default-fk-check-value').replaceWith(html);
-  });
-};
+    const html = '<input type="hidden" name="fk_checks" value="0">' + '<input type="checkbox" name="fk_checks" id="fk_checks"' + (data.default_fk_check_value ? ' checked="checked"' : '') + '>' + '<label for="fk_checks">' + Messages.strForeignKeyCheck + '</label>'
+    $('.load-default-fk-check-value').replaceWith(html)
+  })
+}
 
 Functions.getJsConfirmCommonParam = function (elem, parameters) {
-  var $elem = $(elem);
-  var params = parameters;
-  var sep = CommonParams.get('arg_separator');
+  const $elem = $(elem)
+  let params = parameters
+  const sep = CommonParams.get('arg_separator')
 
   if (params) {
     // Strip possible leading ?
     if (params.substring(0, 1) === '?') {
-      params = params.substr(1);
+      params = params.substr(1)
     }
 
-    params += sep;
+    params += sep
   } else {
-    params = '';
+    params = ''
   }
 
-  params += 'is_js_confirmed=1' + sep + 'ajax_request=true' + sep + 'fk_checks=' + ($elem.find('#fk_checks').is(':checked') ? 1 : 0);
-  return params;
-};
+  params += 'is_js_confirmed=1' + sep + 'ajax_request=true' + sep + 'fk_checks=' + ($elem.find('#fk_checks').is(':checked') ? 1 : 0)
+  return params
+}
 /**
  * Unbind all event handlers before tearing down a page
  */
 
-
 AJAX.registerTeardown('functions.js', function () {
-  $(document).off('click', 'a.inline_edit_sql');
-  $(document).off('click', 'input#sql_query_edit_save');
-  $(document).off('click', 'input#sql_query_edit_discard');
-  $('input.sqlbutton').off('click');
+  $(document).off('click', 'a.inline_edit_sql')
+  $(document).off('click', 'input#sql_query_edit_save')
+  $(document).off('click', 'input#sql_query_edit_discard')
+  $('input.sqlbutton').off('click')
 
   if (codeMirrorEditor) {
-    codeMirrorEditor.off('blur');
+    codeMirrorEditor.off('blur')
   } else {
-    $(document).off('blur', '#sqlquery');
+    $(document).off('blur', '#sqlquery')
   }
 
-  $(document).off('change', '#parameterized');
-  $(document).off('click', 'input.sqlbutton');
-  $('#sqlquery').off('keydown');
-  $('#sql_query_edit').off('keydown');
+  $(document).off('change', '#parameterized')
+  $(document).off('click', 'input.sqlbutton')
+  $('#sqlquery').off('keydown')
+  $('#sql_query_edit').off('keydown')
 
   if (codeMirrorInlineEditor) {
     // Copy the sql query to the text area to preserve it.
-    $('#sql_query_edit').text(codeMirrorInlineEditor.getValue());
-    $(codeMirrorInlineEditor.getWrapperElement()).off('keydown');
-    codeMirrorInlineEditor.toTextArea();
-    codeMirrorInlineEditor = false;
+    $('#sql_query_edit').text(codeMirrorInlineEditor.getValue())
+    $(codeMirrorInlineEditor.getWrapperElement()).off('keydown')
+    codeMirrorInlineEditor.toTextArea()
+    codeMirrorInlineEditor = false
   }
 
   if (codeMirrorEditor) {
-    $(codeMirrorEditor.getWrapperElement()).off('keydown');
+    $(codeMirrorEditor.getWrapperElement()).off('keydown')
   }
-});
+})
 /**
  * Jquery Coding for inline editing SQL_QUERY
  */
@@ -1497,48 +1459,48 @@ AJAX.registerTeardown('functions.js', function () {
 AJAX.registerOnload('functions.js', function () {
   // If we are coming back to the page by clicking forward button
   // of the browser, bind the code mirror to inline query editor.
-  Functions.bindCodeMirrorToInlineEditor();
+  Functions.bindCodeMirrorToInlineEditor()
   $(document).on('click', 'a.inline_edit_sql', function () {
     if ($('#sql_query_edit').length) {
       // An inline query editor is already open,
       // we don't want another copy of it
-      return false;
+      return false
     }
 
-    var $form = $(this).prev('form');
-    var sqlQuery = $form.find('input[name=\'sql_query\']').val().trim();
-    var $innerSql = $(this).parent().prev().find('code.sql');
-    var newContent = '<textarea name="sql_query_edit" id="sql_query_edit">' + Functions.escapeHtml(sqlQuery) + '</textarea>\n';
-    newContent += Functions.getForeignKeyCheckboxLoader();
-    newContent += '<input type="submit" id="sql_query_edit_save" class="btn btn-secondary button btnSave" value="' + Messages.strGo + '">\n';
-    newContent += '<input type="button" id="sql_query_edit_discard" class="btn btn-secondary button btnDiscard" value="' + Messages.strCancel + '">\n';
-    var $editorArea = $('div#inline_editor');
+    const $form = $(this).prev('form')
+    const sqlQuery = $form.find('input[name=\'sql_query\']').val().trim()
+    const $innerSql = $(this).parent().prev().find('code.sql')
+    let newContent = '<textarea name="sql_query_edit" id="sql_query_edit">' + Functions.escapeHtml(sqlQuery) + '</textarea>\n'
+    newContent += Functions.getForeignKeyCheckboxLoader()
+    newContent += '<input type="submit" id="sql_query_edit_save" class="btn btn-secondary button btnSave" value="' + Messages.strGo + '">\n'
+    newContent += '<input type="button" id="sql_query_edit_discard" class="btn btn-secondary button btnDiscard" value="' + Messages.strCancel + '">\n'
+    let $editorArea = $('div#inline_editor')
 
     if ($editorArea.length === 0) {
-      $editorArea = $('<div id="inline_editor_outer"></div>');
-      $editorArea.insertBefore($innerSql);
+      $editorArea = $('<div id="inline_editor_outer"></div>')
+      $editorArea.insertBefore($innerSql)
     }
 
-    $editorArea.html(newContent);
-    Functions.loadForeignKeyCheckbox();
-    $innerSql.hide();
-    Functions.bindCodeMirrorToInlineEditor();
-    return false;
-  });
+    $editorArea.html(newContent)
+    Functions.loadForeignKeyCheckbox()
+    $innerSql.hide()
+    Functions.bindCodeMirrorToInlineEditor()
+    return false
+  })
   $(document).on('click', 'input#sql_query_edit_save', function () {
     // hide already existing success message
-    var sqlQuery;
+    let sqlQuery
 
     if (codeMirrorInlineEditor) {
-      codeMirrorInlineEditor.save();
-      sqlQuery = codeMirrorInlineEditor.getValue();
+      codeMirrorInlineEditor.save()
+      sqlQuery = codeMirrorInlineEditor.getValue()
     } else {
-      sqlQuery = $(this).parent().find('#sql_query_edit').val();
+      sqlQuery = $(this).parent().find('#sql_query_edit').val()
     }
 
-    var fkCheck = $(this).parent().find('#fk_checks').is(':checked');
-    var $form = $('a.inline_edit_sql').prev('form');
-    var $fakeForm = $('<form>', {
+    const fkCheck = $(this).parent().find('#fk_checks').is(':checked')
+    const $form = $('a.inline_edit_sql').prev('form')
+    const $fakeForm = $('<form>', {
       action: 'index.php?route=/import',
       method: 'post'
     }).append($form.find('input[name=server], input[name=db], input[name=table], input[name=token]').clone()).append($('<input>', {
@@ -1557,36 +1519,36 @@ AJAX.registerOnload('functions.js', function () {
       type: 'hidden',
       name: 'fk_checks',
       value: fkCheck ? 1 : 0
-    }));
+    }))
 
     if (!Functions.checkSqlQuery($fakeForm[0])) {
-      return false;
+      return false
     }
 
-    $('.alert-success').hide();
-    $fakeForm.appendTo($('body')).trigger('submit');
-  });
+    $('.alert-success').hide()
+    $fakeForm.appendTo($('body')).trigger('submit')
+  })
   $(document).on('click', 'input#sql_query_edit_discard', function () {
-    var $divEditor = $('div#inline_editor_outer');
-    $divEditor.siblings('code.sql').show();
-    $divEditor.remove();
-  });
+    const $divEditor = $('div#inline_editor_outer')
+    $divEditor.siblings('code.sql').show()
+    $divEditor.remove()
+  })
   $(document).on('click', 'input.sqlbutton', function (evt) {
-    Functions.insertQuery(evt.target.id);
-    Functions.handleSimulateQueryButton();
-    return false;
-  });
-  $(document).on('change', '#parameterized', Functions.updateQueryParameters);
-  var $inputUsername = $('#input_username');
+    Functions.insertQuery(evt.target.id)
+    Functions.handleSimulateQueryButton()
+    return false
+  })
+  $(document).on('change', '#parameterized', Functions.updateQueryParameters)
+  const $inputUsername = $('#input_username')
 
   if ($inputUsername) {
     if ($inputUsername.val() === '') {
-      $inputUsername.trigger('focus');
+      $inputUsername.trigger('focus')
     } else {
-      $('#input_password').trigger('focus');
+      $('#input_password').trigger('focus')
     }
   }
-});
+})
 /**
  * "inputRead" event handler for CodeMirror SQL query editors for autocompletion
  * @param instance
@@ -1596,20 +1558,20 @@ Functions.codeMirrorAutoCompleteOnInputRead = function (instance) {
   if (!sqlAutoCompleteInProgress && (!instance.options.hintOptions.tables || !sqlAutoComplete)) {
     if (!sqlAutoComplete) {
       // Reset after teardown
-      instance.options.hintOptions.tables = false;
-      instance.options.hintOptions.defaultTable = '';
-      sqlAutoCompleteInProgress = true;
-      var params = {
-        'ajax_request': true,
-        'server': CommonParams.get('server'),
-        'db': CommonParams.get('db'),
-        'no_debug': true
-      };
+      instance.options.hintOptions.tables = false
+      instance.options.hintOptions.defaultTable = ''
+      sqlAutoCompleteInProgress = true
+      const params = {
+        ajax_request: true,
+        server: CommonParams.get('server'),
+        db: CommonParams.get('db'),
+        no_debug: true
+      }
 
-      var columnHintRender = function (elem, self, data) {
-        $('<div class="autocomplete-column-name">').text(data.columnName).appendTo(elem);
-        $('<div class="autocomplete-column-hint">').text(data.columnHint).appendTo(elem);
-      };
+      const columnHintRender = function (elem, self, data) {
+        $('<div class="autocomplete-column-name">').text(data.columnName).appendTo(elem)
+        $('<div class="autocomplete-column-hint">').text(data.columnHint).appendTo(elem)
+      }
 
       $.ajax({
         type: 'POST',
@@ -1617,26 +1579,26 @@ Functions.codeMirrorAutoCompleteOnInputRead = function (instance) {
         data: params,
         success: function (data) {
           if (data.success) {
-            var tables = JSON.parse(data.tables);
-            sqlAutoCompleteDefaultTable = CommonParams.get('table');
-            sqlAutoComplete = [];
+            const tables = JSON.parse(data.tables)
+            sqlAutoCompleteDefaultTable = CommonParams.get('table')
+            sqlAutoComplete = []
 
-            for (var table in tables) {
+            for (let table in tables) {
               if (tables.hasOwnProperty(table)) {
-                var columns = tables[table];
+                const columns = tables[table]
                 table = {
                   text: table,
                   columns: []
-                };
+                }
 
-                for (var column in columns) {
+                for (const column in columns) {
                   if (columns.hasOwnProperty(column)) {
-                    var displayText = columns[column].Type;
+                    let displayText = columns[column].Type
 
                     if (columns[column].Key === 'PRI') {
-                      displayText += ' | Primary';
+                      displayText += ' | Primary'
                     } else if (columns[column].Key === 'UNI') {
-                      displayText += ' | Unique';
+                      displayText += ' | Unique'
                     }
 
                     table.columns.push({
@@ -1645,80 +1607,79 @@ Functions.codeMirrorAutoCompleteOnInputRead = function (instance) {
                       columnName: column,
                       columnHint: displayText,
                       render: columnHintRender
-                    });
+                    })
                   }
                 }
               }
 
-              sqlAutoComplete.push(table);
+              sqlAutoComplete.push(table)
             }
 
-            instance.options.hintOptions.tables = sqlAutoComplete;
-            instance.options.hintOptions.defaultTable = sqlAutoCompleteDefaultTable;
+            instance.options.hintOptions.tables = sqlAutoComplete
+            instance.options.hintOptions.defaultTable = sqlAutoCompleteDefaultTable
           }
         },
         complete: function () {
-          sqlAutoCompleteInProgress = false;
+          sqlAutoCompleteInProgress = false
         }
-      });
+      })
     } else {
-      instance.options.hintOptions.tables = sqlAutoComplete;
-      instance.options.hintOptions.defaultTable = sqlAutoCompleteDefaultTable;
+      instance.options.hintOptions.tables = sqlAutoComplete
+      instance.options.hintOptions.defaultTable = sqlAutoCompleteDefaultTable
     }
   }
 
   if (instance.state.completionActive) {
-    return;
+    return
   }
 
-  var cur = instance.getCursor();
-  var token = instance.getTokenAt(cur);
-  var string = '';
+  const cur = instance.getCursor()
+  const token = instance.getTokenAt(cur)
+  let string = ''
 
   if (token.string.match(/^[.`\w@]\w*$/)) {
-    string = token.string;
+    string = token.string
   }
 
   if (string.length > 0) {
-    CodeMirror.commands.autocomplete(instance);
+    CodeMirror.commands.autocomplete(instance)
   }
-};
+}
 /**
  * Remove autocomplete information before tearing down a page
  */
 
-
 AJAX.registerTeardown('functions.js', function () {
-  sqlAutoComplete = false;
-  sqlAutoCompleteDefaultTable = '';
-});
+  sqlAutoComplete = false
+  sqlAutoCompleteDefaultTable = ''
+})
 /**
  * Binds the CodeMirror to the text area used to inline edit a query.
  */
 
 Functions.bindCodeMirrorToInlineEditor = function () {
-  var $inlineEditor = $('#sql_query_edit');
+  const $inlineEditor = $('#sql_query_edit')
 
   if ($inlineEditor.length > 0) {
     if (typeof CodeMirror !== 'undefined') {
-      var height = $inlineEditor.css('height');
-      codeMirrorInlineEditor = Functions.getSqlEditor($inlineEditor);
-      codeMirrorInlineEditor.getWrapperElement().style.height = height;
-      codeMirrorInlineEditor.refresh();
-      codeMirrorInlineEditor.focus();
-      $(codeMirrorInlineEditor.getWrapperElement()).on('keydown', Functions.catchKeypressesFromSqlInlineEdit);
+      const height = $inlineEditor.css('height')
+      codeMirrorInlineEditor = Functions.getSqlEditor($inlineEditor)
+      codeMirrorInlineEditor.getWrapperElement().style.height = height
+      codeMirrorInlineEditor.refresh()
+      codeMirrorInlineEditor.focus()
+      $(codeMirrorInlineEditor.getWrapperElement()).on('keydown', Functions.catchKeypressesFromSqlInlineEdit)
     } else {
-      $inlineEditor.trigger('focus').on('keydown', Functions.catchKeypressesFromSqlInlineEdit);
+      $inlineEditor.trigger('focus').on('keydown', Functions.catchKeypressesFromSqlInlineEdit)
     }
   }
-};
+}
 
 Functions.catchKeypressesFromSqlInlineEdit = function (event) {
   // ctrl-enter is 10 in chrome and ie, but 13 in ff
   if ((event.ctrlKey || event.metaKey) && (event.keyCode === 13 || event.keyCode === 10)) {
-    $('#sql_query_edit_save').trigger('click');
+    $('#sql_query_edit_save').trigger('click')
   }
-};
+}
 /**
  * Adds doc link to single highlighted SQL element
  *
@@ -1726,23 +1687,22 @@ Functions.catchKeypressesFromSqlInlineEdit = function (event) {
  * @param params
  */
 
-
 Functions.documentationAdd = function ($elm, params) {
   if (typeof mysqlDocTemplate === 'undefined') {
-    return;
+    return
   }
 
-  var url = Functions.sprintf(decodeURIComponent(mysqlDocTemplate), params[0]);
+  let url = Functions.sprintf(decodeURIComponent(mysqlDocTemplate), params[0])
 
   if (params.length > 1) {
     // The # needs to be escaped to be part of the destination URL
-    url += encodeURIComponent('#') + params[1];
+    url += encodeURIComponent('#') + params[1]
   }
 
-  var content = $elm.text();
-  $elm.text('');
-  $elm.append('<a target="mysql_doc" class="cm-sql-doc" href="' + url + '">' + content + '</a>');
-};
+  const content = $elm.text()
+  $elm.text('')
+  $elm.append('<a target="mysql_doc" class="cm-sql-doc" href="' + url + '">' + content + '</a>')
+}
 /**
  * Generates doc links for keywords inside highlighted SQL
  *
@@ -1750,46 +1710,45 @@ Functions.documentationAdd = function ($elm, params) {
  * @param elm
  */
 
-
 Functions.documentationKeyword = function (idx, elm) {
-  var $elm = $(elm);
+  const $elm = $(elm)
   /* Skip already processed ones */
 
   if ($elm.find('a').length > 0) {
-    return;
+    return
   }
 
-  var keyword = $elm.text().toUpperCase();
-  var $next = $elm.next('.cm-keyword');
+  const keyword = $elm.text().toUpperCase()
+  const $next = $elm.next('.cm-keyword')
 
   if ($next) {
-    var nextKeyword = $next.text().toUpperCase();
-    var full = keyword + ' ' + nextKeyword;
-    var $next2 = $next.next('.cm-keyword');
+    const nextKeyword = $next.text().toUpperCase()
+    const full = keyword + ' ' + nextKeyword
+    const $next2 = $next.next('.cm-keyword')
 
     if ($next2) {
-      var next2Keyword = $next2.text().toUpperCase();
-      var full2 = full + ' ' + next2Keyword;
+      const next2Keyword = $next2.text().toUpperCase()
+      const full2 = full + ' ' + next2Keyword
 
       if (full2 in mysqlDocKeyword) {
-        Functions.documentationAdd($elm, mysqlDocKeyword[full2]);
-        Functions.documentationAdd($next, mysqlDocKeyword[full2]);
-        Functions.documentationAdd($next2, mysqlDocKeyword[full2]);
-        return;
+        Functions.documentationAdd($elm, mysqlDocKeyword[full2])
+        Functions.documentationAdd($next, mysqlDocKeyword[full2])
+        Functions.documentationAdd($next2, mysqlDocKeyword[full2])
+        return
       }
     }
 
     if (full in mysqlDocKeyword) {
-      Functions.documentationAdd($elm, mysqlDocKeyword[full]);
-      Functions.documentationAdd($next, mysqlDocKeyword[full]);
-      return;
+      Functions.documentationAdd($elm, mysqlDocKeyword[full])
+      Functions.documentationAdd($next, mysqlDocKeyword[full])
+      return
     }
   }
 
   if (keyword in mysqlDocKeyword) {
-    Functions.documentationAdd($elm, mysqlDocKeyword[keyword]);
+    Functions.documentationAdd($elm, mysqlDocKeyword[keyword])
   }
-};
+}
 /**
  * Generates doc links for builtins inside highlighted SQL
  *
@@ -1797,42 +1756,40 @@ Functions.documentationKeyword = function (idx, elm) {
  * @param elm
  */
 
-
 Functions.documentationBuiltin = function (idx, elm) {
-  var $elm = $(elm);
-  var builtin = $elm.text().toUpperCase();
+  const $elm = $(elm)
+  const builtin = $elm.text().toUpperCase()
 
   if (builtin in mysqlDocBuiltin) {
-    Functions.documentationAdd($elm, mysqlDocBuiltin[builtin]);
+    Functions.documentationAdd($elm, mysqlDocBuiltin[builtin])
   }
-};
+}
 /**
  * Higlights SQL using CodeMirror.
  *
  * @param $base
  */
 
-
 Functions.highlightSql = function ($base) {
-  var $elm = $base.find('code.sql');
+  const $elm = $base.find('code.sql')
   $elm.each(function () {
-    var $sql = $(this);
-    var $pre = $sql.find('pre');
+    const $sql = $(this)
+    const $pre = $sql.find('pre')
     /* We only care about visible elements to avoid double processing */
 
     if ($pre.is(':visible')) {
-      var $highlight = $('<div class="sql-highlight cm-s-default"></div>');
-      $sql.append($highlight);
+      const $highlight = $('<div class="sql-highlight cm-s-default"></div>')
+      $sql.append($highlight)
 
       if (typeof CodeMirror !== 'undefined') {
-        CodeMirror.runMode($sql.text(), 'text/x-mysql', $highlight[0]);
-        $pre.hide();
-        $highlight.find('.cm-keyword').each(Functions.documentationKeyword);
-        $highlight.find('.cm-builtin').each(Functions.documentationBuiltin);
+        CodeMirror.runMode($sql.text(), 'text/x-mysql', $highlight[0])
+        $pre.hide()
+        $highlight.find('.cm-keyword').each(Functions.documentationKeyword)
+        $highlight.find('.cm-builtin').each(Functions.documentationBuiltin)
       }
     }
-  });
-};
+  })
+}
 /**
  * Updates an element containing code.
  *
@@ -1847,45 +1804,42 @@ Functions.highlightSql = function ($base) {
  * @return {boolean}        whether content was updated or not
  */
 
-
 Functions.updateCode = function ($base, htmlValue, rawValue) {
-  var $code = $base.find('code');
+  const $code = $base.find('code')
 
   if ($code.length === 0) {
-    return false;
+    return false
   } // Determines the type of the content and appropriate CodeMirror mode.
 
-
-  var type = '';
-  var mode = '';
+  let type = ''
+  let mode = ''
 
   if ($code.hasClass('json')) {
-    type = 'json';
-    mode = 'application/json';
+    type = 'json'
+    mode = 'application/json'
   } else if ($code.hasClass('sql')) {
-    type = 'sql';
-    mode = 'text/x-mysql';
+    type = 'sql'
+    mode = 'text/x-mysql'
   } else if ($code.hasClass('xml')) {
-    type = 'xml';
-    mode = 'application/xml';
+    type = 'xml'
+    mode = 'application/xml'
   } else {
-    return false;
+    return false
   } // Element used to display unhighlighted code.
 
-
-  var $notHighlighted = $('<pre>' + htmlValue + '</pre>'); // Tries to highlight code using CodeMirror.
+  const $notHighlighted = $('<pre>' + htmlValue + '</pre>') // Tries to highlight code using CodeMirror.
 
   if (typeof CodeMirror !== 'undefined') {
-    var $highlighted = $('<div class="' + type + '-highlight cm-s-default"></div>');
-    CodeMirror.runMode(rawValue, mode, $highlighted[0]);
-    $notHighlighted.hide();
-    $code.html('').append($notHighlighted, $highlighted[0]);
+    const $highlighted = $('<div class="' + type + '-highlight cm-s-default"></div>')
+    CodeMirror.runMode(rawValue, mode, $highlighted[0])
+    $notHighlighted.hide()
+    $code.html('').append($notHighlighted, $highlighted[0])
   } else {
-    $code.html('').append($notHighlighted);
+    $code.html('').append($notHighlighted)
   }
 
-  return true;
-};
+  return true
+}
 /**
  * Show a message on the top of the page for an Ajax request
  *
@@ -1925,97 +1879,89 @@ Functions.updateCode = function ($base, htmlValue, rawValue) {
  *                              to remove the notification
  */
 
-
 Functions.ajaxShowMessage = function (message, timeout, type) {
-  var msg = message;
-  var newTimeOut = timeout;
+  let msg = message
+  let newTimeOut = timeout
   /**
    * @var self_closing Whether the notification will automatically disappear
    */
 
-  var selfClosing = true;
+  let selfClosing = true
   /**
    * @var dismissable Whether the user will be able to remove
    *                  the notification by clicking on it
    */
 
-  var dismissable = true; // Handle the case when a empty data.message is passed.
+  let dismissable = true // Handle the case when a empty data.message is passed.
   // We don't want the empty message
 
   if (msg === '') {
-    return true;
+    return true
   } else if (!msg) {
     // If the message is undefined, show the default
-    msg = Messages.strLoading;
-    dismissable = false;
-    selfClosing = false;
+    msg = Messages.strLoading
+    dismissable = false
+    selfClosing = false
   } else if (msg === Messages.strProcessingRequest) {
     // This is another case where the message should not disappear
-    dismissable = false;
-    selfClosing = false;
+    dismissable = false
+    selfClosing = false
   } // Figure out whether (or after how long) to remove the notification
 
-
   if (newTimeOut === undefined) {
-    newTimeOut = 5000;
+    newTimeOut = 5000
   } else if (newTimeOut === false) {
-    selfClosing = false;
+    selfClosing = false
   } // Determine type of message, add styling as required
 
-
   if (type === 'error') {
-    msg = '<div class="alert alert-danger" role="alert">' + msg + '</div>';
+    msg = '<div class="alert alert-danger" role="alert">' + msg + '</div>'
   } else if (type === 'success') {
-    msg = '<div class="alert alert-success" role="alert">' + msg + '</div>';
+    msg = '<div class="alert alert-success" role="alert">' + msg + '</div>'
   } // Create a parent element for the AJAX messages, if necessary
 
-
   if ($('#loading_parent').length === 0) {
-    $('<div id="loading_parent"></div>').prependTo('#page_content');
+    $('<div id="loading_parent"></div>').prependTo('#page_content')
   } // Update message count to create distinct message elements every time
 
+  ajaxMessageCount++ // Remove all old messages, if any
 
-  ajaxMessageCount++; // Remove all old messages, if any
-
-  $('span.ajax_notification[id^=ajax_message_num]').remove();
+  $('span.ajax_notification[id^=ajax_message_num]').remove()
   /**
    * @var $retval    a jQuery object containing the reference
    *                 to the created AJAX message
    */
 
-  var $retval = $('<span class="ajax_notification" id="ajax_message_num_' + ajaxMessageCount + '"></span>').hide().appendTo('#loading_parent').html(msg).show(); // If the notification is self-closing we should create a callback to remove it
+  const $retval = $('<span class="ajax_notification" id="ajax_message_num_' + ajaxMessageCount + '"></span>').hide().appendTo('#loading_parent').html(msg).show() // If the notification is self-closing we should create a callback to remove it
 
   if (selfClosing) {
     $retval.delay(newTimeOut).fadeOut('medium', function () {
       if ($(this).is(':data(tooltip)')) {
-        $(this).uiTooltip('destroy');
+        $(this).uiTooltip('destroy')
       } // Remove the notification
 
-
-      $(this).remove();
-    });
+      $(this).remove()
+    })
   } // If the notification is dismissable we need to add the relevant class to it
   // and add a tooltip so that the users know that it can be removed
 
-
   if (dismissable) {
-    $retval.addClass('dismissable').css('cursor', 'pointer');
+    $retval.addClass('dismissable').css('cursor', 'pointer')
     /**
      * Add a tooltip to the notification to let the user know that they
      * can dismiss the ajax notification by clicking on it.
      */
 
-    Functions.tooltip($retval, 'span', Messages.strDismiss);
+    Functions.tooltip($retval, 'span', Messages.strDismiss)
   } // Hide spinner if this is not a loading message
 
-
   if (msg !== Messages.strLoading) {
-    $retval.css('background-image', 'none');
+    $retval.css('background-image', 'none')
   }
 
-  Functions.highlightSql($retval);
-  return $retval;
-};
+  Functions.highlightSql($retval)
+  return $retval
+}
 /**
  * Removes the message shown for an Ajax operation when it's completed
  *
@@ -2024,18 +1970,17 @@ Functions.ajaxShowMessage = function (message, timeout, type) {
  * @return {void}
  */
 
-
 Functions.ajaxRemoveMessage = function ($thisMessageBox) {
   if ($thisMessageBox !== undefined && $thisMessageBox instanceof jQuery) {
-    $thisMessageBox.stop(true, true).fadeOut('medium');
+    $thisMessageBox.stop(true, true).fadeOut('medium')
 
     if ($thisMessageBox.is(':data(tooltip)')) {
-      $thisMessageBox.uiTooltip('destroy');
+      $thisMessageBox.uiTooltip('destroy')
     } else {
-      $thisMessageBox.remove();
+      $thisMessageBox.remove()
     }
   }
-};
+}
 /**
  * Requests SQL for previewing before executing.
  *
@@ -2044,35 +1989,34 @@ Functions.ajaxRemoveMessage = function ($thisMessageBox) {
  * @return {void}
  */
 
-
 Functions.previewSql = function ($form) {
-  var formUrl = $form.attr('action');
-  var sep = CommonParams.get('arg_separator');
-  var formData = $form.serialize() + sep + 'do_save_data=1' + sep + 'preview_sql=1' + sep + 'ajax_request=1';
-  var $messageBox = Functions.ajaxShowMessage();
+  const formUrl = $form.attr('action')
+  const sep = CommonParams.get('arg_separator')
+  const formData = $form.serialize() + sep + 'do_save_data=1' + sep + 'preview_sql=1' + sep + 'ajax_request=1'
+  const $messageBox = Functions.ajaxShowMessage()
   $.ajax({
     type: 'POST',
     url: formUrl,
     data: formData,
     success: function (response) {
-      Functions.ajaxRemoveMessage($messageBox);
+      Functions.ajaxRemoveMessage($messageBox)
 
       if (response.success) {
-        $('#previewSqlModal').modal('show');
-        $('#previewSqlModal').find('.modal-body').first().html(response.sql_data);
-        $('#previewSqlModalLabel').first().html(Messages.strPreviewSQL);
+        $('#previewSqlModal').modal('show')
+        $('#previewSqlModal').find('.modal-body').first().html(response.sql_data)
+        $('#previewSqlModalLabel').first().html(Messages.strPreviewSQL)
         $('#previewSqlModal').on('shown.bs.modal', function () {
-          Functions.highlightSql($('#previewSqlModal'));
-        });
+          Functions.highlightSql($('#previewSqlModal'))
+        })
       } else {
-        Functions.ajaxShowMessage(response.message);
+        Functions.ajaxShowMessage(response.message)
       }
     },
     error: function () {
-      Functions.ajaxShowMessage(Messages.strErrorProcessingRequest);
+      Functions.ajaxShowMessage(Messages.strErrorProcessingRequest)
     }
-  });
-};
+  })
+}
 /**
  * Callback called when submit/"OK" is clicked on sql preview/confirm modal
  *
@@ -2089,19 +2033,18 @@ Functions.previewSql = function ($form) {
  * @return {void}
  */
 
-
 Functions.confirmPreviewSql = function (sqlData, url, callback) {
-  $('#previewSqlConfirmModal').modal('show');
-  $('#previewSqlConfirmModalLabel').first().html(Messages.strPreviewSQL);
-  $('#previewSqlConfirmCode').first().text(sqlData);
+  $('#previewSqlConfirmModal').modal('show')
+  $('#previewSqlConfirmModalLabel').first().html(Messages.strPreviewSQL)
+  $('#previewSqlConfirmCode').first().text(sqlData)
   $('#previewSqlConfirmModal').on('shown.bs.modal', function () {
-    Functions.highlightSql($('#previewSqlConfirmModal'));
-  });
+    Functions.highlightSql($('#previewSqlConfirmModal'))
+  })
   $('#previewSQLConfirmOkButton').on('click', function () {
-    callback(url);
-    $('#previewSqlConfirmModal').modal('hide');
-  });
-};
+    callback(url)
+    $('#previewSqlConfirmModal').modal('hide')
+  })
+}
 /**
  * check for reserved keyword column name
  *
@@ -2110,41 +2053,39 @@ Functions.confirmPreviewSql = function (sqlData, url, callback) {
  * @return {boolean}
  */
 
-
 Functions.checkReservedWordColumns = function ($form) {
-  var isConfirmed = true;
+  let isConfirmed = true
   $.ajax({
     type: 'POST',
     url: 'index.php?route=/table/structure/reserved-word-check',
     data: $form.serialize(),
     success: function (data) {
       if (typeof data.success !== 'undefined' && data.success === true) {
-        isConfirmed = confirm(data.message);
+        isConfirmed = confirm(data.message)
       }
     },
     async: false
-  });
-  return isConfirmed;
-}; // This event only need to be fired once after the initial page load
-
+  })
+  return isConfirmed
+} // This event only need to be fired once after the initial page load
 
 $(function () {
   /**
    * Allows the user to dismiss a notification
    * created with Functions.ajaxShowMessage()
    */
-  var holdStarter = null;
+  let holdStarter = null
   $(document).on('mousedown', 'span.ajax_notification.dismissable', function () {
     holdStarter = setTimeout(function () {
-      holdStarter = null;
-    }, 250);
-  });
+      holdStarter = null
+    }, 250)
+  })
   $(document).on('mouseup', 'span.ajax_notification.dismissable', function (event) {
     if (holdStarter && event.which === 1) {
-      clearTimeout(holdStarter);
-      Functions.ajaxRemoveMessage($(this));
+      clearTimeout(holdStarter)
+      Functions.ajaxRemoveMessage($(this))
     }
-  });
+  })
   /**
    * The below two functions hide the "Dismiss notification" tooltip when a user
    * is hovering a link or button that is inside an ajax message
@@ -2152,14 +2093,14 @@ $(function () {
 
   $(document).on('mouseover', 'span.ajax_notification a, span.ajax_notification button, span.ajax_notification input', function () {
     if ($(this).parents('span.ajax_notification').is(':data(tooltip)')) {
-      $(this).parents('span.ajax_notification').uiTooltip('disable');
+      $(this).parents('span.ajax_notification').uiTooltip('disable')
     }
-  });
+  })
   $(document).on('mouseout', 'span.ajax_notification a, span.ajax_notification button, span.ajax_notification input', function () {
     if ($(this).parents('span.ajax_notification').is(':data(tooltip)')) {
-      $(this).parents('span.ajax_notification').uiTooltip('enable');
+      $(this).parents('span.ajax_notification').uiTooltip('enable')
     }
-  });
+  })
   /**
    * Copy text to clipboard
    *
@@ -2169,44 +2110,44 @@ $(function () {
    */
 
   Functions.copyToClipboard = function (text) {
-    var $temp = $('<input>');
+    const $temp = $('<input>')
     $temp.css({
-      'position': 'fixed',
-      'width': '2em',
-      'border': 0,
-      'top': 0,
-      'left': 0,
-      'padding': 0,
-      'background': 'transparent'
-    });
-    $('body').append($temp);
-    $temp.val(text).trigger('select');
+      position: 'fixed',
+      width: '2em',
+      border: 0,
+      top: 0,
+      left: 0,
+      padding: 0,
+      background: 'transparent'
+    })
+    $('body').append($temp)
+    $temp.val(text).trigger('select')
 
     try {
-      var res = document.execCommand('copy');
-      $temp.remove();
-      return res;
+      const res = document.execCommand('copy')
+      $temp.remove()
+      return res
     } catch (e) {
-      $temp.remove();
-      return false;
+      $temp.remove()
+      return false
     }
-  };
+  }
 
   $(document).on('click', 'a.copyQueryBtn', function (event) {
-    event.preventDefault();
-    var res = Functions.copyToClipboard($(this).attr('data-text'));
+    event.preventDefault()
+    const res = Functions.copyToClipboard($(this).attr('data-text'))
 
     if (res) {
-      $(this).after('<span id=\'copyStatus\'> (' + Messages.strCopyQueryButtonSuccess + ')</span>');
+      $(this).after('<span id=\'copyStatus\'> (' + Messages.strCopyQueryButtonSuccess + ')</span>')
     } else {
-      $(this).after('<span id=\'copyStatus\'> (' + Messages.strCopyQueryButtonFailure + ')</span>');
+      $(this).after('<span id=\'copyStatus\'> (' + Messages.strCopyQueryButtonFailure + ')</span>')
     }
 
     setTimeout(function () {
-      $('#copyStatus').remove();
-    }, 2000);
-  });
-});
+      $('#copyStatus').remove()
+    }, 2000)
+  })
+})
 /**
  * Hides/shows the "Open in ENUM/SET editor" message, depending on the data type of the column currently selected
  *
@@ -2214,35 +2155,34 @@ $(function () {
  */
 
 Functions.showNoticeForEnum = function (selectElement) {
-  var enumNoticeId = selectElement.attr('id').split('_')[1];
-  enumNoticeId += '_' + (parseInt(selectElement.attr('id').split('_')[2], 10) + 1);
-  var selectedType = selectElement.val();
+  let enumNoticeId = selectElement.attr('id').split('_')[1]
+  enumNoticeId += '_' + (parseInt(selectElement.attr('id').split('_')[2], 10) + 1)
+  const selectedType = selectElement.val()
 
   if (selectedType === 'ENUM' || selectedType === 'SET') {
-    $('p#enum_notice_' + enumNoticeId).show();
+    $('p#enum_notice_' + enumNoticeId).show()
   } else {
-    $('p#enum_notice_' + enumNoticeId).hide();
+    $('p#enum_notice_' + enumNoticeId).hide()
   }
-};
+}
 /**
  * Hides/shows a warning message when LENGTH is used with inappropriate integer type
  */
 
-
 Functions.showWarningForIntTypes = function () {
   if ($('div#length_not_allowed').length) {
-    var lengthRestrictions = $('select.column_type option').map(function () {
-      return $(this).filter(':selected').attr('data-length-restricted');
-    }).get();
-    var restricationFound = lengthRestrictions.some(restriction => Number(restriction) === 1);
+    const lengthRestrictions = $('select.column_type option').map(function () {
+      return $(this).filter(':selected').attr('data-length-restricted')
+    }).get()
+    const restricationFound = lengthRestrictions.some(restriction => Number(restriction) === 1)
 
     if (restricationFound) {
-      $('div#length_not_allowed').show();
+      $('div#length_not_allowed').show()
     } else {
-      $('div#length_not_allowed').hide();
+      $('div#length_not_allowed').hide()
     }
   }
-};
+}
 /**
  * Creates a Profiling Chart. Used in sql.js
  * and in server/status/monitor.js
@@ -2253,23 +2193,21 @@ Functions.showWarningForIntTypes = function () {
  * @return {object}
  */
 
-
 Functions.createProfilingChart = function (target, data) {
   // create the chart
-  var factory = new JQPlotChartFactory();
-  var chart = factory.createChart(ChartType.PIE, target); // create the data table and add columns
+  const factory = new JQPlotChartFactory()
+  const chart = factory.createChart(ChartType.PIE, target) // create the data table and add columns
 
-  var dataTable = new DataTable();
-  dataTable.addColumn(ColumnType.STRING, '');
-  dataTable.addColumn(ColumnType.NUMBER, '');
-  dataTable.setData(data);
-  var windowWidth = $(window).width();
-  var location = 's';
+  const dataTable = new DataTable()
+  dataTable.addColumn(ColumnType.STRING, '')
+  dataTable.addColumn(ColumnType.NUMBER, '')
+  dataTable.setData(data)
+  const windowWidth = $(window).width()
+  let location = 's'
 
   if (windowWidth > 768) {
-    location = 'se';
+    location = 'se'
   } // draw the chart and return the chart object
-
 
   chart.draw(dataTable, {
     seriesDefaults: {
@@ -2285,16 +2223,16 @@ Functions.createProfilingChart = function (target, data) {
     },
     legend: {
       show: true,
-      location: location,
+      location,
       rendererOptions: {
         numberColumns: 2
       }
     },
     // from https://web.archive.org/web/20190321233412/http://tango.freedesktop.org/Tango_Icon_Theme_Guidelines
     seriesColors: ['#fce94f', '#fcaf3e', '#e9b96e', '#8ae234', '#729fcf', '#ad7fa8', '#ef2929', '#888a85', '#c4a000', '#ce5c00', '#8f5902', '#4e9a06', '#204a87', '#5c3566', '#a40000', '#babdb6', '#2e3436']
-  });
-  return chart;
-};
+  })
+  return chart
+}
 /**
  * Formats a profiling duration nicely (in us and ms time).
  * Used in server/status/monitor.js
@@ -2304,27 +2242,26 @@ Functions.createProfilingChart = function (target, data) {
  * @return {string}        The formatted number
  */
 
-
 Functions.prettyProfilingNum = function (number, accuracy) {
-  var num = number;
-  var acc = accuracy;
+  let num = number
+  let acc = accuracy
 
   if (!acc) {
-    acc = 2;
+    acc = 2
   }
 
-  acc = Math.pow(10, acc);
+  acc = Math.pow(10, acc)
 
   if (num * 1000 < 0.1) {
-    num = Math.round(acc * (num * 1000 * 1000)) / acc + 'µ';
+    num = Math.round(acc * (num * 1000 * 1000)) / acc + 'µ'
   } else if (num < 0.1) {
-    num = Math.round(acc * (num * 1000)) / acc + 'm';
+    num = Math.round(acc * (num * 1000)) / acc + 'm'
   } else {
-    num = Math.round(acc * num) / acc;
+    num = Math.round(acc * num) / acc
   }
 
-  return num + 's';
-};
+  return num + 's'
+}
 /**
  * Formats a SQL Query nicely with newlines and indentation. Depends on Codemirror and MySQL Mode!
  *
@@ -2332,152 +2269,142 @@ Functions.prettyProfilingNum = function (number, accuracy) {
  * @return {string}      The formatted query
  */
 
-
 Functions.sqlPrettyPrint = function (string) {
   if (typeof CodeMirror === 'undefined') {
-    return string;
+    return string
   }
 
-  var mode = CodeMirror.getMode({}, 'text/x-mysql');
-  var stream = new CodeMirror.StringStream(string);
-  var state = mode.startState();
-  var token;
-  var tokens = [];
-  var output = '';
+  const mode = CodeMirror.getMode({}, 'text/x-mysql')
+  const stream = new CodeMirror.StringStream(string)
+  const state = mode.startState()
+  let token
+  const tokens = []
+  let output = ''
 
-  var tabs = function (cnt) {
-    var ret = '';
+  const tabs = function (cnt) {
+    let ret = ''
 
-    for (var i = 0; i < 4 * cnt; i++) {
-      ret += ' ';
+    for (let i = 0; i < 4 * cnt; i++) {
+      ret += ' '
     }
 
-    return ret;
-  }; // "root-level" statements
+    return ret
+  } // "root-level" statements
 
-
-  var statements = {
-    'select': ['select', 'from', 'on', 'where', 'having', 'limit', 'order by', 'group by'],
-    'update': ['update', 'set', 'where'],
+  const statements = {
+    select: ['select', 'from', 'on', 'where', 'having', 'limit', 'order by', 'group by'],
+    update: ['update', 'set', 'where'],
     'insert into': ['insert into', 'values']
-  }; // don't put spaces before these tokens
+  } // don't put spaces before these tokens
 
-  var spaceExceptionsBefore = {
+  const spaceExceptionsBefore = {
     ';': true,
     ',': true,
     '.': true,
     '(': true
-  }; // don't put spaces after these tokens
+  } // don't put spaces after these tokens
 
-  var spaceExceptionsAfter = {
+  const spaceExceptionsAfter = {
     '.': true
-  }; // Populate tokens array
+  } // Populate tokens array
 
   while (!stream.eol()) {
-    stream.start = stream.pos;
-    token = mode.token(stream, state);
+    stream.start = stream.pos
+    token = mode.token(stream, state)
 
     if (token !== null) {
-      tokens.push([token, stream.current().toLowerCase()]);
+      tokens.push([token, stream.current().toLowerCase()])
     }
   }
 
-  var currentStatement = tokens[0][1];
+  let currentStatement = tokens[0][1]
 
   if (!statements[currentStatement]) {
-    return string;
+    return string
   } // Holds all currently opened code blocks (statement, function or generic)
 
+  const blockStack = [] // If a new code block is found, newBlock contains its type for one iteration and vice versa for endBlock
 
-  var blockStack = []; // If a new code block is found, newBlock contains its type for one iteration and vice versa for endBlock
+  let newBlock
+  let endBlock // How much to indent in the current line
 
-  var newBlock;
-  var endBlock; // How much to indent in the current line
+  let indentLevel = 0 // Holds the "root-level" statements
 
-  var indentLevel = 0; // Holds the "root-level" statements
+  let statementPart
+  let lastStatementPart = statements[currentStatement][0]
+  blockStack.unshift('statement') // Iterate through every token and format accordingly
 
-  var statementPart;
-  var lastStatementPart = statements[currentStatement][0];
-  blockStack.unshift('statement'); // Iterate through every token and format accordingly
-
-  for (var i = 0; i < tokens.length; i++) {
+  for (let i = 0; i < tokens.length; i++) {
     // New block => push to stack
     if (tokens[i][1] === '(') {
       if (i < tokens.length - 1 && tokens[i + 1][0] === 'statement-verb') {
-        blockStack.unshift(newBlock = 'statement');
+        blockStack.unshift(newBlock = 'statement')
       } else if (i > 0 && tokens[i - 1][0] === 'builtin') {
-        blockStack.unshift(newBlock = 'function');
+        blockStack.unshift(newBlock = 'function')
       } else {
-        blockStack.unshift(newBlock = 'generic');
+        blockStack.unshift(newBlock = 'generic')
       }
     } else {
-      newBlock = null;
+      newBlock = null
     } // Block end => pop from stack
 
-
     if (tokens[i][1] === ')') {
-      endBlock = blockStack[0];
-      blockStack.shift();
+      endBlock = blockStack[0]
+      blockStack.shift()
     } else {
-      endBlock = null;
+      endBlock = null
     } // A subquery is starting
 
-
     if (i > 0 && newBlock === 'statement') {
-      indentLevel++;
-      output += '\n' + tabs(indentLevel) + tokens[i][1] + ' ' + tokens[i + 1][1].toUpperCase() + '\n' + tabs(indentLevel + 1);
-      currentStatement = tokens[i + 1][1];
-      i++;
-      continue;
+      indentLevel++
+      output += '\n' + tabs(indentLevel) + tokens[i][1] + ' ' + tokens[i + 1][1].toUpperCase() + '\n' + tabs(indentLevel + 1)
+      currentStatement = tokens[i + 1][1]
+      i++
+      continue
     } // A subquery is ending
 
-
     if (endBlock === 'statement' && indentLevel > 0) {
-      output += '\n' + tabs(indentLevel);
-      indentLevel--;
+      output += '\n' + tabs(indentLevel)
+      indentLevel--
     } // One less indentation for statement parts (from, where, order by, etc.) and a newline
 
-
-    statementPart = statements[currentStatement].indexOf(tokens[i][1]);
+    statementPart = statements[currentStatement].indexOf(tokens[i][1])
 
     if (statementPart !== -1) {
       if (i > 0) {
-        output += '\n';
+        output += '\n'
       }
 
-      output += tabs(indentLevel) + tokens[i][1].toUpperCase();
-      output += '\n' + tabs(indentLevel + 1);
-      lastStatementPart = tokens[i][1]; // Normal indentation and spaces for everything else
+      output += tabs(indentLevel) + tokens[i][1].toUpperCase()
+      output += '\n' + tabs(indentLevel + 1)
+      lastStatementPart = tokens[i][1] // Normal indentation and spaces for everything else
     } else {
       if (!spaceExceptionsBefore[tokens[i][1]] && !(i > 0 && spaceExceptionsAfter[tokens[i - 1][1]]) && output.charAt(output.length - 1) !== ' ') {
-        output += ' ';
+        output += ' '
       }
 
       if (tokens[i][0] === 'keyword') {
-        output += tokens[i][1].toUpperCase();
+        output += tokens[i][1].toUpperCase()
       } else {
-        output += tokens[i][1];
+        output += tokens[i][1]
       }
     } // split columns in select and 'update set' clauses, but only inside statements blocks
 
-
     if ((lastStatementPart === 'select' || lastStatementPart === 'where' || lastStatementPart === 'set') && tokens[i][1] === ',' && blockStack[0] === 'statement') {
-      output += '\n' + tabs(indentLevel + 1);
+      output += '\n' + tabs(indentLevel + 1)
     } // split conditions in where clauses, but only inside statements blocks
-
 
     if (lastStatementPart === 'where' && (tokens[i][1] === 'and' || tokens[i][1] === 'or' || tokens[i][1] === 'xor')) {
       if (blockStack[0] === 'statement') {
-        output += '\n' + tabs(indentLevel + 1);
+        output += '\n' + tabs(indentLevel + 1)
       } // Todo: Also split and or blocks in newlines & indentation++
       // if (blockStack[0] === 'generic')
       //   output += ...
-
     }
   }
 
-  return output;
-};
+  return output
+}
 /**
  * jQuery function that uses jQueryUI's dialogs to confirm with user. Does not
  * return a jQuery object yet and hence cannot be chained
@@ -2491,58 +2418,56 @@ Functions.sqlPrettyPrint = function (string) {
  * @return {bool}
  */
 
-
 Functions.confirm = function (question, url, callbackFn, openCallback) {
-  var confirmState = CommonParams.get('confirm');
+  const confirmState = CommonParams.get('confirm')
 
   if (!confirmState) {
     // user does not want to confirm
     if (typeof callbackFn === 'function') {
-      callbackFn.call(this, url);
-      return true;
+      callbackFn.call(this, url)
+      return true
     }
   }
 
   if (Messages.strDoYouReally === '') {
-    return true;
+    return true
   }
   /**
    * @var button_options Object that stores the options passed to jQueryUI
    *                     dialog
    */
 
-
-  var buttonOptions = [{
+  const buttonOptions = [{
     text: Messages.strOK,
-    'class': 'submitOK',
+    class: 'submitOK',
     click: function () {
-      $(this).dialog('close');
+      $(this).dialog('close')
 
       if (typeof callbackFn === 'function') {
-        callbackFn.call(this, url);
+        callbackFn.call(this, url)
       }
     }
   }, {
     text: Messages.strCancel,
-    'class': 'submitCancel',
+    class: 'submitCancel',
     click: function () {
-      $(this).dialog('close');
+      $(this).dialog('close')
     }
-  }];
+  }]
   $('<div></div>', {
-    'id': 'confirm_dialog',
-    'title': Messages.strConfirm
+    id: 'confirm_dialog',
+    title: Messages.strConfirm
   }).prepend(question).dialog({
     buttons: buttonOptions,
     close: function () {
-      $(this).remove();
+      $(this).remove()
     },
     open: openCallback,
     modal: true
-  });
-};
+  })
+}
 
-jQuery.fn.confirm = Functions.confirm;
+jQuery.fn.confirm = Functions.confirm
 /**
  * jQuery function to sort a table's body after a new row has been appended to it.
  *
@@ -2556,47 +2481,47 @@ Functions.sortTable = function (textSelector) {
     /**
      * @var table_body  Object referring to the table's <tbody> element
      */
-    var tableBody = $(this);
+    const tableBody = $(this)
     /**
      * @var rows    Object referring to the collection of rows in {@link tableBody}
      */
 
-    var rows = $(this).find('tr').get(); // get the text of the field that we will sort by
+    const rows = $(this).find('tr').get() // get the text of the field that we will sort by
 
     $.each(rows, function (index, row) {
-      row.sortKey = $(row).find(textSelector).text().toLowerCase().trim();
-    }); // get the sorted order
+      row.sortKey = $(row).find(textSelector).text().toLowerCase().trim()
+    }) // get the sorted order
 
     rows.sort(function (a, b) {
       if (a.sortKey < b.sortKey) {
-        return -1;
+        return -1
       }
 
       if (a.sortKey > b.sortKey) {
-        return 1;
+        return 1
       }
 
-      return 0;
-    }); // pull out each row from the table and then append it according to it's order
+      return 0
+    }) // pull out each row from the table and then append it according to it's order
 
     $.each(rows, function (index, row) {
-      $(tableBody).append(row);
-      row.sortKey = null;
-    });
-  });
-};
+      $(tableBody).append(row)
+      row.sortKey = null
+    })
+  })
+}
 
-jQuery.fn.sortTable = Functions.sortTable;
+jQuery.fn.sortTable = Functions.sortTable
 /**
  * Unbind all event handlers before tearing down a page
  */
 
 AJAX.registerTeardown('functions.js', function () {
-  $(document).off('submit', 'form.create_table_form.ajax');
-  $(document).off('click', 'form.create_table_form.ajax input[name=submit_num_fields]');
-  $(document).off('keyup', 'form.create_table_form.ajax input');
-  $(document).off('change', 'input[name=partition_count],input[name=subpartition_count],select[name=partition_by]');
-});
+  $(document).off('submit', 'form.create_table_form.ajax')
+  $(document).off('click', 'form.create_table_form.ajax input[name=submit_num_fields]')
+  $(document).off('keyup', 'form.create_table_form.ajax input')
+  $(document).off('change', 'input[name=partition_count],input[name=subpartition_count],select[name=partition_by]')
+})
 /**
  * jQuery coding for 'Create Table'. Used on /database/operations,
  * /database/structure and /database/tracking (i.e., wherever
@@ -2610,12 +2535,12 @@ AJAX.registerOnload('functions.js', function () {
    * Attach event handler for submission of create table form (save)
    */
   $(document).on('submit', 'form.create_table_form.ajax', function (event) {
-    event.preventDefault();
+    event.preventDefault()
     /**
      * @var    the_form    object referring to the create table form
      */
 
-    var $form = $(this);
+    const $form = $(this)
     /*
      * First validate the form; if there is a problem, avoid submitting it
      *
@@ -2625,79 +2550,78 @@ AJAX.registerOnload('functions.js', function () {
      */
 
     if (Functions.checkTableEditForm($form[0], $form.find('input[name=orig_num_fields]').val())) {
-      Functions.prepareForAjaxRequest($form);
+      Functions.prepareForAjaxRequest($form)
 
       if (Functions.checkReservedWordColumns($form)) {
-        Functions.ajaxShowMessage(Messages.strProcessingRequest); // User wants to submit the form
+        Functions.ajaxShowMessage(Messages.strProcessingRequest) // User wants to submit the form
 
         $.post($form.attr('action'), $form.serialize() + CommonParams.get('arg_separator') + 'do_save_data=1', function (data) {
           if (typeof data !== 'undefined' && data.success === true) {
-            $('#properties_message').removeClass('alert-danger').html('');
-            Functions.ajaxShowMessage(data.message); // Only if the create table dialog (distinct panel) exists
+            $('#properties_message').removeClass('alert-danger').html('')
+            Functions.ajaxShowMessage(data.message) // Only if the create table dialog (distinct panel) exists
 
-            var $createTableDialog = $('#create_table_dialog');
+            const $createTableDialog = $('#create_table_dialog')
 
             if ($createTableDialog.length > 0) {
-              $createTableDialog.dialog('close').remove();
+              $createTableDialog.dialog('close').remove()
             }
 
-            $('#tableslistcontainer').before(data.formatted_sql);
+            $('#tableslistcontainer').before(data.formatted_sql)
             /**
              * @var tables_table    Object referring to the <tbody> element that holds the list of tables
              */
 
-            var tablesTable = $('#tablesForm').find('tbody').not('#tbl_summary_row'); // this is the first table created in this db
+            const tablesTable = $('#tablesForm').find('tbody').not('#tbl_summary_row') // this is the first table created in this db
 
             if (tablesTable.length === 0) {
-              CommonActions.refreshMain(CommonParams.get('opendb_url'));
+              CommonActions.refreshMain(CommonParams.get('opendb_url'))
             } else {
               /**
                * @var curr_last_row   Object referring to the last <tr> element in {@link tablesTable}
                */
-              var currLastRow = $(tablesTable).find('tr').last();
+              const currLastRow = $(tablesTable).find('tr').last()
               /**
                * @var curr_last_row_index_string   String containing the index of {@link currLastRow}
                */
 
-              var currLastRowIndexString = $(currLastRow).find('input:checkbox').attr('id').match(/\d+/)[0];
+              const currLastRowIndexString = $(currLastRow).find('input:checkbox').attr('id').match(/\d+/)[0]
               /**
                * @var curr_last_row_index Index of {@link currLastRow}
                */
 
-              var currLastRowIndex = parseFloat(currLastRowIndexString);
+              const currLastRowIndex = parseFloat(currLastRowIndexString)
               /**
                * @var new_last_row_index   Index of the new row to be appended to {@link tablesTable}
                */
 
-              var newLastRowIndex = currLastRowIndex + 1;
+              const newLastRowIndex = currLastRowIndex + 1
               /**
                * @var new_last_row_id String containing the id of the row to be appended to {@link tablesTable}
                */
 
-              var newLastRowId = 'checkbox_tbl_' + newLastRowIndex;
-              data.newTableString = data.newTableString.replace(/checkbox_tbl_/, newLastRowId); // append to table
+              const newLastRowId = 'checkbox_tbl_' + newLastRowIndex
+              data.newTableString = data.newTableString.replace(/checkbox_tbl_/, newLastRowId) // append to table
 
-              $(data.newTableString).appendTo(tablesTable); // Sort the table
+              $(data.newTableString).appendTo(tablesTable) // Sort the table
 
-              $(tablesTable).sortTable('th'); // Adjust summary row
+              $(tablesTable).sortTable('th') // Adjust summary row
 
-              DatabaseStructure.adjustTotals();
+              DatabaseStructure.adjustTotals()
             } // Refresh navigation as a new table has been added
 
+            Navigation.reload() // Redirect to table structure page on creation of new table
 
-            Navigation.reload(); // Redirect to table structure page on creation of new table
-
-            var argsep = CommonParams.get('arg_separator');
-            var params12 = 'ajax_request=true' + argsep + 'ajax_page_request=true';
-            var tableStructureUrl = 'index.php?route=/table/structure' + argsep + 'server=' + data.params.server + argsep + 'db=' + data.params.db + argsep + 'token=' + data.params.token + argsep + 'goto=' + encodeURIComponent('index.php?route=/database/structure') + argsep + 'table=' + data.params.table + '';
-            $.get(tableStructureUrl, params12, AJAX.responseHandler);
+            const argsep = CommonParams.get('arg_separator')
+            const params12 = 'ajax_request=true' + argsep + 'ajax_page_request=true'
+            const tableStructureUrl = 'index.php?route=/table/structure' + argsep + 'server=' + data.params.server + argsep + 'db=' + data.params.db + argsep + 'token=' + data.params.token + argsep + 'goto=' + encodeURIComponent('index.php?route=/database/structure') + argsep + 'table=' + data.params.table + ''
+            $.get(tableStructureUrl, params12, AJAX.responseHandler)
           } else {
-            Functions.ajaxShowMessage('<div class="alert alert-danger" role="alert">' + data.error + '</div>', false);
+            Functions.ajaxShowMessage('<div class="alert alert-danger" role="alert">' + data.error + '</div>', false)
           }
-        }); // end $.post()
+        }) // end $.post()
       }
     }
-  }); // end create table form (save)
+  }) // end create table form (save)
 
   /**
    * Submits the intermediate changes in the table creation form
@@ -2706,74 +2630,73 @@ AJAX.registerOnload('functions.js', function () {
    * @param actionParam
    */
 
-  function submitChangesInCreateTableForm(actionParam) {
+  function submitChangesInCreateTableForm (actionParam) {
     /**
      * @var    the_form    object referring to the create table form
      */
-    var $form = $('form.create_table_form.ajax');
-    var $msgbox = Functions.ajaxShowMessage(Messages.strProcessingRequest);
-    Functions.prepareForAjaxRequest($form); // User wants to add more fields to the table
+    const $form = $('form.create_table_form.ajax')
+    const $msgbox = Functions.ajaxShowMessage(Messages.strProcessingRequest)
+    Functions.prepareForAjaxRequest($form) // User wants to add more fields to the table
 
     $.post($form.attr('action'), $form.serialize() + '&' + actionParam, function (data) {
       if (typeof data !== 'undefined' && data.success) {
-        var $pageContent = $('#page_content');
-        $pageContent.html(data.message);
-        Functions.highlightSql($pageContent);
-        Functions.verifyColumnsProperties();
-        Functions.hideShowConnection($('.create_table_form select[name=tbl_storage_engine]'));
-        Functions.ajaxRemoveMessage($msgbox);
+        const $pageContent = $('#page_content')
+        $pageContent.html(data.message)
+        Functions.highlightSql($pageContent)
+        Functions.verifyColumnsProperties()
+        Functions.hideShowConnection($('.create_table_form select[name=tbl_storage_engine]'))
+        Functions.ajaxRemoveMessage($msgbox)
       } else {
-        Functions.ajaxShowMessage(data.error);
+        Functions.ajaxShowMessage(data.error)
       }
-    }); // end $.post()
+    }) // end $.post()
   }
   /**
    * Attach event handler for create table form (add fields)
    */
 
-
   $(document).on('click', 'form.create_table_form.ajax input[name=submit_num_fields]', function (event) {
-    event.preventDefault();
-    submitChangesInCreateTableForm('submit_num_fields=1');
-  }); // end create table form (add fields)
+    event.preventDefault()
+    submitChangesInCreateTableForm('submit_num_fields=1')
+  }) // end create table form (add fields)
 
   $(document).on('keydown', 'form.create_table_form.ajax input[name=added_fields]', function (event) {
     if (event.keyCode === 13) {
-      event.preventDefault();
-      event.stopImmediatePropagation();
-      $(this).closest('form').find('input[name=submit_num_fields]').trigger('click');
+      event.preventDefault()
+      event.stopImmediatePropagation()
+      $(this).closest('form').find('input[name=submit_num_fields]').trigger('click')
     }
-  });
+  })
   /**
    * Attach event handler to manage changes in number of partitions and subpartitions
    */
 
   $(document).on('change', 'input[name=partition_count],input[name=subpartition_count],select[name=partition_by]', function () {
-    var $this = $(this);
-    var $form = $this.parents('form');
+    const $this = $(this)
+    const $form = $this.parents('form')
 
     if ($form.is('.create_table_form.ajax')) {
-      submitChangesInCreateTableForm('submit_partition_change=1');
+      submitChangesInCreateTableForm('submit_partition_change=1')
     } else {
-      $form.trigger('submit');
+      $form.trigger('submit')
     }
-  });
+  })
   $(document).on('change', 'input[value=AUTO_INCREMENT]', function () {
     if (this.checked) {
-      var col = /\d/.exec($(this).attr('name'));
-      col = col[0];
-      var $selectFieldKey = $('select[name="field_key[' + col + ']"]');
+      let col = /\d/.exec($(this).attr('name'))
+      col = col[0]
+      const $selectFieldKey = $('select[name="field_key[' + col + ']"]')
 
       if ($selectFieldKey.val() === 'none_' + col) {
-        $selectFieldKey.val('primary_' + col).trigger('change', [false]);
+        $selectFieldKey.val('primary_' + col).trigger('change', [false])
       }
     }
-  });
+  })
   $('body').off('click', 'input.preview_sql').on('click', 'input.preview_sql', function () {
-    var $form = $(this).closest('form');
-    Functions.previewSql($form);
-  });
-});
+    const $form = $(this).closest('form')
+    Functions.previewSql($form)
+  })
+})
 /**
  * Validates the password field in a form
  *
@@ -2786,128 +2709,127 @@ AJAX.registerOnload('functions.js', function () {
 Functions.checkPassword = function ($theForm) {
   // Did the user select 'no password'?
   if ($theForm.find('#nopass_1').is(':checked')) {
-    return true;
+    return true
   } else {
-    var $pred = $theForm.find('#select_pred_password');
+    const $pred = $theForm.find('#select_pred_password')
 
     if ($pred.length && ($pred.val() === 'none' || $pred.val() === 'keep')) {
-      return true;
+      return true
     }
   }
 
-  var $password = $theForm.find('input[name=pma_pw]');
-  var $passwordRepeat = $theForm.find('input[name=pma_pw2]');
-  var alertMessage = false;
+  const $password = $theForm.find('input[name=pma_pw]')
+  const $passwordRepeat = $theForm.find('input[name=pma_pw2]')
+  let alertMessage = false
 
   if ($password.val() === '') {
-    alertMessage = Messages.strPasswordEmpty;
+    alertMessage = Messages.strPasswordEmpty
   } else if ($password.val() !== $passwordRepeat.val()) {
-    alertMessage = Messages.strPasswordNotSame;
+    alertMessage = Messages.strPasswordNotSame
   }
 
   if (alertMessage) {
-    alert(alertMessage);
-    $password.val('');
-    $passwordRepeat.val('');
-    $password.trigger('focus');
-    return false;
+    alert(alertMessage)
+    $password.val('')
+    $passwordRepeat.val('')
+    $password.trigger('focus')
+    return false
   }
 
-  return true;
-};
+  return true
+}
 /**
  * Attach Ajax event handlers for 'Change Password' on index.php
  */
 
-
 AJAX.registerOnload('functions.js', function () {
   /* Handler for hostname type */
   $(document).on('change', '#select_pred_hostname', function () {
-    var hostname = $('#pma_hostname');
+    const hostname = $('#pma_hostname')
 
     if (this.value === 'any') {
-      hostname.val('%');
+      hostname.val('%')
     } else if (this.value === 'localhost') {
-      hostname.val('localhost');
+      hostname.val('localhost')
     } else if (this.value === 'thishost' && $(this).data('thishost')) {
-      hostname.val($(this).data('thishost'));
+      hostname.val($(this).data('thishost'))
     } else if (this.value === 'hosttable') {
-      hostname.val('').prop('required', false);
+      hostname.val('').prop('required', false)
     } else if (this.value === 'userdefined') {
-      hostname.trigger('focus').select().prop('required', true);
+      hostname.trigger('focus').select().prop('required', true)
     }
-  });
+  })
   /* Handler for editing hostname */
 
   $(document).on('change', '#pma_hostname', function () {
-    $('#select_pred_hostname').val('userdefined');
-    $('#pma_hostname').prop('required', true);
-  });
+    $('#select_pred_hostname').val('userdefined')
+    $('#pma_hostname').prop('required', true)
+  })
   /* Handler for username type */
 
   $(document).on('change', '#select_pred_username', function () {
     if (this.value === 'any') {
-      $('#pma_username').val('').prop('required', false);
-      $('#user_exists_warning').css('display', 'none');
+      $('#pma_username').val('').prop('required', false)
+      $('#user_exists_warning').css('display', 'none')
     } else if (this.value === 'userdefined') {
-      $('#pma_username').trigger('focus').trigger('select').prop('required', true);
+      $('#pma_username').trigger('focus').trigger('select').prop('required', true)
     }
-  });
+  })
   /* Handler for editing username */
 
   $(document).on('change', '#pma_username', function () {
-    $('#select_pred_username').val('userdefined');
-    $('#pma_username').prop('required', true);
-  });
+    $('#select_pred_username').val('userdefined')
+    $('#pma_username').prop('required', true)
+  })
   /* Handler for password type */
 
   $(document).on('change', '#select_pred_password', function () {
     if (this.value === 'none') {
-      $('#text_pma_pw2').prop('required', false).val('');
-      $('#text_pma_pw').prop('required', false).val('');
+      $('#text_pma_pw2').prop('required', false).val('')
+      $('#text_pma_pw').prop('required', false).val('')
     } else if (this.value === 'userdefined') {
-      $('#text_pma_pw2').prop('required', true);
-      $('#text_pma_pw').prop('required', true).trigger('focus').trigger('select');
+      $('#text_pma_pw2').prop('required', true)
+      $('#text_pma_pw').prop('required', true).trigger('focus').trigger('select')
     } else {
-      $('#text_pma_pw2').prop('required', false);
-      $('#text_pma_pw').prop('required', false);
+      $('#text_pma_pw2').prop('required', false)
+      $('#text_pma_pw').prop('required', false)
     }
-  });
+  })
   /* Handler for editing password */
 
   $(document).on('change', '#text_pma_pw,#text_pma_pw2', function () {
-    $('#select_pred_password').val('userdefined');
-    $('#text_pma_pw2').prop('required', true);
-    $('#text_pma_pw').prop('required', true);
-  });
+    $('#select_pred_password').val('userdefined')
+    $('#text_pma_pw2').prop('required', true)
+    $('#text_pma_pw').prop('required', true)
+  })
   /**
    * Unbind all event handlers before tearing down a page
    */
 
-  $(document).off('click', '#change_password_anchor.ajax');
+  $(document).off('click', '#change_password_anchor.ajax')
   /**
    * Attach Ajax event handler on the change password anchor
    */
 
   $(document).on('click', '#change_password_anchor.ajax', function (event) {
-    event.preventDefault();
-    var $msgbox = Functions.ajaxShowMessage();
+    event.preventDefault()
+    const $msgbox = Functions.ajaxShowMessage()
     /**
      * @var button_options  Object containing options to be passed to jQueryUI's dialog
      */
 
-    var buttonOptions = {};
+    const buttonOptions = {}
 
     buttonOptions[Messages.strGo] = function () {
-      event.preventDefault();
+      event.preventDefault()
       /**
        * @var $the_form    Object referring to the change password form
        */
 
-      var $theForm = $('#change_password_form');
+      const $theForm = $('#change_password_form')
 
       if (!Functions.checkPassword($theForm)) {
-        return false;
+        return false
       }
       /**
        * @var {string} thisValue String containing the value of the submit button.
@@ -2915,74 +2837,73 @@ AJAX.registerOnload('functions.js', function () {
        * page to work
        */
 
-
-      var thisValue = $(this).val();
-      var $msgbox = Functions.ajaxShowMessage(Messages.strProcessingRequest);
-      $theForm.append('<input type="hidden" name="ajax_request" value="true">');
+      const thisValue = $(this).val()
+      const $msgbox = Functions.ajaxShowMessage(Messages.strProcessingRequest)
+      $theForm.append('<input type="hidden" name="ajax_request" value="true">')
       $.post($theForm.attr('action'), $theForm.serialize() + CommonParams.get('arg_separator') + 'change_pw=' + thisValue, function (data) {
         if (typeof data === 'undefined' || data.success !== true) {
-          Functions.ajaxShowMessage(data.error, false);
-          return;
+          Functions.ajaxShowMessage(data.error, false)
+          return
         }
 
-        var $pageContent = $('#page_content');
-        $pageContent.prepend(data.message);
-        Functions.highlightSql($pageContent);
-        $('#change_password_dialog').hide().remove();
-        $('#edit_user_dialog').dialog('close').remove();
-        Functions.ajaxRemoveMessage($msgbox);
-      }); // end $.post()
-    };
+        const $pageContent = $('#page_content')
+        $pageContent.prepend(data.message)
+        Functions.highlightSql($pageContent)
+        $('#change_password_dialog').hide().remove()
+        $('#edit_user_dialog').dialog('close').remove()
+        Functions.ajaxRemoveMessage($msgbox)
+      }) // end $.post()
+    }
 
     buttonOptions[Messages.strCancel] = function () {
-      $(this).dialog('close');
-    };
+      $(this).dialog('close')
+    }
 
     $.get($(this).attr('href'), {
-      'ajax_request': true
+      ajax_request: true
     }, function (data) {
       if (typeof data === 'undefined' || !data.success) {
-        Functions.ajaxShowMessage(data.error, false);
-        return;
+        Functions.ajaxShowMessage(data.error, false)
+        return
       }
 
       if (data.scripts) {
-        AJAX.scriptHandler.load(data.scripts);
+        AJAX.scriptHandler.load(data.scripts)
       }
 
       $('<div id="change_password_dialog"></div>').dialog({
         title: Messages.strChangePassword,
         width: 600,
         close: function () {
-          $(this).remove();
+          $(this).remove()
         },
         buttons: buttonOptions,
         modal: true
-      }).append(data.message); // for this dialog, we remove the fieldset wrapping due to double headings
+      }).append(data.message) // for this dialog, we remove the fieldset wrapping due to double headings
 
-      $('fieldset#fieldset_change_password').find('legend').remove().end().find('table.table').unwrap().addClass('m-3').find('input#text_pma_pw').trigger('focus');
-      $('#fieldset_change_password_footer').hide();
-      Functions.ajaxRemoveMessage($msgbox);
-      Functions.displayPasswordGenerateButton();
+      $('fieldset#fieldset_change_password').find('legend').remove().end().find('table.table').unwrap().addClass('m-3').find('input#text_pma_pw').trigger('focus')
+      $('#fieldset_change_password_footer').hide()
+      Functions.ajaxRemoveMessage($msgbox)
+      Functions.displayPasswordGenerateButton()
       $('#change_password_form').on('submit', function (e) {
-        e.preventDefault();
-        $(this).closest('.ui-dialog').find('.ui-dialog-buttonpane .ui-button').first().trigger('click');
-      });
-    }); // end $.get()
-  }); // end handler for change password anchor
-}); // end $() for Change Password
+        e.preventDefault()
+        $(this).closest('.ui-dialog').find('.ui-dialog-buttonpane .ui-button').first().trigger('click')
+      })
+    }) // end $.get()
+  }) // end handler for change password anchor
+}) // end $() for Change Password
 
 /**
  * Unbind all event handlers before tearing down a page
  */
 
 AJAX.registerTeardown('functions.js', function () {
-  $(document).off('change', 'select.column_type');
-  $(document).off('change', 'select.default_type');
-  $(document).off('change', 'select.virtuality');
-  $(document).off('change', 'input.allow_null');
-  $(document).off('change', '.create_table_form select[name=tbl_storage_engine]');
-});
+  $(document).off('change', 'select.column_type')
+  $(document).off('change', 'select.default_type')
+  $(document).off('change', 'select.virtuality')
+  $(document).off('change', 'input.allow_null')
+  $(document).off('change', '.create_table_form select[name=tbl_storage_engine]')
+})
 /**
  * Toggle the hiding/showing of the "Open in ENUM/SET editor" message when
  * the page loads and when the selected data type changes
@@ -2991,26 +2912,26 @@ AJAX.registerTeardown('functions.js', function () {
 AJAX.registerOnload('functions.js', function () {
   // is called here for normal page loads and also when opening
   // the Create table dialog
-  Functions.verifyColumnsProperties(); //
+  Functions.verifyColumnsProperties() //
   // needs on() to work also in the Create Table dialog
 
   $(document).on('change', 'select.column_type', function () {
-    Functions.showNoticeForEnum($(this));
-    Functions.showWarningForIntTypes();
-  });
+    Functions.showNoticeForEnum($(this))
+    Functions.showWarningForIntTypes()
+  })
   $(document).on('change', 'select.default_type', function () {
-    Functions.hideShowDefaultValue($(this));
-  });
+    Functions.hideShowDefaultValue($(this))
+  })
   $(document).on('change', 'select.virtuality', function () {
-    Functions.hideShowExpression($(this));
-  });
+    Functions.hideShowExpression($(this))
+  })
   $(document).on('change', 'input.allow_null', function () {
-    Functions.validateDefaultValue($(this));
-  });
+    Functions.validateDefaultValue($(this))
+  })
   $(document).on('change', '.create_table_form select[name=tbl_storage_engine]', function () {
-    Functions.hideShowConnection($(this));
-  });
-});
+    Functions.hideShowConnection($(this))
+  })
+})
 /**
  * If the chosen storage engine is FEDERATED show connection field. Hide otherwise
  *
@@ -3018,33 +2939,32 @@ AJAX.registerOnload('functions.js', function () {
  */
 
 Functions.hideShowConnection = function ($engineSelector) {
-  var $connection = $('.create_table_form input[name=connection]');
-  var $labelTh = $('.create_table_form #storage-engine-connection');
+  const $connection = $('.create_table_form input[name=connection]')
+  const $labelTh = $('.create_table_form #storage-engine-connection')
 
   if ($engineSelector.val() !== 'FEDERATED') {
-    $connection.prop('disabled', true).parent('td').hide();
-    $labelTh.hide();
+    $connection.prop('disabled', true).parent('td').hide()
+    $labelTh.hide()
   } else {
-    $connection.prop('disabled', false).parent('td').show();
-    $labelTh.show();
+    $connection.prop('disabled', false).parent('td').show()
+    $labelTh.show()
   }
-};
+}
 /**
  * If the column does not allow NULL values, makes sure that default is not NULL
  *
  * @param $nullCheckbox
  */
 
-
 Functions.validateDefaultValue = function ($nullCheckbox) {
   if (!$nullCheckbox.prop('checked')) {
-    var $default = $nullCheckbox.closest('tr').find('.default_type');
+    const $default = $nullCheckbox.closest('tr').find('.default_type')
 
     if ($default.val() === 'NULL') {
-      $default.val('NONE');
+      $default.val('NONE')
     }
   }
-};
+}
 /**
  * function to populate the input fields on picking a column from central list
  *
@@ -3052,66 +2972,64 @@ Functions.validateDefaultValue = function ($nullCheckbox) {
  * @param {number} offset of the selected column in central list of columns
  */
 
-
 Functions.autoPopulate = function (inputId, offset) {
-  var db = CommonParams.get('db');
-  var table = CommonParams.get('table');
-  var newInputId = inputId.substring(0, inputId.length - 1);
-  $('#' + newInputId + '1').val(centralColumnList[db + '_' + table][offset].col_name);
-  var colType = centralColumnList[db + '_' + table][offset].col_type.toUpperCase();
-  $('#' + newInputId + '2').val(colType);
-  var $input3 = $('#' + newInputId + '3');
-  $input3.val(centralColumnList[db + '_' + table][offset].col_length);
+  const db = CommonParams.get('db')
+  const table = CommonParams.get('table')
+  const newInputId = inputId.substring(0, inputId.length - 1)
+  $('#' + newInputId + '1').val(centralColumnList[db + '_' + table][offset].col_name)
+  const colType = centralColumnList[db + '_' + table][offset].col_type.toUpperCase()
+  $('#' + newInputId + '2').val(colType)
+  const $input3 = $('#' + newInputId + '3')
+  $input3.val(centralColumnList[db + '_' + table][offset].col_length)
 
   if (colType === 'ENUM' || colType === 'SET') {
-    $input3.next().show();
+    $input3.next().show()
   } else {
-    $input3.next().hide();
+    $input3.next().hide()
   }
 
-  var colDefault = centralColumnList[db + '_' + table][offset].col_default.toUpperCase();
-  var $input4 = $('#' + newInputId + '4');
+  const colDefault = centralColumnList[db + '_' + table][offset].col_default.toUpperCase()
+  const $input4 = $('#' + newInputId + '4')
 
   if (colDefault !== '' && colDefault !== 'NULL' && colDefault !== 'CURRENT_TIMESTAMP' && colDefault !== 'CURRENT_TIMESTAMP()') {
-    $input4.val('USER_DEFINED');
-    $input4.next().next().show();
-    $input4.next().next().val(centralColumnList[db + '_' + table][offset].col_default);
+    $input4.val('USER_DEFINED')
+    $input4.next().next().show()
+    $input4.next().next().val(centralColumnList[db + '_' + table][offset].col_default)
   } else {
-    $input4.val(centralColumnList[db + '_' + table][offset].col_default);
-    $input4.next().next().hide();
+    $input4.val(centralColumnList[db + '_' + table][offset].col_default)
+    $input4.next().next().hide()
   }
 
-  $('#' + newInputId + '5').val(centralColumnList[db + '_' + table][offset].col_collation);
-  var $input6 = $('#' + newInputId + '6');
-  $input6.val(centralColumnList[db + '_' + table][offset].col_attribute);
+  $('#' + newInputId + '5').val(centralColumnList[db + '_' + table][offset].col_collation)
+  const $input6 = $('#' + newInputId + '6')
+  $input6.val(centralColumnList[db + '_' + table][offset].col_attribute)
 
   if (centralColumnList[db + '_' + table][offset].col_extra === 'on update CURRENT_TIMESTAMP') {
-    $input6.val(centralColumnList[db + '_' + table][offset].col_extra);
+    $input6.val(centralColumnList[db + '_' + table][offset].col_extra)
   }
 
   if (centralColumnList[db + '_' + table][offset].col_extra.toUpperCase() === 'AUTO_INCREMENT') {
-    $('#' + newInputId + '9').prop('checked', true).trigger('change');
+    $('#' + newInputId + '9').prop('checked', true).trigger('change')
   } else {
-    $('#' + newInputId + '9').prop('checked', false);
+    $('#' + newInputId + '9').prop('checked', false)
   }
 
   if (centralColumnList[db + '_' + table][offset].col_isNull !== '0') {
-    $('#' + newInputId + '7').prop('checked', true);
+    $('#' + newInputId + '7').prop('checked', true)
   } else {
-    $('#' + newInputId + '7').prop('checked', false);
+    $('#' + newInputId + '7').prop('checked', false)
   }
-};
+}
 /**
  * Unbind all event handlers before tearing down a page
  */
 
-
 AJAX.registerTeardown('functions.js', function () {
-  $(document).off('click', 'a.open_enum_editor');
-  $(document).off('click', 'input.add_value');
-  $(document).off('click', '#enum_editor td.drop');
-  $(document).off('click', 'a.central_columns_dialog');
-});
+  $(document).off('click', 'a.open_enum_editor')
+  $(document).off('click', 'input.add_value')
+  $(document).off('click', '#enum_editor td.drop')
+  $(document).off('click', 'a.central_columns_dialog')
+})
 /**
  * Opens the ENUM/SET editor and controls its functions
  */
@@ -3119,95 +3037,92 @@ AJAX.registerTeardown('functions.js', function () {
 AJAX.registerOnload('functions.js', function () {
   $(document).on('click', 'a.open_enum_editor', function () {
     // Get the name of the column that is being edited
-    var colname = $(this).closest('tr').find('input').first().val();
-    var title;
-    var i; // And use it to make up a title for the page
+    const colname = $(this).closest('tr').find('input').first().val()
+    let title
+    let i // And use it to make up a title for the page
 
     if (colname.length < 1) {
-      title = Messages.enum_newColumnVals;
+      title = Messages.enum_newColumnVals
     } else {
-      title = Messages.enum_columnVals.replace(/%s/, '"' + Functions.escapeHtml(decodeURIComponent(colname)) + '"');
+      title = Messages.enum_columnVals.replace(/%s/, '"' + Functions.escapeHtml(decodeURIComponent(colname)) + '"')
     } // Get the values as a string
 
+    let inputstring = $(this).closest('td').find('input').val() // Escape html entities
 
-    var inputstring = $(this).closest('td').find('input').val(); // Escape html entities
-
-    inputstring = $('<div></div>').text(inputstring).html(); // Parse the values, escaping quotes and
+    inputstring = $('<div></div>').text(inputstring).html() // Parse the values, escaping quotes and
     // slashes on the fly, into an array
 
-    var values = [];
-    var inString = false;
-    var curr;
-    var next;
-    var buffer = '';
+    const values = []
+    let inString = false
+    let curr
+    let next
+    let buffer = ''
 
     for (i = 0; i < inputstring.length; i++) {
-      curr = inputstring.charAt(i);
-      next = i === inputstring.length ? '' : inputstring.charAt(i + 1);
+      curr = inputstring.charAt(i)
+      next = i === inputstring.length ? '' : inputstring.charAt(i + 1)
 
       if (!inString && curr === '\'') {
-        inString = true;
+        inString = true
       } else if (inString && curr === '\\' && next === '\\') {
-        buffer += '&#92;';
-        i++;
+        buffer += '&#92;'
+        i++
       } else if (inString && next === '\'' && (curr === '\'' || curr === '\\')) {
-        buffer += '&#39;';
-        i++;
+        buffer += '&#39;'
+        i++
       } else if (inString && curr === '\'') {
-        inString = false;
-        values.push(buffer);
-        buffer = '';
+        inString = false
+        values.push(buffer)
+        buffer = ''
       } else if (inString) {
-        buffer += curr;
+        buffer += curr
       }
     }
 
     if (buffer.length > 0) {
       // The leftovers in the buffer are the last value (if any)
-      values.push(buffer);
+      values.push(buffer)
     }
 
-    var fields = ''; // If there are no values, maybe the user is about to make a
+    let fields = '' // If there are no values, maybe the user is about to make a
     // new list so we add a few for them to get started with.
 
     if (values.length === 0) {
-      values.push('', '', '', '');
+      values.push('', '', '', '')
     } // Add the parsed values to the editor
 
-
-    var dropIcon = Functions.getImage('b_drop');
+    const dropIcon = Functions.getImage('b_drop')
 
     for (i = 0; i < values.length; i++) {
-      fields += '<tr><td>' + '<input type=\'text\' value=\'' + values[i] + '\'>' + '</td><td class=\'drop\'>' + dropIcon + '</td></tr>';
+      fields += '<tr><td>' + '<input type=\'text\' value=\'' + values[i] + '\'>' + '</td><td class=\'drop\'>' + dropIcon + '</td></tr>'
     }
     /**
      * @var dialog HTML code for the ENUM/SET dialog
      */
 
-
-    var dialog = '<div id=\'enum_editor\'>' + '<fieldset class="pma-fieldset">' + '<legend>' + title + '</legend>' + '<p>' + Functions.getImage('s_notice') + Messages.enum_hint + '</p>' + '<table class="table table-borderless values">' + fields + '</table>' + '</fieldset><fieldset class="pma-fieldset tblFooters">' + '<table class="table table-borderless add"><tr><td>' + '<div class=\'slider\'></div>' + '</td><td>' + '<form><div><input type=\'submit\' class=\'add_value btn btn-primary\' value=\'' + Functions.sprintf(Messages.enum_addValue, 1) + '\'></div></form>' + '</td></tr></table>' + '<input type=\'hidden\' value=\'' + // So we know which column's data is being edited
-    $(this).closest('td').find('input').attr('id') + '\'>' + '</fieldset>' + '</div>';
+    const dialog = '<div id=\'enum_editor\'>' + '<fieldset class="pma-fieldset">' + '<legend>' + title + '</legend>' + '<p>' + Functions.getImage('s_notice') + Messages.enum_hint + '</p>' + '<table class="table table-borderless values">' + fields + '</table>' + '</fieldset><fieldset class="pma-fieldset tblFooters">' + '<table class="table table-borderless add"><tr><td>' + '<div class=\'slider\'></div>' + '</td><td>' + '<form><div><input type=\'submit\' class=\'add_value btn btn-primary\' value=\'' + Functions.sprintf(Messages.enum_addValue, 1) + '\'></div></form>' + '</td></tr></table>' + '<input type=\'hidden\' value=\'' + // So we know which column's data is being edited
+    $(this).closest('td').find('input').attr('id') + '\'>' + '</fieldset>' + '</div>'
     $('#enumEditorGoButton').on('click', function () {
       // When the submit button is clicked,
       // put the data back into the original form
-      var valueArray = [];
+      const valueArray = []
       $('#enumEditorModal').find('.values input').each(function (index, elm) {
-        var val = elm.value.replace(/\\/g, '\\\\').replace(/'/g, '\'\'');
-        valueArray.push('\'' + val + '\'');
-      }); // get the Length/Values text field where this value belongs
+        const val = elm.value.replace(/\\/g, '\\\\').replace(/'/g, '\'\'')
+        valueArray.push('\'' + val + '\'')
+      }) // get the Length/Values text field where this value belongs
 
-      var valuesId = $('#enumEditorModal').find('input[type=\'hidden\']').val();
-      $('input#' + valuesId).val(valueArray.join(','));
-    }); // Show the dialog
+      const valuesId = $('#enumEditorModal').find('input[type=\'hidden\']').val()
+      $('input#' + valuesId).val(valueArray.join(','))
+    }) // Show the dialog
 
-    var width = parseInt(parseInt($('html').css('font-size'), 10) / 13 * 340, 10);
+    let width = parseInt(parseInt($('html').css('font-size'), 10) / 13 * 340, 10)
 
     if (!width) {
-      width = 340;
+      width = 340
     }
 
-    $('#enumEditorModal').modal('show');
-    $('#enumEditorModal').find('.modal-body').first().html(dialog); // slider for choosing how many fields to add
+    $('#enumEditorModal').modal('show')
+    $('#enumEditorModal').find('.modal-body').first().html(dialog) // slider for choosing how many fields to add
 
     $('#enumEditorModal').find('.slider').slider({
       animate: true,
@@ -3216,93 +3131,93 @@ AJAX.registerOnload('functions.js', function () {
       min: 1,
       max: 9,
       slide: function (event, ui) {
-        $(this).closest('table').find('input[type=submit]').val(Functions.sprintf(Messages.enum_addValue, ui.value));
+        $(this).closest('table').find('input[type=submit]').val(Functions.sprintf(Messages.enum_addValue, ui.value))
       }
-    }); // Focus the slider, otherwise it looks nearly transparent
+    }) // Focus the slider, otherwise it looks nearly transparent
 
-    $('a.ui-slider-handle').addClass('ui-state-focus');
-    return false;
-  });
+    $('a.ui-slider-handle').addClass('ui-state-focus')
+    return false
+  })
   $(document).on('click', 'a.central_columns_dialog', function () {
-    var href = 'index.php?route=/database/central-columns';
-    var db = CommonParams.get('db');
-    var table = CommonParams.get('table');
-    var maxRows = $(this).data('maxrows');
-    var pick = $(this).data('pick');
+    const href = 'index.php?route=/database/central-columns'
+    const db = CommonParams.get('db')
+    const table = CommonParams.get('table')
+    const maxRows = $(this).data('maxrows')
+    let pick = $(this).data('pick')
 
     if (pick !== false) {
-      pick = true;
+      pick = true
     }
 
-    var params = {
-      'ajax_request': true,
-      'server': CommonParams.get('server'),
-      'db': CommonParams.get('db'),
-      'cur_table': CommonParams.get('table'),
-      'getColumnList': true
-    };
-    var colid = $(this).closest('td').find('input').attr('id');
-    var fields = '';
+    const params = {
+      ajax_request: true,
+      server: CommonParams.get('server'),
+      db: CommonParams.get('db'),
+      cur_table: CommonParams.get('table'),
+      getColumnList: true
+    }
+    const colid = $(this).closest('td').find('input').attr('id')
+    let fields = ''
 
     if (!(db + '_' + table in centralColumnList)) {
-      centralColumnList.push(db + '_' + table);
+      centralColumnList.push(db + '_' + table)
       $.ajax({
         type: 'POST',
         url: href,
         data: params,
         success: function (data) {
-          centralColumnList[db + '_' + table] = data.message;
+          centralColumnList[db + '_' + table] = data.message
         },
         async: false
-      });
+      })
     }
 
-    var i = 0;
-    var listSize = centralColumnList[db + '_' + table].length;
-    var min = listSize <= maxRows ? listSize : maxRows;
+    let i = 0
+    const listSize = centralColumnList[db + '_' + table].length
+    let min = listSize <= maxRows ? listSize : maxRows
 
     for (i = 0; i < min; i++) {
-      fields += '<tr><td><div><span class="fw-bold">' + Functions.escapeHtml(centralColumnList[db + '_' + table][i].col_name) + '</span><br><span class="color_gray">' + centralColumnList[db + '_' + table][i].col_type;
+      fields += '<tr><td><div><span class="fw-bold">' + Functions.escapeHtml(centralColumnList[db + '_' + table][i].col_name) + '</span><br><span class="color_gray">' + centralColumnList[db + '_' + table][i].col_type
 
       if (centralColumnList[db + '_' + table][i].col_attribute !== '') {
-        fields += '(' + Functions.escapeHtml(centralColumnList[db + '_' + table][i].col_attribute) + ') ';
+        fields += '(' + Functions.escapeHtml(centralColumnList[db + '_' + table][i].col_attribute) + ') '
       }
 
       if (centralColumnList[db + '_' + table][i].col_length !== '') {
-        fields += '(' + Functions.escapeHtml(centralColumnList[db + '_' + table][i].col_length) + ') ';
+        fields += '(' + Functions.escapeHtml(centralColumnList[db + '_' + table][i].col_length) + ') '
       }
 
-      fields += Functions.escapeHtml(centralColumnList[db + '_' + table][i].col_extra) + '</span>' + '</div></td>';
+      fields += Functions.escapeHtml(centralColumnList[db + '_' + table][i].col_extra) + '</span>' + '</div></td>'
 
       if (pick) {
-        fields += '<td><input class="btn btn-secondary pick w-100" type="submit" value="' + Messages.pickColumn + '" onclick="Functions.autoPopulate(\'' + colid + '\',' + i + ')"></td>';
+        fields += '<td><input class="btn btn-secondary pick w-100" type="submit" value="' + Messages.pickColumn + '" onclick="Functions.autoPopulate(\'' + colid + '\',' + i + ')"></td>'
       }
 
-      fields += '</tr>';
+      fields += '</tr>'
     }
 
-    var resultPointer = i;
-    var searchIn = '<input type="text" class="filter_rows" placeholder="' + Messages.searchList + '">';
+    let resultPointer = i
+    let searchIn = '<input type="text" class="filter_rows" placeholder="' + Messages.searchList + '">'
 
     if (fields === '') {
-      fields = Functions.sprintf(Messages.strEmptyCentralList, '\'' + Functions.escapeHtml(db) + '\'');
-      searchIn = '';
+      fields = Functions.sprintf(Messages.strEmptyCentralList, '\'' + Functions.escapeHtml(db) + '\'')
+      searchIn = ''
     }
 
-    var seeMore = '';
+    let seeMore = ''
 
     if (listSize > maxRows) {
-      seeMore = '<fieldset class="pma-fieldset tblFooters text-center fw-bold">' + '<a href=\'#\' id=\'seeMore\'>' + Messages.seeMore + '</a></fieldset>';
+      seeMore = '<fieldset class="pma-fieldset tblFooters text-center fw-bold">' + '<a href=\'#\' id=\'seeMore\'>' + Messages.seeMore + '</a></fieldset>'
     }
 
-    var centralColumnsDialog = '<div class=\'max_height_400\'>' + '<fieldset class="pma-fieldset">' + searchIn + '<table id="col_list" class="table table-borderless values">' + fields + '</table>' + '</fieldset>' + seeMore + '</div>';
-    var width = parseInt(parseInt($('html').css('font-size'), 10) / 13 * 500, 10);
+    const centralColumnsDialog = '<div class=\'max_height_400\'>' + '<fieldset class="pma-fieldset">' + searchIn + '<table id="col_list" class="table table-borderless values">' + fields + '</table>' + '</fieldset>' + seeMore + '</div>'
+    let width = parseInt(parseInt($('html').css('font-size'), 10) / 13 * 500, 10)
 
     if (!width) {
-      width = 500;
+      width = 500
     }
 
-    var buttonOptions = {};
+    const buttonOptions = {}
     var $centralColumnsDialog = $(centralColumnsDialog).dialog({
       minWidth: width,
       maxHeight: 450,
@@ -3311,72 +3226,72 @@ AJAX.registerOnload('functions.js', function () {
       buttons: buttonOptions,
       open: function () {
         $('#col_list').on('click', '.pick', function () {
-          $centralColumnsDialog.remove();
-        });
+          $centralColumnsDialog.remove()
+        })
         $('.filter_rows').on('keyup', function () {
-          $.uiTableFilter($('#col_list'), $(this).val());
-        });
+          $.uiTableFilter($('#col_list'), $(this).val())
+        })
         $('#seeMore').on('click', function () {
-          fields = '';
-          min = listSize <= maxRows + resultPointer ? listSize : maxRows + resultPointer;
+          fields = ''
+          min = listSize <= maxRows + resultPointer ? listSize : maxRows + resultPointer
 
           for (i = resultPointer; i < min; i++) {
-            fields += '<tr><td><div><span class="fw-bold">' + centralColumnList[db + '_' + table][i].col_name + '</span><br><span class="color_gray">' + centralColumnList[db + '_' + table][i].col_type;
+            fields += '<tr><td><div><span class="fw-bold">' + centralColumnList[db + '_' + table][i].col_name + '</span><br><span class="color_gray">' + centralColumnList[db + '_' + table][i].col_type
 
             if (centralColumnList[db + '_' + table][i].col_attribute !== '') {
-              fields += '(' + centralColumnList[db + '_' + table][i].col_attribute + ') ';
+              fields += '(' + centralColumnList[db + '_' + table][i].col_attribute + ') '
             }
 
             if (centralColumnList[db + '_' + table][i].col_length !== '') {
-              fields += '(' + centralColumnList[db + '_' + table][i].col_length + ') ';
+              fields += '(' + centralColumnList[db + '_' + table][i].col_length + ') '
             }
 
-            fields += centralColumnList[db + '_' + table][i].col_extra + '</span>' + '</div></td>';
+            fields += centralColumnList[db + '_' + table][i].col_extra + '</span>' + '</div></td>'
 
             if (pick) {
-              fields += '<td><input class="btn btn-secondary pick w-100" type="submit" value="' + Messages.pickColumn + '" onclick="Functions.autoPopulate(\'' + colid + '\',' + i + ')"></td>';
+              fields += '<td><input class="btn btn-secondary pick w-100" type="submit" value="' + Messages.pickColumn + '" onclick="Functions.autoPopulate(\'' + colid + '\',' + i + ')"></td>'
             }
 
-            fields += '</tr>';
+            fields += '</tr>'
           }
 
-          $('#col_list').append(fields);
-          resultPointer = i;
+          $('#col_list').append(fields)
+          resultPointer = i
 
           if (resultPointer === listSize) {
-            $('#seeMore').hide();
+            $('#seeMore').hide()
           }
 
-          return false;
-        });
-        $(this).closest('.ui-dialog').find('.ui-dialog-buttonpane button').first().trigger('focus');
+          return false
+        })
+        $(this).closest('.ui-dialog').find('.ui-dialog-buttonpane button').first().trigger('focus')
       },
       close: function () {
-        $('#col_list').off('click', '.pick');
-        $('.filter_rows').off('keyup');
-        $(this).remove();
+        $('#col_list').off('click', '.pick')
+        $('.filter_rows').off('keyup')
+        $(this).remove()
       }
-    });
-    return false;
-  }); // $(document).on('click', 'a.show_central_list',function(e) {
+    })
+    return false
+  }) // $(document).on('click', 'a.show_central_list',function(e) {
   // });
   // When "add a new value" is clicked, append an empty text field
 
   $(document).on('click', 'input.add_value', function (e) {
-    e.preventDefault();
-    var numNewRows = $('#enumEditorModal').find('div.slider').slider('value');
+    e.preventDefault()
+    let numNewRows = $('#enumEditorModal').find('div.slider').slider('value')
 
     while (numNewRows--) {
-      $('#enumEditorModal').find('.values').append('<tr class=\'hide\'><td>' + '<input type=\'text\'>' + '</td><td class=\'drop\'>' + Functions.getImage('b_drop') + '</td></tr>').find('tr').last().show('fast');
+      $('#enumEditorModal').find('.values').append('<tr class=\'hide\'><td>' + '<input type=\'text\'>' + '</td><td class=\'drop\'>' + Functions.getImage('b_drop') + '</td></tr>').find('tr').last().show('fast')
     }
-  }); // Removes the specified row from the enum editor
+  }) // Removes the specified row from the enum editor
 
   $(document).on('click', '#enum_editor td.drop', function () {
     $(this).closest('tr').hide('fast', function () {
-      $(this).remove();
-    });
-  });
-});
+      $(this).remove()
+    })
+  })
+})
 /**
  * Ensures indexes names are valid according to their type and, for a primary
  * key, lock index name to 'PRIMARY'
@@ -3387,67 +3302,66 @@ AJAX.registerOnload('functions.js', function () {
 
 Functions.checkIndexName = function (formId) {
   if ($('#' + formId).length === 0) {
-    return false;
+    return false
   } // Gets the elements pointers
 
-
-  var $theIdxName = $('#input_index_name');
-  var $theIdxChoice = $('#select_index_choice'); // Index is a primary key
+  const $theIdxName = $('#input_index_name')
+  const $theIdxChoice = $('#select_index_choice') // Index is a primary key
 
   if ($theIdxChoice.find('option:selected').val() === 'PRIMARY') {
-    $theIdxName.val('PRIMARY');
-    $theIdxName.prop('disabled', true);
+    $theIdxName.val('PRIMARY')
+    $theIdxName.prop('disabled', true)
   } else {
     if ($theIdxName.val() === 'PRIMARY') {
-      $theIdxName.val('');
+      $theIdxName.val('')
     }
 
-    $theIdxName.prop('disabled', false);
+    $theIdxName.prop('disabled', false)
   }
 
-  return true;
-};
+  return true
+}
 
 AJAX.registerTeardown('functions.js', function () {
-  $(document).off('click', '#index_frm input[type=submit]');
-});
+  $(document).off('click', '#index_frm input[type=submit]')
+})
 AJAX.registerOnload('functions.js', function () {
   /**
    * Handler for adding more columns to an index in the editor
    */
   $(document).on('click', '#index_frm input[type=submit]', function (event) {
-    event.preventDefault();
-    var hadAddButtonHidden = $(this).closest('fieldset').find('.add_fields').hasClass('hide');
+    event.preventDefault()
+    const hadAddButtonHidden = $(this).closest('fieldset').find('.add_fields').hasClass('hide')
 
     if (hadAddButtonHidden === false) {
-      var rowsToAdd = $(this).closest('fieldset').find('.slider').slider('value');
+      let rowsToAdd = $(this).closest('fieldset').find('.slider').slider('value')
 
-      var tempEmptyVal = function () {
-        $(this).val('');
-      };
+      const tempEmptyVal = function () {
+        $(this).val('')
+      }
 
-      var tempSetFocus = function () {
+      const tempSetFocus = function () {
         if ($(this).find('option:selected').val() === '') {
-          return true;
+          return true
         }
 
-        $(this).closest('tr').find('input').trigger('focus');
-      };
+        $(this).closest('tr').find('input').trigger('focus')
+      }
 
       while (rowsToAdd--) {
-        var $indexColumns = $('#index_columns');
-        var $newrow = $indexColumns.find('tbody > tr').first().clone().appendTo($indexColumns.find('tbody'));
-        $newrow.find(':input').each(tempEmptyVal); // focus index size input on column picked
+        const $indexColumns = $('#index_columns')
+        const $newrow = $indexColumns.find('tbody > tr').first().clone().appendTo($indexColumns.find('tbody'))
+        $newrow.find(':input').each(tempEmptyVal) // focus index size input on column picked
 
-        $newrow.find('select').on('change', tempSetFocus);
+        $newrow.find('select').on('change', tempSetFocus)
       }
     }
-  });
-});
+  })
+})
 
 Functions.indexDialogModal = function (routeUrl, url, title, callbackSuccess, callbackFailure) {
-  /* Remove the hidden dialogs if there are*/
-  var modal = $('#indexDialogModal');
+  /* Remove the hidden dialogs if there are */
+  const modal = $('#indexDialogModal')
   /**
    * @var button_options Object that stores the options
    *                     passed to jQueryUI dialog
@@ -3457,100 +3371,100 @@ Functions.indexDialogModal = function (routeUrl, url, title, callbackSuccess, ca
     /**
      * @var the_form object referring to the export form
      */
-    var $form = $('#index_frm');
-    Functions.ajaxShowMessage(Messages.strProcessingRequest);
-    Functions.prepareForAjaxRequest($form); // User wants to submit the form
+    const $form = $('#index_frm')
+    Functions.ajaxShowMessage(Messages.strProcessingRequest)
+    Functions.prepareForAjaxRequest($form) // User wants to submit the form
 
     $.post($form.attr('action'), $form.serialize() + CommonParams.get('arg_separator') + 'do_save_data=1', function (data) {
-      var $sqlqueryresults = $('.sqlqueryresults');
+      const $sqlqueryresults = $('.sqlqueryresults')
 
       if ($sqlqueryresults.length !== 0) {
-        $sqlqueryresults.remove();
+        $sqlqueryresults.remove()
       }
 
       if (typeof data !== 'undefined' && data.success === true) {
-        Functions.ajaxShowMessage(data.message);
-        Functions.highlightSql($('.result_query'));
-        $('.result_query .alert').remove();
-        /* Reload the field form*/
+        Functions.ajaxShowMessage(data.message)
+        Functions.highlightSql($('.result_query'))
+        $('.result_query .alert').remove()
+        /* Reload the field form */
 
-        $('#table_index').remove();
-        $('<div id=\'temp_div\'><div>').append(data.index_table).find('#table_index').insertAfter('#index_header');
-        var $editIndexDialog = $('#indexDialogModal');
+        $('#table_index').remove()
+        $('<div id=\'temp_div\'><div>').append(data.index_table).find('#table_index').insertAfter('#index_header')
+        const $editIndexDialog = $('#indexDialogModal')
 
         if ($editIndexDialog.length > 0) {
-          $editIndexDialog.dialog('close');
+          $editIndexDialog.dialog('close')
         }
 
-        $('div.no_indexes_defined').hide();
+        $('div.no_indexes_defined').hide()
 
         if (callbackSuccess) {
-          callbackSuccess(data);
+          callbackSuccess(data)
         }
 
-        Navigation.reload();
+        Navigation.reload()
       } else {
-        var $tempDiv = $('<div id=\'temp_div\'><div>').append(data.error);
-        var $error;
+        const $tempDiv = $('<div id=\'temp_div\'><div>').append(data.error)
+        let $error
 
         if ($tempDiv.find('.error code').length !== 0) {
-          $error = $tempDiv.find('.error code').addClass('error');
+          $error = $tempDiv.find('.error code').addClass('error')
         } else {
-          $error = $tempDiv;
+          $error = $tempDiv
         }
 
         if (callbackFailure) {
-          callbackFailure();
+          callbackFailure()
         }
 
-        Functions.ajaxShowMessage($error, false);
+        Functions.ajaxShowMessage($error, false)
       }
-    }); // end $.post()
-  });
+    }) // end $.post()
+  })
   $('#indexDialogModalPreviewButton').on('click', function () {
     // Function for Previewing SQL
-    var $form = $('#index_frm');
-    Functions.previewSql($form);
-  });
-  var $msgbox = Functions.ajaxShowMessage();
+    const $form = $('#index_frm')
+    Functions.previewSql($form)
+  })
+  const $msgbox = Functions.ajaxShowMessage()
   $.post(routeUrl, url, function (data) {
     if (typeof data !== 'undefined' && data.success === false) {
       // in the case of an error, show the error message returned.
-      Functions.ajaxShowMessage(data.error, false);
+      Functions.ajaxShowMessage(data.error, false)
     } else {
-      Functions.ajaxRemoveMessage($msgbox); // Show dialog if the request was successful
+      Functions.ajaxRemoveMessage($msgbox) // Show dialog if the request was successful
 
-      modal.modal('show');
-      modal.find('.modal-body').first().html(data.message);
-      $('#indexDialogModalLabel').first().text(title);
-      Functions.verifyColumnsProperties();
-      modal.find('.tblFooters').remove();
-      Functions.showIndexEditDialog(modal);
+      modal.modal('show')
+      modal.find('.modal-body').first().html(data.message)
+      $('#indexDialogModalLabel').first().text(title)
+      Functions.verifyColumnsProperties()
+      modal.find('.tblFooters').remove()
+      Functions.showIndexEditDialog(modal)
     }
-  }); // end $.get()
-};
+  }) // end $.get()
+}
 
 Functions.indexEditorDialog = function (url, title, callbackSuccess, callbackFailure) {
-  Functions.indexDialogModal('index.php?route=/table/indexes', url, title, callbackSuccess, callbackFailure);
-};
+  Functions.indexDialogModal('index.php?route=/table/indexes', url, title, callbackSuccess, callbackFailure)
+}
 
 Functions.indexRenameDialog = function (url, title, callbackSuccess, callbackFailure) {
-  Functions.indexDialogModal('index.php?route=/table/indexes/rename', url, title, callbackSuccess, callbackFailure);
-};
+  Functions.indexDialogModal('index.php?route=/table/indexes/rename', url, title, callbackSuccess, callbackFailure)
+}
 
 Functions.showIndexEditDialog = function ($outer) {
-  Indexes.checkIndexType();
-  Functions.checkIndexName('index_frm');
-  var $indexColumns = $('#index_columns');
+  Indexes.checkIndexType()
+  Functions.checkIndexName('index_frm')
+  const $indexColumns = $('#index_columns')
   $indexColumns.find('td').each(function () {
-    $(this).css('width', $(this).width() + 'px');
-  });
+    $(this).css('width', $(this).width() + 'px')
+  })
   $indexColumns.find('tbody').sortable({
     axis: 'y',
     containment: $indexColumns.find('tbody'),
     tolerance: 'pointer'
-  });
-  Functions.showHints($outer); // Add a slider for selecting how many columns to add to the index
+  })
+  Functions.showHints($outer) // Add a slider for selecting how many columns to add to the index
 
   $outer.find('.slider').slider({
     animate: true,
@@ -3558,27 +3472,27 @@ Functions.showIndexEditDialog = function ($outer) {
     min: 1,
     max: 16,
     slide: function (event, ui) {
-      $(this).closest('fieldset').find('input[type=submit]').val(Functions.sprintf(Messages.strAddToIndex, ui.value));
+      $(this).closest('fieldset').find('input[type=submit]').val(Functions.sprintf(Messages.strAddToIndex, ui.value))
     }
-  });
-  $('div.add_fields').removeClass('hide'); // focus index size input on column picked
+  })
+  $('div.add_fields').removeClass('hide') // focus index size input on column picked
 
   $outer.find('table#index_columns select').on('change', function () {
     if ($(this).find('option:selected').val() === '') {
-      return true;
+      return true
     }
 
-    $(this).closest('tr').find('input').trigger('focus');
-  }); // Focus the slider, otherwise it looks nearly transparent
+    $(this).closest('tr').find('input').trigger('focus')
+  }) // Focus the slider, otherwise it looks nearly transparent
 
-  $('a.ui-slider-handle').addClass('ui-state-focus'); // set focus on index name input, if empty
+  $('a.ui-slider-handle').addClass('ui-state-focus') // set focus on index name input, if empty
 
-  var input = $outer.find('input#input_index_name');
+  const input = $outer.find('input#input_index_name')
 
   if (!input.val()) {
-    input.trigger('focus');
+    input.trigger('focus')
   }
-};
+}
 /**
  * Function to display tooltips that were
  * generated on the PHP side by PhpMyAdmin\Util::showHint()
@@ -3589,38 +3503,36 @@ Functions.showIndexEditDialog = function ($outer) {
  *                    in the whole body
  **/
 
-
 Functions.showHints = function ($div) {
-  var $newDiv = $div;
+  let $newDiv = $div
 
   if ($newDiv === undefined || !($newDiv instanceof jQuery) || $newDiv.length === 0) {
-    $newDiv = $('body');
+    $newDiv = $('body')
   }
 
   $newDiv.find('.pma_hint').each(function () {
-    Functions.tooltip($(this).children('img'), 'img', $(this).children('span').html());
-  });
-};
+    Functions.tooltip($(this).children('img'), 'img', $(this).children('span').html())
+  })
+}
 
 AJAX.registerOnload('functions.js', function () {
-  Functions.showHints();
-});
+  Functions.showHints()
+})
 
 Functions.mainMenuResizerCallback = function () {
   // 5 px margin for jumping menu in Chrome
   // eslint-disable-next-line compat/compat
-  return $(document.body).width() - 5;
-}; // This must be fired only once after the initial page load
-
+  return $(document.body).width() - 5
+} // This must be fired only once after the initial page load
 
 $(function () {
   // Initialise the menu resize plugin
-  $('#topmenu').menuResizer(Functions.mainMenuResizerCallback); // register resize event
+  $('#topmenu').menuResizer(Functions.mainMenuResizerCallback) // register resize event
 
   $(window).on('resize', function () {
-    $('#topmenu').menuResizer('resize');
-  });
-});
+    $('#topmenu').menuResizer('resize')
+  })
+})
 /**
  * var  toggleButton  This is a function that creates a toggle
  *                    sliding button given a jQuery reference
@@ -3632,41 +3544,40 @@ $(function () {
 Functions.toggleButton = function ($obj) {
   // In rtl mode the toggle switch is flipped horizontally
   // so we need to take that into account
-  var right;
+  let right
 
   if ($('span.text_direction', $obj).text() === 'ltr') {
-    right = 'right';
+    right = 'right'
   } else {
-    right = 'left';
+    right = 'left'
   }
   /**
    * @var  h  Height of the button, used to scale the
    *          background image and position the layers
    */
 
-
-  var h = $obj.height();
-  $('img', $obj).height(h);
-  $('table', $obj).css('bottom', h - 1);
+  const h = $obj.height()
+  $('img', $obj).height(h)
+  $('table', $obj).css('bottom', h - 1)
   /**
    * @var  on   Width of the "ON" part of the toggle switch
    * @var  off  Width of the "OFF" part of the toggle switch
    */
 
-  var on = $('td.toggleOn', $obj).width();
-  var off = $('td.toggleOff', $obj).width(); // Make the "ON" and "OFF" parts of the switch the same size
+  const on = $('td.toggleOn', $obj).width()
+  const off = $('td.toggleOff', $obj).width() // Make the "ON" and "OFF" parts of the switch the same size
   // + 2 pixels to avoid overflowed
 
-  $('td.toggleOn > div', $obj).width(Math.max(on, off) + 2);
-  $('td.toggleOff > div', $obj).width(Math.max(on, off) + 2);
+  $('td.toggleOn > div', $obj).width(Math.max(on, off) + 2)
+  $('td.toggleOff > div', $obj).width(Math.max(on, off) + 2)
   /**
    *  @var  w  Width of the central part of the switch
    */
 
-  var w = parseInt($('img', $obj).height() / 16 * 22, 10); // Resize the central part of the switch on the top
+  const w = parseInt($('img', $obj).height() / 16 * 22, 10) // Resize the central part of the switch on the top
   // layer to match the background
 
-  $($obj).find('table td').eq(1).children('div').width(w);
+  $($obj).find('table td').eq(1).children('div').width(w)
   /**
    * @var  imgw    Width of the background image
    * @var  tblw    Width of the foreground layer
@@ -3674,159 +3585,156 @@ Functions.toggleButton = function ($obj) {
    *               image, so that it matches the top layer
    */
 
-  var imgw = $('img', $obj).width();
-  var tblw = $('table', $obj).width();
-  var offset = parseInt((imgw - tblw) / 2, 10); // Move the background to match the layout of the top layer
+  const imgw = $('img', $obj).width()
+  const tblw = $('table', $obj).width()
+  const offset = parseInt((imgw - tblw) / 2, 10) // Move the background to match the layout of the top layer
 
-  $obj.find('img').css(right, offset);
+  $obj.find('img').css(right, offset)
   /**
    * @var  offw    Outer width of the "ON" part of the toggle switch
    * @var  btnw    Outer width of the central part of the switch
    */
 
-  var offw = $('td.toggleOff', $obj).outerWidth();
-  var btnw = $($obj).find('table td').eq(1).outerWidth(); // Resize the main div so that exactly one side of
+  const offw = $('td.toggleOff', $obj).outerWidth()
+  const btnw = $($obj).find('table td').eq(1).outerWidth() // Resize the main div so that exactly one side of
   // the switch plus the central part fit into it.
 
-  $obj.width(offw + btnw + 2);
+  $obj.width(offw + btnw + 2)
   /**
    * @var  move  How many pixels to move the
    *             switch by when toggling
    */
 
-  var move = $('td.toggleOff', $obj).outerWidth(); // If the switch is initialized to the
+  const move = $('td.toggleOff', $obj).outerWidth() // If the switch is initialized to the
   // OFF state we need to move it now.
 
   if ($('div.toggle-container', $obj).hasClass('off')) {
     if (right === 'right') {
       $('div.toggle-container', $obj).animate({
-        'left': '-=' + move + 'px'
-      }, 0);
+        left: '-=' + move + 'px'
+      }, 0)
     } else {
       $('div.toggle-container', $obj).animate({
-        'left': '+=' + move + 'px'
-      }, 0);
+        left: '+=' + move + 'px'
+      }, 0)
     }
   } // Attach an 'onclick' event to the switch
 
-
   $('div.toggle-container', $obj).on('click', function () {
     if ($(this).hasClass('isActive')) {
-      return false;
+      return false
     } else {
-      $(this).addClass('isActive');
+      $(this).addClass('isActive')
     }
 
-    var $msg = Functions.ajaxShowMessage();
-    var $container = $(this);
-    var callback = $('span.callback', this).text();
-    var operator;
-    var url;
-    var removeClass;
-    var addClass; // Perform the actual toggle
+    const $msg = Functions.ajaxShowMessage()
+    const $container = $(this)
+    const callback = $('span.callback', this).text()
+    let operator
+    let url
+    let removeClass
+    let addClass // Perform the actual toggle
 
     if ($(this).hasClass('on')) {
       if (right === 'right') {
-        operator = '-=';
+        operator = '-='
       } else {
-        operator = '+=';
+        operator = '+='
       }
 
-      url = $(this).find('td.toggleOff > span').text();
-      removeClass = 'on';
-      addClass = 'off';
+      url = $(this).find('td.toggleOff > span').text()
+      removeClass = 'on'
+      addClass = 'off'
     } else {
       if (right === 'right') {
-        operator = '+=';
+        operator = '+='
       } else {
-        operator = '-=';
+        operator = '-='
       }
 
-      url = $(this).find('td.toggleOn > span').text();
-      removeClass = 'off';
-      addClass = 'on';
+      url = $(this).find('td.toggleOn > span').text()
+      removeClass = 'off'
+      addClass = 'on'
     }
 
-    var parts = url.split('?');
+    const parts = url.split('?')
     $.post(parts[0], parts[1] + '&ajax_request=true', function (data) {
       if (typeof data !== 'undefined' && data.success === true) {
-        Functions.ajaxRemoveMessage($msg);
+        Functions.ajaxRemoveMessage($msg)
         $container.removeClass(removeClass).addClass(addClass).animate({
-          'left': operator + move + 'px'
+          left: operator + move + 'px'
         }, function () {
-          $container.removeClass('isActive');
-        }); // eslint-disable-next-line no-eval
+          $container.removeClass('isActive')
+        }) // eslint-disable-next-line no-eval
 
-        eval(callback);
+        eval(callback)
       } else {
-        Functions.ajaxShowMessage(data.error, false);
-        $container.removeClass('isActive');
+        Functions.ajaxShowMessage(data.error, false)
+        $container.removeClass('isActive')
       }
-    });
-  });
-};
+    })
+  })
+}
 /**
  * Unbind all event handlers before tearing down a page
  */
 
-
 AJAX.registerTeardown('functions.js', function () {
-  $('div.toggle-container').off('click');
-});
+  $('div.toggle-container').off('click')
+})
 /**
  * Initialise all toggle buttons
  */
 
 AJAX.registerOnload('functions.js', function () {
   $('div.toggleAjax').each(function () {
-    var $button = $(this).show();
+    const $button = $(this).show()
     $button.find('img').each(function () {
       if (this.complete) {
-        Functions.toggleButton($button);
+        Functions.toggleButton($button)
       } else {
         $(this).on('load', function () {
-          Functions.toggleButton($button);
-        });
+          Functions.toggleButton($button)
+        })
       }
-    });
-  });
-});
+    })
+  })
+})
 /**
  * Unbind all event handlers before tearing down a page
  */
 
 AJAX.registerTeardown('functions.js', function () {
-  $(document).off('change', 'select.pageselector');
-  $('#update_recent_tables').off('ready');
-  $('#sync_favorite_tables').off('ready');
-});
+  $(document).off('change', 'select.pageselector')
+  $('#update_recent_tables').off('ready')
+  $('#sync_favorite_tables').off('ready')
+})
 AJAX.registerOnload('functions.js', function () {
   /**
    * Autosubmit page selector
    */
   $(document).on('change', 'select.pageselector', function (event) {
-    event.stopPropagation(); // Check where to load the new content
+    event.stopPropagation() // Check where to load the new content
 
     if ($(this).closest('#pma_navigation').length === 0) {
       // For the main page we don't need to do anything,
-      $(this).closest('form').trigger('submit');
+      $(this).closest('form').trigger('submit')
     } else {
       // but for the navigation we need to manually replace the content
-      Navigation.treePagination($(this));
+      Navigation.treePagination($(this))
     }
-  });
-  var $updateRecentTables = $('#update_recent_tables');
+  })
+  const $updateRecentTables = $('#update_recent_tables')
 
   if ($updateRecentTables.length) {
     $.get($updateRecentTables.attr('href'), {
-      'no_debug': true
+      no_debug: true
     }, function (data) {
       if (typeof data !== 'undefined' && data.success === true) {
-        $('#pma_recent_list').html(data.list);
+        $('#pma_recent_list').html(data.list)
       }
-    });
+    })
   } // Sync favorite tables from localStorage to pmadb.
-
 
   if ($('#sync_favorite_tables').length) {
     $.ajax({
@@ -3834,21 +3742,21 @@ AJAX.registerOnload('functions.js', function () {
       cache: false,
       type: 'POST',
       data: {
-        'favoriteTables': isStorageSupported('localStorage') && typeof window.localStorage.favoriteTables !== 'undefined' ? window.localStorage.favoriteTables : '',
-        'server': CommonParams.get('server'),
-        'no_debug': true
+        favoriteTables: isStorageSupported('localStorage') && typeof window.localStorage.favoriteTables !== 'undefined' ? window.localStorage.favoriteTables : '',
+        server: CommonParams.get('server'),
+        no_debug: true
       },
       success: function (data) {
         // Update localStorage.
         if (isStorageSupported('localStorage')) {
-          window.localStorage.favoriteTables = data.favoriteTables;
+          window.localStorage.favoriteTables = data.favoriteTables
         }
 
-        $('#pma_favorite_list').html(data.list);
+        $('#pma_favorite_list').html(data.list)
       }
-    });
+    })
   }
-}); // end of $()
+}) // end of $()
 
 /**
  * Creates a message inside an object with a sliding effect
@@ -3864,102 +3772,101 @@ AJAX.registerOnload('functions.js', function () {
  */
 
 Functions.slidingMessage = function (msg, $object) {
-  var $obj = $object;
+  let $obj = $object
 
   if (msg === undefined || msg.length === 0) {
     // Don't show an empty message
-    return false;
+    return false
   }
 
   if ($obj === undefined || !($obj instanceof jQuery) || $obj.length === 0) {
     // If the second argument was not supplied,
     // we might have to create a new DOM node.
     if ($('#PMA_slidingMessage').length === 0) {
-      $('#page_content').prepend('<span id="PMA_slidingMessage" ' + 'class="d-inline-block"></span>');
+      $('#page_content').prepend('<span id="PMA_slidingMessage" ' + 'class="d-inline-block"></span>')
     }
 
-    $obj = $('#PMA_slidingMessage');
+    $obj = $('#PMA_slidingMessage')
   }
 
   if ($obj.has('div').length > 0) {
     // If there already is a message inside the
     // target object, we must get rid of it
     $obj.find('div').first().fadeOut(function () {
-      $obj.children().remove();
-      $obj.append('<div>' + msg + '</div>'); // highlight any sql before taking height;
+      $obj.children().remove()
+      $obj.append('<div>' + msg + '</div>') // highlight any sql before taking height;
 
-      Functions.highlightSql($obj);
-      $obj.find('div').first().hide();
+      Functions.highlightSql($obj)
+      $obj.find('div').first().hide()
       $obj.animate({
         height: $obj.find('div').first().height()
-      }).find('div').first().fadeIn();
-    });
+      }).find('div').first().fadeIn()
+    })
   } else {
     // Object does not already have a message
     // inside it, so we simply slide it down
-    $obj.width('100%').html('<div>' + msg + '</div>'); // highlight any sql before taking height;
+    $obj.width('100%').html('<div>' + msg + '</div>') // highlight any sql before taking height;
 
-    Functions.highlightSql($obj);
-    var h = $obj.find('div').first().hide().height();
+    Functions.highlightSql($obj)
+    const h = $obj.find('div').first().hide().height()
     $obj.find('div').first().css('height', 0).show().animate({
       height: h
     }, function () {
       // Set the height of the parent
       // to the height of the child
-      $obj.height($obj.find('div').first().height());
-    });
+      $obj.height($obj.find('div').first().height())
+    })
   }
 
-  return true;
-};
+  return true
+}
 /**
  * Attach CodeMirror2 editor to SQL edit area.
  */
 
-
 AJAX.registerOnload('functions.js', function () {
-  var $elm = $('#sqlquery');
+  const $elm = $('#sqlquery')
 
   if ($elm.siblings().filter('.CodeMirror').length > 0) {
-    return;
+    return
   }
 
   if ($elm.length > 0) {
     if (typeof CodeMirror !== 'undefined') {
-      codeMirrorEditor = Functions.getSqlEditor($elm);
-      codeMirrorEditor.focus();
-      codeMirrorEditor.on('blur', Functions.updateQueryParameters);
+      codeMirrorEditor = Functions.getSqlEditor($elm)
+      codeMirrorEditor.focus()
+      codeMirrorEditor.on('blur', Functions.updateQueryParameters)
     } else {
       // without codemirror
-      $elm.trigger('focus').on('blur', Functions.updateQueryParameters);
+      $elm.trigger('focus').on('blur', Functions.updateQueryParameters)
     }
   }
 
-  Functions.highlightSql($('body'));
-});
+  Functions.highlightSql($('body'))
+})
 AJAX.registerTeardown('functions.js', function () {
   if (codeMirrorEditor) {
-    $('#sqlquery').text(codeMirrorEditor.getValue());
-    codeMirrorEditor.toTextArea();
-    codeMirrorEditor = false;
+    $('#sqlquery').text(codeMirrorEditor.getValue())
+    codeMirrorEditor.toTextArea()
+    codeMirrorEditor = false
   }
-});
+})
 AJAX.registerOnload('functions.js', function () {
   // initializes all lock-page elements lock-id and
   // val-hash data property
   $('#page_content form.lock-page textarea, ' + '#page_content form.lock-page input[type="text"], ' + '#page_content form.lock-page input[type="number"], ' + '#page_content form.lock-page select').each(function (i) {
-    $(this).data('lock-id', i); // val-hash is the hash of default value of the field
+    $(this).data('lock-id', i) // val-hash is the hash of default value of the field
     // so that it can be compared with new value hash
     // to check whether field was modified or not.
 
-    $(this).data('val-hash', AJAX.hash($(this).val()));
-  }); // initializes lock-page elements (input types checkbox and radio buttons)
+    $(this).data('val-hash', AJAX.hash($(this).val()))
+  }) // initializes lock-page elements (input types checkbox and radio buttons)
   // lock-id and val-hash data property
 
   $('#page_content form.lock-page input[type="checkbox"], ' + '#page_content form.lock-page input[type="radio"]').each(function (i) {
-    $(this).data('lock-id', i);
-    $(this).data('val-hash', AJAX.hash($(this).is(':checked')));
-  });
+    $(this).data('lock-id', i)
+    $(this).data('val-hash', AJAX.hash($(this).is(':checked')))
+  })
 });
 /**
  * jQuery plugin to correctly filter input fields by value, needed
@@ -3969,10 +3876,10 @@ AJAX.registerOnload('functions.js', function () {
 (function ($) {
   $.fn.filterByValue = function (value) {
     return this.filter(function () {
-      return $(this).val() === value;
-    });
-  };
-})(jQuery);
+      return $(this).val() === value
+    })
+  }
+})(jQuery)
 /**
  * Return value of a cell in a table.
  *
@@ -3980,74 +3887,72 @@ AJAX.registerOnload('functions.js', function () {
  * @return {string}
  */
 
-
 Functions.getCellValue = function (td) {
-  var $td = $(td);
+  const $td = $(td)
 
   if ($td.is('.null')) {
-    return '';
+    return ''
   } else if ((!$td.is('.to_be_saved') || $td.is('.set')) && $td.data('original_data')) {
-    return $td.data('original_data');
+    return $td.data('original_data')
   } else {
-    return $td.text();
+    return $td.text()
   }
-};
+}
 /**
  * Unbind all event handlers before tearing down a page
  */
 
-
 AJAX.registerTeardown('functions.js', function () {
-  $(document).off('change', '.autosubmit');
-});
+  $(document).off('change', '.autosubmit')
+})
 AJAX.registerOnload('functions.js', function () {
   /**
    * Automatic form submission on change.
    */
   $(document).on('change', '.autosubmit', function () {
-    $(this).closest('form').trigger('submit');
-  });
-});
+    $(this).closest('form').trigger('submit')
+  })
+})
 /**
  * @implements EventListener
  */
 
 const PrintPage = {
   handleEvent: () => {
-    window.print();
+    window.print()
   }
-};
+}
 /**
  * Unbind all event handlers before tearing down a page
  */
 
 AJAX.registerTeardown('functions.js', function () {
   document.querySelectorAll('.jsPrintButton').forEach(item => {
-    item.removeEventListener('click', PrintPage);
-  });
-  $(document).off('click', 'a.create_view.ajax');
-  $(document).off('keydown', '#createViewModal input, #createViewModal select');
-  $(document).off('change', '#fkc_checkbox');
-});
+    item.removeEventListener('click', PrintPage)
+  })
+  $(document).off('click', 'a.create_view.ajax')
+  $(document).off('keydown', '#createViewModal input, #createViewModal select')
+  $(document).off('change', '#fkc_checkbox')
+})
 AJAX.registerOnload('functions.js', function () {
   document.querySelectorAll('.jsPrintButton').forEach(item => {
-    item.addEventListener('click', PrintPage);
-  });
+    item.addEventListener('click', PrintPage)
+  })
   $('.logout').on('click', function () {
-    var form = $('<form method="POST" action="' + $(this).attr('href') + '" class="disableAjax">' + '<input type="hidden" name="token" value="' + Functions.escapeHtml(CommonParams.get('token')) + '">' + '</form>');
-    $('body').append(form);
-    form.submit();
-    sessionStorage.clear();
-    return false;
-  });
+    const form = $('<form method="POST" action="' + $(this).attr('href') + '" class="disableAjax">' + '<input type="hidden" name="token" value="' + Functions.escapeHtml(CommonParams.get('token')) + '">' + '</form>')
+    $('body').append(form)
+    form.submit()
+    sessionStorage.clear()
+    return false
+  })
   /**
    * Ajaxification for the "Create View" action
    */
 
   $(document).on('click', 'a.create_view.ajax', function (e) {
-    e.preventDefault();
-    Functions.createViewModal($(this));
-  });
+    e.preventDefault()
+    Functions.createViewModal($(this))
+  })
   /**
    * Attach Ajax event handlers for input fields in the editor
    * and used to submit the Ajax request when the ENTER key is pressed.
@@ -4057,172 +3962,171 @@ AJAX.registerOnload('functions.js', function () {
     $(document).on('keydown', '#createViewModal input, #createViewModal select', function (e) {
       if (e.which === 13) {
         // 13 is the ENTER key
-        e.preventDefault(); // with preventing default, selection by <select> tag
+        e.preventDefault() // with preventing default, selection by <select> tag
         // was also prevented in IE
 
-        $(this).trigger('blur');
-        $(this).closest('.ui-dialog').find('.ui-button').first().trigger('click');
+        $(this).trigger('blur')
+        $(this).closest('.ui-dialog').find('.ui-button').first().trigger('click')
       }
-    }); // end $(document).on()
+    }) // end $(document).on()
   }
 
   if ($('textarea[name="view[as]"]').length !== 0) {
-    codeMirrorEditor = Functions.getSqlEditor($('textarea[name="view[as]"]'));
+    codeMirrorEditor = Functions.getSqlEditor($('textarea[name="view[as]"]'))
   }
-});
+})
 
 Functions.createViewModal = function ($this) {
-  var $msg = Functions.ajaxShowMessage();
-  var sep = CommonParams.get('arg_separator');
-  var params = Functions.getJsConfirmCommonParam(this, $this.getPostData());
-  params += sep + 'ajax_dialog=1';
+  let $msg = Functions.ajaxShowMessage()
+  const sep = CommonParams.get('arg_separator')
+  let params = Functions.getJsConfirmCommonParam(this, $this.getPostData())
+  params += sep + 'ajax_dialog=1'
   $.post($this.attr('href'), params, function (data) {
     if (typeof data !== 'undefined' && data.success === true) {
-      Functions.ajaxRemoveMessage($msg);
+      Functions.ajaxRemoveMessage($msg)
       $('#createViewModalGoButton').on('click', function () {
         if (typeof CodeMirror !== 'undefined') {
-          codeMirrorEditor.save();
+          codeMirrorEditor.save()
         }
 
-        $msg = Functions.ajaxShowMessage();
+        $msg = Functions.ajaxShowMessage()
         $.post('index.php?route=/view/create', $('#createViewModal').find('form').serialize(), function (data) {
-          Functions.ajaxRemoveMessage($msg);
+          Functions.ajaxRemoveMessage($msg)
 
           if (typeof data !== 'undefined' && data.success === true) {
-            $('#createViewModal').modal('hide');
-            $('.result_query').html(data.message);
-            Navigation.reload();
+            $('#createViewModal').modal('hide')
+            $('.result_query').html(data.message)
+            Navigation.reload()
           } else {
-            Functions.ajaxShowMessage(data.error);
+            Functions.ajaxShowMessage(data.error)
           }
-        });
-      });
-      $('#createViewModal').find('.modal-body').first().html(data.message); // Attach syntax highlighted editor
+        })
+      })
+      $('#createViewModal').find('.modal-body').first().html(data.message) // Attach syntax highlighted editor
 
       $('#createViewModal').on('shown.bs.modal', function () {
-        codeMirrorEditor = Functions.getSqlEditor($('#createViewModal').find('textarea'));
-        $('input:visible[type=text]', $('#createViewModal')).first().trigger('focus');
-        $('#createViewModal').off('shown.bs.modal');
-      });
-      $('#createViewModal').modal('show');
+        codeMirrorEditor = Functions.getSqlEditor($('#createViewModal').find('textarea'))
+        $('input:visible[type=text]', $('#createViewModal')).first().trigger('focus')
+        $('#createViewModal').off('shown.bs.modal')
+      })
+      $('#createViewModal').modal('show')
     } else {
-      Functions.ajaxShowMessage(data.error);
+      Functions.ajaxShowMessage(data.error)
     }
-  });
-};
+  })
+}
 /**
  * Makes the breadcrumbs and the menu bar float at the top of the viewport
  */
 
-
 $(function () {
   if ($('#floating_menubar').length && $('#PMA_disable_floating_menubar').length === 0) {
-    var left = $('html').attr('dir') === 'ltr' ? 'left' : 'right';
+    const left = $('html').attr('dir') === 'ltr' ? 'left' : 'right'
     $('#floating_menubar').css('margin-' + left, $('#pma_navigation').width() + $('#pma_navigation_resizer').width()).css(left, 0).css({
-      'position': 'fixed',
-      'top': 0,
-      'width': '100%',
+      position: 'fixed',
+      top: 0,
+      width: '100%',
       'z-index': 99
-    }).append($('#server-breadcrumb')).append($('#topmenucontainer')); // Allow the DOM to render, then adjust the padding on the body
+    }).append($('#server-breadcrumb')).append($('#topmenucontainer')) // Allow the DOM to render, then adjust the padding on the body
 
     setTimeout(function () {
-      $('body').css('padding-top', $('#floating_menubar').outerHeight(true));
-      $('#topmenu').menuResizer('resize');
-    }, 4);
+      $('body').css('padding-top', $('#floating_menubar').outerHeight(true))
+      $('#topmenu').menuResizer('resize')
+    }, 4)
   }
-});
+})
 /**
  * Scrolls the page to the top if clicking the server-breadcrumb bar
  */
 
 $(function () {
   $(document).on('click', '#server-breadcrumb, #goto_pagetop', function (event) {
-    event.preventDefault();
+    event.preventDefault()
     $('html, body').animate({
       scrollTop: 0
-    }, 'fast');
-  });
-});
-var checkboxesSel = 'input.checkall:checkbox:enabled';
-Functions.checkboxesSel = checkboxesSel;
+    }, 'fast')
+  })
+})
+const checkboxesSel = 'input.checkall:checkbox:enabled'
+Functions.checkboxesSel = checkboxesSel
 /**
  * Watches checkboxes in a form to set the checkall box accordingly
  */
 
 Functions.checkboxesChanged = function () {
-  var $form = $(this.form); // total number of checkboxes in current form
+  const $form = $(this.form) // total number of checkboxes in current form
 
-  var totalBoxes = $form.find(checkboxesSel).length; // number of checkboxes checked in current form
+  const totalBoxes = $form.find(checkboxesSel).length // number of checkboxes checked in current form
 
-  var checkedBoxes = $form.find(checkboxesSel + ':checked').length;
-  var $checkall = $form.find('input.checkall_box');
+  const checkedBoxes = $form.find(checkboxesSel + ':checked').length
+  const $checkall = $form.find('input.checkall_box')
 
   if (totalBoxes === checkedBoxes) {
     $checkall.prop({
       checked: true,
       indeterminate: false
-    });
+    })
   } else if (checkedBoxes > 0) {
     $checkall.prop({
       checked: true,
       indeterminate: true
-    });
+    })
   } else {
     $checkall.prop({
       checked: false,
       indeterminate: false
-    });
+    })
   }
-};
+}
 
-$(document).on('change', checkboxesSel, Functions.checkboxesChanged);
+$(document).on('change', checkboxesSel, Functions.checkboxesChanged)
 $(document).on('change', 'input.checkall_box', function () {
-  var isChecked = $(this).is(':checked');
-  $(this.form).find(checkboxesSel).not('.row-hidden').prop('checked', isChecked).parents('tr').toggleClass('marked table-active', isChecked);
-});
+  const isChecked = $(this).is(':checked')
+  $(this.form).find(checkboxesSel).not('.row-hidden').prop('checked', isChecked).parents('tr').toggleClass('marked table-active', isChecked)
+})
 $(document).on('click', '.checkall-filter', function () {
-  var $this = $(this);
-  var selector = $this.data('checkall-selector');
-  $('input.checkall_box').prop('checked', false);
-  $this.parents('form').find(checkboxesSel).filter(selector).prop('checked', true).trigger('change').parents('tr').toggleClass('marked', true);
-  return false;
-});
+  const $this = $(this)
+  const selector = $this.data('checkall-selector')
+  $('input.checkall_box').prop('checked', false)
+  $this.parents('form').find(checkboxesSel).filter(selector).prop('checked', true).trigger('change').parents('tr').toggleClass('marked', true)
+  return false
+})
 /**
  * Watches checkboxes in a sub form to set the sub checkall box accordingly
  */
 
 Functions.subCheckboxesChanged = function () {
-  var $form = $(this).parent().parent(); // total number of checkboxes in current sub form
+  const $form = $(this).parent().parent() // total number of checkboxes in current sub form
 
-  var totalBoxes = $form.find(checkboxesSel).length; // number of checkboxes checked in current sub form
+  const totalBoxes = $form.find(checkboxesSel).length // number of checkboxes checked in current sub form
 
-  var checkedBoxes = $form.find(checkboxesSel + ':checked').length;
-  var $checkall = $form.find('input.sub_checkall_box');
+  const checkedBoxes = $form.find(checkboxesSel + ':checked').length
+  const $checkall = $form.find('input.sub_checkall_box')
 
   if (totalBoxes === checkedBoxes) {
     $checkall.prop({
       checked: true,
       indeterminate: false
-    });
+    })
   } else if (checkedBoxes > 0) {
     $checkall.prop({
       checked: true,
       indeterminate: true
-    });
+    })
   } else {
     $checkall.prop({
       checked: false,
       indeterminate: false
-    });
+    })
   }
-};
+}
 
-$(document).on('change', checkboxesSel + ', input.checkall_box:checkbox:enabled', Functions.subCheckboxesChanged);
+$(document).on('change', checkboxesSel + ', input.checkall_box:checkbox:enabled', Functions.subCheckboxesChanged)
 $(document).on('change', 'input.sub_checkall_box', function () {
-  var isChecked = $(this).is(':checked');
-  var $form = $(this).parent().parent();
-  $form.find(checkboxesSel).prop('checked', isChecked).parents('tr').toggleClass('marked', isChecked);
-});
+  const isChecked = $(this).is(':checked')
+  const $form = $(this).parent().parent()
+  $form.find(checkboxesSel).prop('checked', isChecked).parents('tr').toggleClass('marked', isChecked)
+})
 /**
  * Rows filtering
  *
@@ -4234,35 +4138,35 @@ $(document).on('change', 'input.sub_checkall_box', function () {
  */
 
 $(document).on('keyup', '#filterText', function () {
-  var filterInput = $(this).val().toUpperCase().replace(/ /g, '_');
-  var count = 0;
+  const filterInput = $(this).val().toUpperCase().replace(/ /g, '_')
+  let count = 0
   $('[data-filter-row]').each(function () {
-    var $row = $(this);
+    const $row = $(this)
     /* Can not use data() here as it does magic conversion to int for numeric values */
 
     if ($row.attr('data-filter-row').indexOf(filterInput) > -1) {
-      count += 1;
-      $row.show();
-      $row.find('input.checkall').removeClass('row-hidden');
+      count += 1
+      $row.show()
+      $row.find('input.checkall').removeClass('row-hidden')
     } else {
-      $row.hide();
-      $row.find('input.checkall').addClass('row-hidden').prop('checked', false);
-      $row.removeClass('marked');
+      $row.hide()
+      $row.find('input.checkall').addClass('row-hidden').prop('checked', false)
+      $row.removeClass('marked')
     }
-  });
+  })
   setTimeout(function () {
-    $(checkboxesSel).trigger('change');
-  }, 300);
-  $('#filter-rows-count').html(count);
-});
+    $(checkboxesSel).trigger('change')
+  }, 300)
+  $('#filter-rows-count').html(count)
+})
 AJAX.registerOnload('functions.js', function () {
   /* Trigger filtering of the list based on incoming database name */
-  var $filter = $('#filterText');
+  const $filter = $('#filterText')
 
   if ($filter.val()) {
-    $filter.trigger('keyup').trigger('select');
+    $filter.trigger('keyup').trigger('select')
   }
-});
+})
 /**
  * Formats a byte number to human-readable form
  *
@@ -4274,55 +4178,55 @@ AJAX.registerOnload('functions.js', function () {
  */
 
 Functions.formatBytes = function (bytesToFormat, subDecimals, pointChar) {
-  var bytes = bytesToFormat;
-  var decimals = subDecimals;
-  var point = pointChar;
+  let bytes = bytesToFormat
+  let decimals = subDecimals
+  let point = pointChar
 
   if (!decimals) {
-    decimals = 0;
+    decimals = 0
   }
 
   if (!point) {
-    point = '.';
+    point = '.'
   }
 
-  var units = ['B', 'KiB', 'MiB', 'GiB'];
+  const units = ['B', 'KiB', 'MiB', 'GiB']
 
   for (var i = 0; bytes > 1024 && i < units.length; i++) {
-    bytes /= 1024;
+    bytes /= 1024
   }
 
-  var factor = Math.pow(10, decimals);
-  bytes = Math.round(bytes * factor) / factor;
-  bytes = bytes.toString().split('.').join(point);
-  return bytes + ' ' + units[i];
-};
+  const factor = Math.pow(10, decimals)
+  bytes = Math.round(bytes * factor) / factor
+  bytes = bytes.toString().split('.').join(point)
+  return bytes + ' ' + units[i]
+}
 
 AJAX.registerOnload('functions.js', function () {
   /**
    * Reveal the login form to users with JS enabled
    * and focus the appropriate input field
    */
-  var $loginform = $('#loginform');
+  const $loginform = $('#loginform')
 
   if ($loginform.length) {
-    $loginform.find('.js-show').show();
+    $loginform.find('.js-show').show()
 
     if ($('#input_username').val()) {
-      $('#input_password').trigger('focus');
+      $('#input_password').trigger('focus')
     } else {
-      $('#input_username').trigger('focus');
+      $('#input_username').trigger('focus')
     }
   }
 
-  var $httpsWarning = $('#js-https-mismatch');
+  const $httpsWarning = $('#js-https-mismatch')
 
   if ($httpsWarning.length) {
     if (window.location.protocol === 'https:' !== CommonParams.get('is_https')) {
-      $httpsWarning.show();
+      $httpsWarning.show()
     }
   }
-});
+})
 /**
  * Formats timestamp for display
  *
@@ -4332,47 +4236,46 @@ AJAX.registerOnload('functions.js', function () {
  */
 
 Functions.formatDateTime = function (date, seconds) {
-  var result = $.datepicker.formatDate('yy-mm-dd', date);
-  var timefmt = 'HH:mm';
+  const result = $.datepicker.formatDate('yy-mm-dd', date)
+  let timefmt = 'HH:mm'
 
   if (seconds) {
-    timefmt = 'HH:mm:ss';
+    timefmt = 'HH:mm:ss'
   }
 
   return result + ' ' + $.datepicker.formatTime(timefmt, {
     hour: date.getHours(),
     minute: date.getMinutes(),
     second: date.getSeconds()
-  });
-};
+  })
+}
 /**
  * Check than forms have less fields than max allowed by PHP.
  * @return {boolean}
  */
 
-
 Functions.checkNumberOfFields = function () {
   if (typeof maxInputVars === 'undefined') {
-    return false;
+    return false
   }
 
-  if (false === maxInputVars) {
-    return false;
+  if (maxInputVars === false) {
+    return false
   }
 
   $('form').each(function () {
-    var nbInputs = $(this).find(':input').length;
+    const nbInputs = $(this).find(':input').length
 
     if (nbInputs > maxInputVars) {
-      var warning = Functions.sprintf(Messages.strTooManyInputs, maxInputVars);
-      Functions.ajaxShowMessage(warning);
-      return false;
+      const warning = Functions.sprintf(Messages.strTooManyInputs, maxInputVars)
+      Functions.ajaxShowMessage(warning)
+      return false
     }
 
-    return true;
-  });
-  return true;
-};
+    return true
+  })
+  return true
+}
 /**
  * Ignore the displayed php errors.
  * Simply removes the displayed errors.
@@ -4382,28 +4285,25 @@ Functions.checkNumberOfFields = function () {
  *
  */
 
-
 Functions.ignorePhpErrors = function (clearPrevErrors) {
-  var clearPrevious = clearPrevErrors;
+  let clearPrevious = clearPrevErrors
 
   if (typeof clearPrevious === 'undefined' || clearPrevious === null) {
-    clearPrevious = false;
+    clearPrevious = false
   } // send AJAX request to /error-report with send_error_report=0, exception_type=php & token.
   // It clears the prev_errors stored in session.
 
-
   if (clearPrevious) {
-    var $pmaReportErrorsForm = $('#pma_report_errors_form');
-    $pmaReportErrorsForm.find('input[name="send_error_report"]').val(0); // change send_error_report to '0'
+    const $pmaReportErrorsForm = $('#pma_report_errors_form')
+    $pmaReportErrorsForm.find('input[name="send_error_report"]').val(0) // change send_error_report to '0'
 
-    $pmaReportErrorsForm.trigger('submit');
+    $pmaReportErrorsForm.trigger('submit')
   } // remove displayed errors
 
-
-  var $pmaErrors = $('#pma_errors');
-  $pmaErrors.fadeOut('slow');
-  $pmaErrors.remove();
-};
+  const $pmaErrors = $('#pma_errors')
+  $pmaErrors.fadeOut('slow')
+  $pmaErrors.remove()
+}
 /**
  * Toggle the Datetimepicker UI if the date value entered
  * by the user in the 'text box' is not going to be accepted
@@ -4413,62 +4313,59 @@ Functions.ignorePhpErrors = function (clearPrevErrors) {
  * @param $inputField
  */
 
-
 Functions.toggleDatepickerIfInvalid = function ($td, $inputField) {
   // Regex allowed by the Datetimepicker UI
-  var dtexpDate = new RegExp(['^([0-9]{4})', '-(((01|03|05|07|08|10|12)-((0[1-9])|([1-2][0-9])|(3[0-1])))|((02|04|06|09|11)', '-((0[1-9])|([1-2][0-9])|30)))$'].join(''));
-  var dtexpTime = new RegExp(['^(([0-1][0-9])|(2[0-3]))', ':((0[0-9])|([1-5][0-9]))', ':((0[0-9])|([1-5][0-9]))(.[0-9]{1,6}){0,1}$'].join('')); // If key-ed in Time or Date values are unsupported by the UI, close it
+  const dtexpDate = new RegExp(['^([0-9]{4})', '-(((01|03|05|07|08|10|12)-((0[1-9])|([1-2][0-9])|(3[0-1])))|((02|04|06|09|11)', '-((0[1-9])|([1-2][0-9])|30)))$'].join(''))
+  const dtexpTime = new RegExp(['^(([0-1][0-9])|(2[0-3]))', ':((0[0-9])|([1-5][0-9]))', ':((0[0-9])|([1-5][0-9]))(.[0-9]{1,6}){0,1}$'].join('')) // If key-ed in Time or Date values are unsupported by the UI, close it
 
   if ($td.attr('data-type') === 'date' && !dtexpDate.test($inputField.val())) {
-    $inputField.datepicker('hide');
+    $inputField.datepicker('hide')
   } else if ($td.attr('data-type') === 'time' && !dtexpTime.test($inputField.val())) {
-    $inputField.datepicker('hide');
+    $inputField.datepicker('hide')
   } else {
-    $inputField.datepicker('show');
+    $inputField.datepicker('show')
   }
-};
+}
 /**
  * Function to submit the login form after validation is done.
  * NOTE: do NOT use a module or it will break the callback, issue #15435
  */
 // eslint-disable-next-line no-unused-vars, camelcase
 
-
-var Functions_recaptchaCallback = function () {
-  $('#login_form').trigger('submit');
-};
+const Functions_recaptchaCallback = function () {
+  $('#login_form').trigger('submit')
+}
 /**
  * Unbind all event handlers before tearing down a page
  */
 
-
 AJAX.registerTeardown('functions.js', function () {
-  $(document).off('keydown', 'form input, form textarea, form select');
-});
+  $(document).off('keydown', 'form input, form textarea, form select')
+})
 AJAX.registerOnload('functions.js', function () {
   /**
    * Handle 'Ctrl/Alt + Enter' form submits
    */
   $('form input, form textarea, form select').on('keydown', function (e) {
     if (e.ctrlKey && e.which === 13 || e.altKey && e.which === 13) {
-      var $form = $(this).closest('form'); // There could be multiple submit buttons on the same form,
+      const $form = $(this).closest('form') // There could be multiple submit buttons on the same form,
       // we assume all of them behave identical and just click one.
 
       if (!$form.find('input[type="submit"]').first() || !$form.find('input[type="submit"]').first().trigger('click')) {
-        $form.trigger('submit');
+        $form.trigger('submit')
       }
     }
-  });
-});
+  })
+})
 /**
  * Unbind all event handlers before tearing down a page
  */
 
 AJAX.registerTeardown('functions.js', function () {
-  $(document).off('change', 'input[type=radio][name="pw_hash"]');
-  $(document).off('mouseover', '.sortlink');
-  $(document).off('mouseout', '.sortlink');
-});
+  $(document).off('change', 'input[type=radio][name="pw_hash"]')
+  $(document).off('mouseover', '.sortlink')
+  $(document).off('mouseout', '.sortlink')
+})
 AJAX.registerOnload('functions.js', function () {
   /*
    * Display warning regarding SSL when sha256_password
@@ -4477,20 +4374,20 @@ AJAX.registerOnload('functions.js', function () {
    */
   $(document).on('change', 'select#select_authentication_plugin_cp', function () {
     if (this.value === 'sha256_password') {
-      $('#ssl_reqd_warning_cp').show();
+      $('#ssl_reqd_warning_cp').show()
     } else {
-      $('#ssl_reqd_warning_cp').hide();
+      $('#ssl_reqd_warning_cp').hide()
     }
-  });
-  Cookies.defaults.path = CommonParams.get('rootPath'); // Bind event handlers for toggling sort icons
+  })
+  Cookies.defaults.path = CommonParams.get('rootPath') // Bind event handlers for toggling sort icons
 
   $(document).on('mouseover', '.sortlink', function () {
-    $(this).find('.soimg').toggle();
-  });
+    $(this).find('.soimg').toggle()
+  })
   $(document).on('mouseout', '.sortlink', function () {
-    $(this).find('.soimg').toggle();
-  });
-});
+    $(this).find('.soimg').toggle()
+  })
+})
 /**
  * Returns an HTML IMG tag for a particular image from a theme,
  * which may be an actual file or an icon from a sprite
@@ -4508,10 +4405,10 @@ AJAX.registerOnload('functions.js', function () {
  */
 
 Functions.getImage = function (image, alternate, attributes) {
-  var alt = alternate;
-  var attr = attributes; // custom image object, it will eventually be returned by this functions
+  let alt = alternate
+  let attr = attributes // custom image object, it will eventually be returned by this functions
 
-  var retval = {
+  const retval = {
     data: {
       // this is private
       alt: '',
@@ -4521,62 +4418,59 @@ Functions.getImage = function (image, alternate, attributes) {
     attr: function (name, value) {
       if (value === undefined) {
         if (this.data[name] === undefined) {
-          return '';
+          return ''
         } else {
-          return this.data[name];
+          return this.data[name]
         }
       } else {
-        this.data[name] = value;
+        this.data[name] = value
       }
     },
     toString: function () {
-      var retval = '<' + 'img';
+      let retval = '<' + 'img'
 
-      for (var i in this.data) {
-        retval += ' ' + i + '="' + this.data[i] + '"';
+      for (const i in this.data) {
+        retval += ' ' + i + '="' + this.data[i] + '"'
       }
 
-      retval += ' /' + '>';
-      return retval;
+      retval += ' /' + '>'
+      return retval
     }
-  }; // initialise missing parameters
+  } // initialise missing parameters
 
   if (attr === undefined) {
-    attr = {};
+    attr = {}
   }
 
   if (alt === undefined) {
-    alt = '';
+    alt = ''
   } // set alt
 
-
   if (attr.alt !== undefined) {
-    retval.attr('alt', Functions.escapeHtml(attr.alt));
+    retval.attr('alt', Functions.escapeHtml(attr.alt))
   } else {
-    retval.attr('alt', Functions.escapeHtml(alt));
+    retval.attr('alt', Functions.escapeHtml(alt))
   } // set title
 
-
   if (attr.title !== undefined) {
-    retval.attr('title', Functions.escapeHtml(attr.title));
+    retval.attr('title', Functions.escapeHtml(attr.title))
   } else {
-    retval.attr('title', Functions.escapeHtml(alt));
+    retval.attr('title', Functions.escapeHtml(alt))
   } // set css classes
 
+  retval.attr('class', 'icon ic_' + image) // set all other attributes
 
-  retval.attr('class', 'icon ic_' + image); // set all other attributes
-
-  for (var i in attr) {
+  for (const i in attr) {
     if (i === 'src') {
       // do not allow to override the 'src' attribute
-      continue;
+      continue
     }
 
-    retval.attr(i, attr[i]);
+    retval.attr(i, attr[i])
   }
 
-  return retval;
-};
+  return retval
+}
 /**
  * Sets a configuration value.
  *
@@ -4590,17 +4484,16 @@ Functions.getImage = function (image, alternate, attributes) {
  * @param {object}     value       Configuration value.
  */
 
-
 Functions.configSet = function (key, value) {
-  var serialized = JSON.stringify(value);
-  localStorage.setItem(key, serialized);
+  const serialized = JSON.stringify(value)
+  localStorage.setItem(key, serialized)
   $.ajax({
     url: 'index.php?route=/config/set',
     type: 'POST',
     dataType: 'json',
     data: {
-      'ajax_request': true,
-      key: key,
+      ajax_request: true,
+      key,
       server: CommonParams.get('server'),
       value: serialized
     },
@@ -4608,15 +4501,14 @@ Functions.configSet = function (key, value) {
       // Updating value in local storage.
       if (!data.success) {
         if (data.error) {
-          Functions.ajaxShowMessage(data.error);
+          Functions.ajaxShowMessage(data.error)
         } else {
-          Functions.ajaxShowMessage(data.message);
+          Functions.ajaxShowMessage(data.message)
         }
       } // Eventually, call callback.
-
     }
-  });
-};
+  })
+}
 /**
  * Gets a configuration value. A configuration value will be searched in
  * browser's local storage first and if not found, a call to the server will be
@@ -4632,57 +4524,53 @@ Functions.configSet = function (key, value) {
  * @return {void}
  */
 
-
 Functions.configGet = function (key, cached, successCallback) {
-  var isCached = typeof cached !== 'undefined' ? cached : true;
-  var value = localStorage.getItem(key);
+  const isCached = typeof cached !== 'undefined' ? cached : true
+  const value = localStorage.getItem(key)
 
   if (isCached && value !== undefined && value !== null) {
-    return JSON.parse(value);
+    return JSON.parse(value)
   } // Result not found in local storage or ignored.
   // Hitting the server.
-
 
   $.ajax({
     url: 'index.php?route=/config/get',
     type: 'POST',
     dataType: 'json',
     data: {
-      'ajax_request': true,
+      ajax_request: true,
       server: CommonParams.get('server'),
-      key: key
+      key
     },
     success: function (data) {
       // Updating value in local storage.
       if (data.success) {
-        localStorage.setItem(key, JSON.stringify(data.value));
+        localStorage.setItem(key, JSON.stringify(data.value))
       } else {
-        Functions.ajaxShowMessage(data.message);
+        Functions.ajaxShowMessage(data.message)
       } // Call the callback if it is defined
-
 
       if (typeof successCallback === 'function') {
         // Feed it the value previously saved like on async mode
-        successCallback(JSON.parse(localStorage.getItem(key)));
+        successCallback(JSON.parse(localStorage.getItem(key)))
       }
     }
-  });
-};
+  })
+}
 /**
  * Return POST data as stored by Generator::linkOrButton
  *
  * @return {string}
  */
 
-
 Functions.getPostData = function () {
-  var dataPost = this.attr('data-post'); // Strip possible leading ?
+  let dataPost = this.attr('data-post') // Strip possible leading ?
 
   if (dataPost !== undefined && dataPost.substring(0, 1) === '?') {
-    dataPost = dataPost.substr(1);
+    dataPost = dataPost.substr(1)
   }
 
-  return dataPost;
-};
+  return dataPost
+}
 
-jQuery.fn.getPostData = Functions.getPostData;
+jQuery.fn.getPostData = Functions.getPostData

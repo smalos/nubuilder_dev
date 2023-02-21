@@ -1,4 +1,4 @@
-"use strict";
+'use strict'
 
 /**
  * SQL syntax highlighting transformation plugin js
@@ -7,6 +7,6 @@
  */
 AJAX.registerOnload('transformations/sql_editor.js', function () {
   $('textarea.transform_sql_editor').each(function () {
-    Functions.getSqlEditor($(this), {}, 'both');
-  });
-});
+    Functions.getSqlEditor($(this), {}, 'both')
+  })
+})

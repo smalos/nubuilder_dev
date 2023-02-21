@@ -1,152 +1,149 @@
-"use strict";
+'use strict'
 
 // global var that holds: 0- if ctrl key is not pressed 1- if ctrl key is pressed
-var ctrlKeyHistory = 0;
+let ctrlKeyHistory = 0
 /**
   * Allows moving around inputs/select by Ctrl+arrows
   *
   * @param {object} event data
   */
 
-function onKeyDownArrowsHandler(event) {
-  var e = event || window.event;
-  var o = e.srcElement || e.target;
+function onKeyDownArrowsHandler (event) {
+  const e = event || window.event
+  const o = e.srcElement || e.target
 
   if (!o) {
-    return;
+    return
   }
 
   if (o.tagName !== 'TEXTAREA' && o.tagName !== 'INPUT' && o.tagName !== 'SELECT') {
-    return;
+    return
   }
 
   if (e.which !== 17 && e.which !== 37 && e.which !== 38 && e.which !== 39 && e.which !== 40) {
-    return;
+    return
   }
 
   if (!o.id) {
-    return;
+    return
   }
 
   if (e.type === 'keyup') {
     if (e.which === 17) {
-      ctrlKeyHistory = 0;
+      ctrlKeyHistory = 0
     }
 
-    return;
+    return
   } else if (e.type === 'keydown') {
     if (e.which === 17) {
-      ctrlKeyHistory = 1;
+      ctrlKeyHistory = 1
     }
   }
 
   if (ctrlKeyHistory !== 1) {
-    return;
+    return
   }
 
-  e.preventDefault();
-  var pos = o.id.split('_');
+  e.preventDefault()
+  const pos = o.id.split('_')
 
   if (pos[0] !== 'field' || typeof pos[2] === 'undefined') {
-    return;
+    return
   }
 
-  var x = pos[2];
-  var y = pos[1];
+  let x = pos[2]
+  let y = pos[1]
 
   switch (e.keyCode) {
     case 38:
       // up
-      y--;
-      break;
+      y--
+      break
 
     case 40:
       // down
-      y++;
-      break;
+      y++
+      break
 
     case 37:
       // left
-      x--;
-      break;
+      x--
+      break
 
     case 39:
       // right
-      x++;
-      break;
+      x++
+      break
 
     default:
-      return;
+      return
   } // eslint-disable-next-line compat/compat
 
-
-  var isFirefox = navigator.userAgent.toLowerCase().indexOf('firefox/') > -1;
-  var id = 'field_' + y + '_' + x;
-  var nO = document.getElementById(id);
+  const isFirefox = navigator.userAgent.toLowerCase().indexOf('firefox/') > -1
+  let id = 'field_' + y + '_' + x
+  let nO = document.getElementById(id)
 
   if (!nO) {
-    id = 'field_' + y + '_' + x + '_0';
-    nO = document.getElementById(id);
+    id = 'field_' + y + '_' + x + '_0'
+    nO = document.getElementById(id)
   } // skip non existent fields
 
-
   if (!nO) {
-    return;
+    return
   } // for firefox select tag
 
-
-  var lvalue = o.selectedIndex;
-  var nOvalue = nO.selectedIndex;
-  nO.focus();
+  let lvalue = o.selectedIndex
+  let nOvalue = nO.selectedIndex
+  nO.focus()
 
   if (isFirefox) {
-    var ffcheck = 0;
-    var ffversion;
+    let ffcheck = 0
+    let ffversion
 
     for (ffversion = 3; ffversion < 25; ffversion++) {
-      var isFirefoxV24 = navigator.userAgent.toLowerCase().indexOf('firefox/' + ffversion) > -1;
+      const isFirefoxV24 = navigator.userAgent.toLowerCase().indexOf('firefox/' + ffversion) > -1
 
       if (isFirefoxV24) {
-        ffcheck = 1;
-        break;
+        ffcheck = 1
+        break
       }
     }
 
     if (ffcheck === 1) {
       if (e.which === 38 || e.which === 37) {
-        nOvalue++;
+        nOvalue++
       } else if (e.which === 40 || e.which === 39) {
-        nOvalue--;
+        nOvalue--
       }
 
-      nO.selectedIndex = nOvalue;
+      nO.selectedIndex = nOvalue
     } else {
       if (e.which === 38 || e.which === 37) {
-        lvalue++;
+        lvalue++
       } else if (e.which === 40 || e.which === 39) {
-        lvalue--;
+        lvalue--
       }
 
-      o.selectedIndex = lvalue;
+      o.selectedIndex = lvalue
     }
   }
 
   if (nO.tagName !== 'SELECT') {
-    nO.select();
+    nO.select()
   }
 
-  e.returnValue = false;
+  e.returnValue = false
 }
 
 AJAX.registerTeardown('keyhandler.js', function () {
-  $(document).off('keydown keyup', '#table_columns');
-  $(document).off('keydown keyup', 'table.insertRowTable');
-});
+  $(document).off('keydown keyup', '#table_columns')
+  $(document).off('keydown keyup', 'table.insertRowTable')
+})
 AJAX.registerOnload('keyhandler.js', function () {
   $(document).on('keydown keyup', '#table_columns', function (event) {
-    onKeyDownArrowsHandler(event.originalEvent);
-  });
+    onKeyDownArrowsHandler(event.originalEvent)
+  })
   $(document).on('keydown keyup', 'table.insertRowTable', function (event) {
-    onKeyDownArrowsHandler(event.originalEvent);
-  });
-});
+    onKeyDownArrowsHandler(event.originalEvent)
+  })
+})

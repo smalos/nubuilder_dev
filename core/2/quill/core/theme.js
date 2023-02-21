@@ -1,32 +1,32 @@
 class Theme {
-  constructor(quill, options) {
-    this.quill = quill;
-    this.options = options;
-    this.modules = {};
+  constructor (quill, options) {
+    this.quill = quill
+    this.options = options
+    this.modules = {}
   }
 
-  init() {
+  init () {
     Object.keys(this.options.modules).forEach(name => {
       if (this.modules[name] == null) {
-        this.addModule(name);
+        this.addModule(name)
       }
-    });
+    })
   }
 
-  addModule(name) {
-    const ModuleClass = this.quill.constructor.import(`modules/${name}`);
+  addModule (name) {
+    const ModuleClass = this.quill.constructor.import(`modules/${name}`)
     this.modules[name] = new ModuleClass(
       this.quill,
-      this.options.modules[name] || {},
-    );
-    return this.modules[name];
+      this.options.modules[name] || {}
+    )
+    return this.modules[name]
   }
 }
 Theme.DEFAULTS = {
-  modules: {},
-};
+  modules: {}
+}
 Theme.themes = {
-  default: Theme,
-};
+  default: Theme
+}
 
-export default Theme;
+export default Theme

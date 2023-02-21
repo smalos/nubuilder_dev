@@ -1,7 +1,7 @@
-import Block from '../blots/block';
+import Block from '../blots/block'
 
 class Blockquote extends Block {}
-Blockquote.blotName = 'blockquote';
-Blockquote.tagName = 'blockquote';
+Blockquote.blotName = 'blockquote'
+Blockquote.tagName = 'blockquote'
 
-export default Blockquote;
+export default Blockquote

@@ -1,4 +1,4 @@
-"use strict";
+'use strict'
 
 /**
  * XML editor plugin
@@ -12,6 +12,6 @@ AJAX.registerOnload('transformations/xml_editor.js', function () {
       indentUnit: 4,
       mode: 'application/xml',
       lineWrapping: true
-    });
-  });
-});
+    })
+  })
+})

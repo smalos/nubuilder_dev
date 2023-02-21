@@ -1,19 +1,19 @@
-"use strict";
+'use strict'
 
 // eslint-disable-next-line no-unused-vars
-var DesignerObjects = {
+const DesignerObjects = {
   PdfPage: function (dbName, pageDescr, tblCords) {
     // eslint-disable-next-line no-unused-vars
-    var pgNr;
-    this.dbName = dbName;
-    this.pageDescr = pageDescr;
-    this.tblCords = tblCords;
+    let pgNr
+    this.dbName = dbName
+    this.pageDescr = pageDescr
+    this.tblCords = tblCords
   },
   TableCoordinate: function (dbName, tableName, pdfPgNr, x, y) {
-    this.dbName = dbName;
-    this.tableName = tableName;
-    this.pdfPgNr = pdfPgNr;
-    this.x = x;
-    this.y = y;
+    this.dbName = dbName
+    this.tableName = tableName
+    this.pdfPgNr = pdfPgNr
+    this.x = x
+    this.y = y
   }
-};
+}

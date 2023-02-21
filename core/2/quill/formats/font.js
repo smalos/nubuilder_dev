@@ -1,18 +1,18 @@
-import { ClassAttributor, Scope, StyleAttributor } from 'parchment';
+import { ClassAttributor, Scope, StyleAttributor } from 'parchment'
 
 const config = {
   scope: Scope.INLINE,
-  whitelist: ['serif', 'monospace'],
-};
+  whitelist: ['serif', 'monospace']
+}
 
-const FontClass = new ClassAttributor('font', 'ql-font', config);
+const FontClass = new ClassAttributor('font', 'ql-font', config)
 
 class FontStyleAttributor extends StyleAttributor {
-  value(node) {
-    return super.value(node).replace(/["']/g, '');
+  value (node) {
+    return super.value(node).replace(/["']/g, '')
   }
 }
 
-const FontStyle = new FontStyleAttributor('font', 'font-family', config);
+const FontStyle = new FontStyleAttributor('font', 'font-family', config)
 
-export { FontStyle, FontClass };
+export { FontStyle, FontClass }

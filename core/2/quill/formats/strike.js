@@ -1,7 +1,7 @@
-import Bold from './bold';
+import Bold from './bold'
 
 class Strike extends Bold {}
-Strike.blotName = 'strike';
-Strike.tagName = ['S', 'STRIKE'];
+Strike.blotName = 'strike'
+Strike.tagName = ['S', 'STRIKE']
 
-export default Strike;
+export default Strike

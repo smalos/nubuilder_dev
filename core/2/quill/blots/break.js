@@ -1,25 +1,25 @@
-import { EmbedBlot } from 'parchment';
+import { EmbedBlot } from 'parchment'
 
 class Break extends EmbedBlot {
-  static value() {
-    return undefined;
+  static value () {
+    return undefined
   }
 
-  optimize() {
+  optimize () {
     if (this.prev || this.next) {
-      this.remove();
+      this.remove()
     }
   }
 
-  length() {
-    return 0;
+  length () {
+    return 0
   }
 
-  value() {
-    return '';
+  value () {
+    return ''
   }
 }
-Break.blotName = 'break';
-Break.tagName = 'BR';
+Break.blotName = 'break'
+Break.tagName = 'BR'
 
-export default Break;
+export default Break

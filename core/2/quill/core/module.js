@@ -1,9 +1,9 @@
 class Module {
-  constructor(quill, options = {}) {
-    this.quill = quill;
-    this.options = options;
+  constructor (quill, options = {}) {
+    this.quill = quill
+    this.options = options
   }
 }
-Module.DEFAULTS = {};
+Module.DEFAULTS = {}
 
-export default Module;
+export default Module

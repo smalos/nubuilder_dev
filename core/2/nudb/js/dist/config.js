@@ -1,12 +1,12 @@
-"use strict";
+'use strict'
 
 /**
  * Functions used in configuration forms and on user preferences pages
  */
 
 /* exported PASSIVE_EVENT_LISTENERS */
-var configInlineParams;
-var configScriptLoaded;
+let configInlineParams
+let configScriptLoaded
 /**
  * checks whether browser supports web storage
  *
@@ -16,47 +16,46 @@ var configScriptLoaded;
  * @return {boolean}
  */
 
-function isStorageSupported(type) {
-  let warn = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+function isStorageSupported (type) {
+  const warn = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false
 
   try {
-    window[type].setItem('PMATest', 'test'); // Check whether key-value pair was set successfully
+    window[type].setItem('PMATest', 'test') // Check whether key-value pair was set successfully
 
     if (window[type].getItem('PMATest') === 'test') {
       // Supported, remove test variable from storage
-      window[type].removeItem('PMATest');
-      return true;
+      window[type].removeItem('PMATest')
+      return true
     }
   } catch (error) {
     // Not supported
     if (warn) {
-      Functions.ajaxShowMessage(Messages.strNoLocalStorage, false);
+      Functions.ajaxShowMessage(Messages.strNoLocalStorage, false)
     }
   }
 
-  return false;
+  return false
 }
 /**
  * Unbind all event handlers before tearing down a page
  */
 
-
 AJAX.registerTeardown('config.js', function () {
-  $('.optbox input[id], .optbox select[id], .optbox textarea[id]').off('change').off('keyup');
-  $('.optbox input[type=button][name=submit_reset]').off('click');
-  $('div.tab-content').off();
-  $('#import_local_storage, #export_local_storage').off('click');
-  $('form.prefs-form').off('change').off('submit');
-  $(document).off('click', 'div.click-hide-message');
-  $('#prefs_autoload').find('a').off('click');
-});
+  $('.optbox input[id], .optbox select[id], .optbox textarea[id]').off('change').off('keyup')
+  $('.optbox input[type=button][name=submit_reset]').off('click')
+  $('div.tab-content').off()
+  $('#import_local_storage, #export_local_storage').off('click')
+  $('form.prefs-form').off('change').off('submit')
+  $(document).off('click', 'div.click-hide-message')
+  $('#prefs_autoload').find('a').off('click')
+})
 AJAX.registerOnload('config.js', function () {
-  var $topmenuUpt = $('#user_prefs_tabs');
-  $topmenuUpt.find('a.active').attr('rel', 'samepage');
-  $topmenuUpt.find('a:not(.active)').attr('rel', 'newpage');
-}); // default values for fields
+  const $topmenuUpt = $('#user_prefs_tabs')
+  $topmenuUpt.find('a.active').attr('rel', 'samepage')
+  $topmenuUpt.find('a:not(.active)').attr('rel', 'newpage')
+}) // default values for fields
 
-var defaultValues = {};
+const defaultValues = {}
 /**
  * Returns field type
  *
@@ -65,19 +64,19 @@ var defaultValues = {};
  * @return {string}
  */
 
-function getFieldType(field) {
-  var $field = $(field);
-  var tagName = $field.prop('tagName');
+function getFieldType (field) {
+  const $field = $(field)
+  const tagName = $field.prop('tagName')
 
   if (tagName === 'INPUT') {
-    return $field.attr('type');
+    return $field.attr('type')
   } else if (tagName === 'SELECT') {
-    return 'select';
+    return 'select'
   } else if (tagName === 'TEXTAREA') {
-    return 'text';
+    return 'text'
   }
 
-  return '';
+  return ''
 }
 /**
  * Enables or disables the "restore default value" button
@@ -88,10 +87,9 @@ function getFieldType(field) {
  * @return {void}
  */
 
-
-function setRestoreDefaultBtn(field, display) {
-  var $el = $(field).closest('td').find('.restore-default img');
-  $el[display ? 'show' : 'hide']();
+function setRestoreDefaultBtn (field, display) {
+  const $el = $(field).closest('td').find('.restore-default img')
+  $el[display ? 'show' : 'hide']()
 }
 /**
  * Marks field depending on its value (system default or custom)
@@ -101,15 +99,14 @@ function setRestoreDefaultBtn(field, display) {
  * @return {void}
  */
 
+function markField (field) {
+  const $field = $(field)
+  const type = getFieldType($field)
+  const isDefault = checkFieldDefault($field, type) // checkboxes uses parent <span> for marking
 
-function markField(field) {
-  var $field = $(field);
-  var type = getFieldType($field);
-  var isDefault = checkFieldDefault($field, type); // checkboxes uses parent <span> for marking
-
-  var $fieldMarker = type === 'checkbox' ? $field.parent() : $field;
-  setRestoreDefaultBtn($field, !isDefault);
-  $fieldMarker[isDefault ? 'removeClass' : 'addClass']('custom');
+  const $fieldMarker = type === 'checkbox' ? $field.parent() : $field
+  setRestoreDefaultBtn($field, !isDefault)
+  $fieldMarker[isDefault ? 'removeClass' : 'addClass']('custom')
 }
 /**
  * Sets field value
@@ -125,33 +122,32 @@ function markField(field) {
  * @param {string | boolean}  value
  */
 
-
-function setFieldValue(field, fieldType, value) {
-  var $field = $(field);
+function setFieldValue (field, fieldType, value) {
+  const $field = $(field)
 
   switch (fieldType) {
     case 'text':
     case 'number':
-      $field.val(value);
-      break;
+      $field.val(value)
+      break
 
     case 'checkbox':
-      $field.prop('checked', value);
-      break;
+      $field.prop('checked', value)
+      break
 
     case 'select':
-      var options = $field.prop('options');
-      var i;
-      var imax = options.length;
+      var options = $field.prop('options')
+      var i
+      var imax = options.length
 
       for (i = 0; i < imax; i++) {
-        options[i].selected = value.indexOf(options[i].value) !== -1;
+        options[i].selected = value.indexOf(options[i].value) !== -1
       }
 
-      break;
+      break
   }
 
-  markField($field);
+  markField($field)
 }
 /**
  * Gets field value
@@ -167,34 +163,33 @@ function setFieldValue(field, fieldType, value) {
  * @return {boolean | string | string[] | null}
  */
 
-
-function getFieldValue(field, fieldType) {
-  var $field = $(field);
+function getFieldValue (field, fieldType) {
+  const $field = $(field)
 
   switch (fieldType) {
     case 'text':
     case 'number':
-      return $field.prop('value');
+      return $field.prop('value')
 
     case 'checkbox':
-      return $field.prop('checked');
+      return $field.prop('checked')
 
     case 'select':
-      var options = $field.prop('options');
-      var i;
-      var imax = options.length;
-      var items = [];
+      var options = $field.prop('options')
+      var i
+      var imax = options.length
+      var items = []
 
       for (i = 0; i < imax; i++) {
         if (options[i].selected) {
-          items.push(options[i].value);
+          items.push(options[i].value)
         }
       }
 
-      return items;
+      return items
   }
 
-  return null;
+  return null
 }
 /**
  * Returns values for all fields in fieldsets
@@ -203,28 +198,27 @@ function getFieldValue(field, fieldType) {
  */
 // eslint-disable-next-line no-unused-vars
 
+function getAllValues () {
+  const $elements = $('fieldset input, fieldset select, fieldset textarea')
+  const values = {}
+  let type
+  let value
 
-function getAllValues() {
-  var $elements = $('fieldset input, fieldset select, fieldset textarea');
-  var values = {};
-  var type;
-  var value;
-
-  for (var i = 0; i < $elements.length; i++) {
-    type = getFieldType($elements[i]);
-    value = getFieldValue($elements[i], type);
+  for (let i = 0; i < $elements.length; i++) {
+    type = getFieldType($elements[i])
+    value = getFieldValue($elements[i], type)
 
     if (typeof value !== 'undefined') {
       // we only have single selects, fatten array
       if (type === 'select') {
-        value = value[0];
+        value = value[0]
       }
 
-      values[$elements[i].name] = value;
+      values[$elements[i].name] = value
     }
   }
 
-  return values;
+  return values
 }
 /**
  * Checks whether field has its default value
@@ -235,35 +229,34 @@ function getAllValues() {
  * @return {boolean}
  */
 
-
-function checkFieldDefault(field, type) {
-  var $field = $(field);
-  var fieldId = $field.attr('id');
+function checkFieldDefault (field, type) {
+  const $field = $(field)
+  const fieldId = $field.attr('id')
 
   if (typeof defaultValues[fieldId] === 'undefined') {
-    return true;
+    return true
   }
 
-  var isDefault = true;
-  var currentValue = getFieldValue($field, type);
+  let isDefault = true
+  const currentValue = getFieldValue($field, type)
 
   if (type !== 'select') {
-    isDefault = currentValue === defaultValues[fieldId];
+    isDefault = currentValue === defaultValues[fieldId]
   } else {
     // compare arrays, will work for our representation of select values
     if (currentValue.length !== defaultValues[fieldId].length) {
-      isDefault = false;
+      isDefault = false
     } else {
-      for (var i = 0; i < currentValue.length; i++) {
+      for (let i = 0; i < currentValue.length; i++) {
         if (currentValue[i] !== defaultValues[fieldId][i]) {
-          isDefault = false;
-          break;
+          isDefault = false
+          break
         }
       }
     }
   }
 
-  return isDefault;
+  return isDefault
 }
 /**
  * Returns element's id prefix
@@ -273,16 +266,14 @@ function checkFieldDefault(field, type) {
  */
 // eslint-disable-next-line no-unused-vars
 
-
-function getIdPrefix(element) {
-  return $(element).attr('id').replace(/[^-]+$/, '');
+function getIdPrefix (element) {
+  return $(element).attr('id').replace(/[^-]+$/, '')
 } // ------------------------------------------------------------------
 // Form validation and field operations
 //
 // form validator assignments
 
-
-var validate = {}; // form validator list
+let validate = {} // form validator list
 
 var validators = {
   // regexp: numeric value
@@ -299,11 +290,11 @@ var validators = {
    */
   validatePositiveNumber: function (isKeyUp) {
     if (isKeyUp && this.value === '') {
-      return true;
+      return true
     }
 
-    var result = this.value !== '0' && validators.regExpNumeric.test(this.value);
-    return result ? true : Messages.error_nan_p;
+    const result = this.value !== '0' && validators.regExpNumeric.test(this.value)
+    return result ? true : Messages.error_nan_p
   },
 
   /**
@@ -315,11 +306,11 @@ var validators = {
    */
   validateNonNegativeNumber: function (isKeyUp) {
     if (isKeyUp && this.value === '') {
-      return true;
+      return true
     }
 
-    var result = validators.regExpNumeric.test(this.value);
-    return result ? true : Messages.error_nan_nneg;
+    const result = validators.regExpNumeric.test(this.value)
+    return result ? true : Messages.error_nan_nneg
   },
 
   /**
@@ -329,11 +320,11 @@ var validators = {
    */
   validatePortNumber: function () {
     if (this.value === '') {
-      return true;
+      return true
     }
 
-    var result = validators.regExpNumeric.test(this.value) && this.value !== '0';
-    return result && this.value <= 65535 ? true : Messages.error_incorrect_port;
+    const result = validators.regExpNumeric.test(this.value) && this.value !== '0'
+    return result && this.value <= 65535 ? true : Messages.error_incorrect_port
   },
 
   /**
@@ -346,13 +337,12 @@ var validators = {
    */
   validateByRegex: function (isKeyUp, regexp) {
     if (isKeyUp && this.value === '') {
-      return true;
+      return true
     } // convert PCRE regexp
 
-
-    var parts = regexp.match(validators.regExpPcreExtract);
-    var valid = this.value.match(new RegExp(parts[2], parts[3])) !== null;
-    return valid ? true : Messages.error_invalid_value;
+    const parts = regexp.match(validators.regExpPcreExtract)
+    const valid = this.value.match(new RegExp(parts[2], parts[3])) !== null
+    return valid ? true : Messages.error_invalid_value
   },
 
   /**
@@ -364,19 +354,19 @@ var validators = {
    * @return {true|string}
    */
   validateUpperBound: function (isKeyUp, maxValue) {
-    var val = parseInt(this.value, 10);
+    const val = parseInt(this.value, 10)
 
     if (isNaN(val)) {
-      return true;
+      return true
     }
 
-    return val <= maxValue ? true : Functions.sprintf(Messages.error_value_lte, maxValue);
+    return val <= maxValue ? true : Functions.sprintf(Messages.error_value_lte, maxValue)
   },
   // field validators
   field: {},
   // fieldset validators
   fieldset: {}
-};
+}
 /**
  * Registers validator for given field
  *
@@ -387,17 +377,17 @@ var validators = {
  */
 // eslint-disable-next-line no-unused-vars
 
-function registerFieldValidator(id, type, onKeyUp, params) {
+function registerFieldValidator (id, type, onKeyUp, params) {
   if (typeof validators[type] === 'undefined') {
-    return;
+    return
   }
 
   if (typeof validate[id] === 'undefined') {
-    validate[id] = [];
+    validate[id] = []
   }
 
   if (validate[id].length === 0) {
-    validate[id].push([type, params, onKeyUp]);
+    validate[id].push([type, params, onKeyUp])
   }
 }
 /**
@@ -409,30 +399,28 @@ function registerFieldValidator(id, type, onKeyUp, params) {
  * @return {any[]} of [function, parameters to be passed to function]
  */
 
-
-function getFieldValidators(fieldId, onKeyUpOnly) {
+function getFieldValidators (fieldId, onKeyUpOnly) {
   // look for field bound validator
-  var name = fieldId && fieldId.match(/[^-]+$/)[0];
+  const name = fieldId && fieldId.match(/[^-]+$/)[0]
 
   if (typeof validators.field[name] !== 'undefined') {
-    return [[validators.field[name], null]];
+    return [[validators.field[name], null]]
   } // look for registered validators
 
-
-  var functions = [];
+  const functions = []
 
   if (typeof validate[fieldId] !== 'undefined') {
     // validate[field_id]: array of [type, params, onKeyUp]
-    for (var i = 0, imax = validate[fieldId].length; i < imax; i++) {
+    for (let i = 0, imax = validate[fieldId].length; i < imax; i++) {
       if (onKeyUpOnly && !validate[fieldId][i][2]) {
-        continue;
+        continue
       }
 
-      functions.push([validators[validate[fieldId][i][0]], validate[fieldId][i][1]]);
+      functions.push([validators[validate[fieldId][i][0]], validate[fieldId][i][1]])
     }
   }
 
-  return functions;
+  return functions
 }
 /**
  * Displays errors for given form fields
@@ -443,55 +431,53 @@ function getFieldValidators(fieldId, onKeyUpOnly) {
  * @param {object} errorList list of errors in the form {field id: error array}
  */
 
+function displayErrors (errorList) {
+  const tempIsEmpty = function (item) {
+    return item !== ''
+  }
 
-function displayErrors(errorList) {
-  var tempIsEmpty = function (item) {
-    return item !== '';
-  };
-
-  for (var fieldId in errorList) {
-    var errors = errorList[fieldId];
-    var $field = $('#' + fieldId);
-    var isFieldset = $field.attr('tagName') === 'FIELDSET';
-    var $errorCnt;
+  for (const fieldId in errorList) {
+    let errors = errorList[fieldId]
+    const $field = $('#' + fieldId)
+    const isFieldset = $field.attr('tagName') === 'FIELDSET'
+    var $errorCnt
 
     if (isFieldset) {
-      $errorCnt = $field.find('dl.errors');
+      $errorCnt = $field.find('dl.errors')
     } else {
-      $errorCnt = $field.siblings('.inline_errors');
+      $errorCnt = $field.siblings('.inline_errors')
     } // remove empty errors (used to clear error list)
 
-
-    errors = $.grep(errors, tempIsEmpty); // CSS error class
+    errors = $.grep(errors, tempIsEmpty) // CSS error class
 
     if (!isFieldset) {
       // checkboxes uses parent <span> for marking
-      var $fieldMarker = $field.attr('type') === 'checkbox' ? $field.parent() : $field;
-      $fieldMarker[errors.length ? 'addClass' : 'removeClass']('field-error');
+      const $fieldMarker = $field.attr('type') === 'checkbox' ? $field.parent() : $field
+      $fieldMarker[errors.length ? 'addClass' : 'removeClass']('field-error')
     }
 
     if (errors.length) {
       // if error container doesn't exist, create it
       if ($errorCnt.length === 0) {
         if (isFieldset) {
-          $errorCnt = $('<dl class="errors"></dl>');
-          $field.find('table').before($errorCnt);
+          $errorCnt = $('<dl class="errors"></dl>')
+          $field.find('table').before($errorCnt)
         } else {
-          $errorCnt = $('<dl class="inline_errors"></dl>');
-          $field.closest('td').append($errorCnt);
+          $errorCnt = $('<dl class="inline_errors"></dl>')
+          $field.closest('td').append($errorCnt)
         }
       }
 
-      var html = '';
+      let html = ''
 
-      for (var i = 0, imax = errors.length; i < imax; i++) {
-        html += '<dd>' + errors[i] + '</dd>';
+      for (let i = 0, imax = errors.length; i < imax; i++) {
+        html += '<dd>' + errors[i] + '</dd>'
       }
 
-      $errorCnt.html(html);
+      $errorCnt.html(html)
     } else if ($errorCnt !== null) {
       // remove useless error container
-      $errorCnt.remove();
+      $errorCnt.remove()
     }
   }
 }
@@ -499,21 +485,19 @@ function displayErrors(errorList) {
  * Validates fields and fieldsets and call displayError function as required
  */
 
+function setDisplayError () {
+  const elements = $('.optbox input[id], .optbox select[id], .optbox textarea[id]') // run all field validators
 
-function setDisplayError() {
-  var elements = $('.optbox input[id], .optbox select[id], .optbox textarea[id]'); // run all field validators
+  const errors = {}
 
-  var errors = {};
-
-  for (var i = 0; i < elements.length; i++) {
-    validateField(elements[i], false, errors);
+  for (let i = 0; i < elements.length; i++) {
+    validateField(elements[i], false, errors)
   } // run all fieldset validators
 
-
   $('fieldset.optbox').each(function () {
-    validateFieldset(this, false, errors);
-  });
-  displayErrors(errors);
+    validateFieldset(this, false, errors)
+  })
+  displayErrors(errors)
 }
 /**
  * Validates fieldset and puts errors in 'errors' object
@@ -523,23 +507,22 @@ function setDisplayError() {
  * @param {object}  errors
  */
 
-
-function validateFieldset(fieldset, isKeyUp, errors) {
-  var $fieldset = $(fieldset);
+function validateFieldset (fieldset, isKeyUp, errors) {
+  const $fieldset = $(fieldset)
 
   if ($fieldset.length && typeof validators.fieldset[$fieldset.attr('id')] !== 'undefined') {
-    var fieldsetErrors = validators.fieldset[$fieldset.attr('id')].apply($fieldset[0], [isKeyUp]);
+    const fieldsetErrors = validators.fieldset[$fieldset.attr('id')].apply($fieldset[0], [isKeyUp])
 
-    for (var fieldId in fieldsetErrors) {
+    for (const fieldId in fieldsetErrors) {
       if (typeof errors[fieldId] === 'undefined') {
-        errors[fieldId] = [];
+        errors[fieldId] = []
       }
 
       if (typeof fieldsetErrors[fieldId] === 'string') {
-        fieldsetErrors[fieldId] = [fieldsetErrors[fieldId]];
+        fieldsetErrors[fieldId] = [fieldsetErrors[fieldId]]
       }
 
-      $.merge(errors[fieldId], fieldsetErrors[fieldId]);
+      $.merge(errors[fieldId], fieldsetErrors[fieldId])
     }
   }
 }
@@ -551,31 +534,30 @@ function validateFieldset(fieldset, isKeyUp, errors) {
  * @param {object}  errors
  */
 
+function validateField (field, isKeyUp, errors) {
+  let args
+  let result
+  const $field = $(field)
+  const fieldId = $field.attr('id')
+  errors[fieldId] = []
+  const functions = getFieldValidators(fieldId, isKeyUp)
 
-function validateField(field, isKeyUp, errors) {
-  var args;
-  var result;
-  var $field = $(field);
-  var fieldId = $field.attr('id');
-  errors[fieldId] = [];
-  var functions = getFieldValidators(fieldId, isKeyUp);
-
-  for (var i = 0; i < functions.length; i++) {
+  for (let i = 0; i < functions.length; i++) {
     if (typeof functions[i][1] !== 'undefined' && functions[i][1] !== null) {
-      args = functions[i][1].slice(0);
+      args = functions[i][1].slice(0)
     } else {
-      args = [];
+      args = []
     }
 
-    args.unshift(isKeyUp);
-    result = functions[i][0].apply($field[0], args);
+    args.unshift(isKeyUp)
+    result = functions[i][0].apply($field[0], args)
 
     if (result !== true) {
       if (typeof result === 'string') {
-        result = [result];
+        result = [result]
       }
 
-      $.merge(errors[fieldId], result);
+      $.merge(errors[fieldId], result)
     }
   }
 }
@@ -586,113 +568,109 @@ function validateField(field, isKeyUp, errors) {
  * @param {boolean} isKeyUp
  */
 
-
-function validateFieldAndFieldset(field, isKeyUp) {
-  var $field = $(field);
-  var errors = {};
-  validateField($field, isKeyUp, errors);
-  validateFieldset($field.closest('fieldset.optbox'), isKeyUp, errors);
-  displayErrors(errors);
+function validateFieldAndFieldset (field, isKeyUp) {
+  const $field = $(field)
+  const errors = {}
+  validateField($field, isKeyUp, errors)
+  validateFieldset($field.closest('fieldset.optbox'), isKeyUp, errors)
+  displayErrors(errors)
 }
 
-function loadInlineConfig() {
+function loadInlineConfig () {
   if (!Array.isArray(configInlineParams)) {
-    return;
+    return
   }
 
-  for (var i = 0; i < configInlineParams.length; ++i) {
+  for (let i = 0; i < configInlineParams.length; ++i) {
     if (typeof configInlineParams[i] === 'function') {
-      configInlineParams[i]();
+      configInlineParams[i]()
     }
   }
 }
 
-function setupValidation() {
-  validate = {};
-  configScriptLoaded = true;
+function setupValidation () {
+  validate = {}
+  configScriptLoaded = true
 
   if (configScriptLoaded && typeof configInlineParams !== 'undefined') {
-    loadInlineConfig();
+    loadInlineConfig()
   } // register validators and mark custom values
 
-
-  var $elements = $('.optbox input[id], .optbox select[id], .optbox textarea[id]');
+  const $elements = $('.optbox input[id], .optbox select[id], .optbox textarea[id]')
   $elements.each(function () {
-    markField(this);
-    var $el = $(this);
+    markField(this)
+    const $el = $(this)
     $el.on('change', function () {
-      validateFieldAndFieldset(this, false);
-      markField(this);
-    });
-    var tagName = $el.attr('tagName'); // text fields can be validated after each change
+      validateFieldAndFieldset(this, false)
+      markField(this)
+    })
+    const tagName = $el.attr('tagName') // text fields can be validated after each change
 
     if (tagName === 'INPUT' && $el.attr('type') === 'text') {
       $el.on('keyup', function () {
-        validateFieldAndFieldset($el, true);
-        markField($el);
-      });
+        validateFieldAndFieldset($el, true)
+        markField($el)
+      })
     } // disable textarea spellcheck
 
-
     if (tagName === 'TEXTAREA') {
-      $el.attr('spellcheck', false);
+      $el.attr('spellcheck', false)
     }
-  }); // check whether we've refreshed a page and browser remembered modified
+  }) // check whether we've refreshed a page and browser remembered modified
   // form values
 
-  var $checkPageRefresh = $('#check_page_refresh');
+  const $checkPageRefresh = $('#check_page_refresh')
 
   if ($checkPageRefresh.length === 0 || $checkPageRefresh.val() === '1') {
     // run all field validators
-    var errors = {};
+    const errors = {}
 
-    for (var i = 0; i < $elements.length; i++) {
-      validateField($elements[i], false, errors);
+    for (let i = 0; i < $elements.length; i++) {
+      validateField($elements[i], false, errors)
     } // run all fieldset validators
 
-
     $('fieldset.optbox').each(function () {
-      validateFieldset(this, false, errors);
-    });
-    displayErrors(errors);
+      validateFieldset(this, false, errors)
+    })
+    displayErrors(errors)
   } else if ($checkPageRefresh) {
-    $checkPageRefresh.val('1');
+    $checkPageRefresh.val('1')
   }
 }
 
 AJAX.registerOnload('config.js', function () {
-  setupValidation();
-}); //
+  setupValidation()
+}) //
 // END: Form validation and field operations
 // ------------------------------------------------------------------
 
-function adjustPrefsNotification() {
-  var $prefsAutoLoad = $('#prefs_autoload');
-  var $tableNameControl = $('#table_name_col_no');
-  var $prefsAutoShowing = $prefsAutoLoad.css('display') !== 'none';
+function adjustPrefsNotification () {
+  const $prefsAutoLoad = $('#prefs_autoload')
+  const $tableNameControl = $('#table_name_col_no')
+  const $prefsAutoShowing = $prefsAutoLoad.css('display') !== 'none'
 
   if ($prefsAutoShowing && $tableNameControl.length) {
-    $tableNameControl.css('top', '55px');
+    $tableNameControl.css('top', '55px')
   }
 }
 
 AJAX.registerOnload('config.js', function () {
-  adjustPrefsNotification();
-}); // ------------------------------------------------------------------
+  adjustPrefsNotification()
+}) // ------------------------------------------------------------------
 // Form reset buttons
 //
 
 AJAX.registerOnload('config.js', function () {
   $('.optbox input[type=button][name=submit_reset]').on('click', function () {
-    var fields = $(this).closest('fieldset').find('input, select, textarea');
+    const fields = $(this).closest('fieldset').find('input, select, textarea')
 
-    for (var i = 0, imax = fields.length; i < imax; i++) {
-      setFieldValue(fields[i], getFieldType(fields[i]), defaultValues[fields[i].id]);
+    for (let i = 0, imax = fields.length; i < imax; i++) {
+      setFieldValue(fields[i], getFieldType(fields[i]), defaultValues[fields[i].id])
     }
 
-    setDisplayError();
-  });
-}); //
+    setDisplayError()
+  })
+}) //
 // END: Form reset buttons
 // ------------------------------------------------------------------
 // ------------------------------------------------------------------
@@ -707,46 +685,46 @@ AJAX.registerOnload('config.js', function () {
  * @return {void}
  */
 
-function restoreField(fieldId) {
-  var $field = $('#' + fieldId);
+function restoreField (fieldId) {
+  const $field = $('#' + fieldId)
 
   if ($field.length === 0 || defaultValues[fieldId] === undefined) {
-    return;
+    return
   }
 
-  setFieldValue($field, getFieldType($field), defaultValues[fieldId]);
+  setFieldValue($field, getFieldType($field), defaultValues[fieldId])
 }
 
-function setupRestoreField() {
+function setupRestoreField () {
   $('div.tab-content').on('mouseenter', '.restore-default, .set-value', function () {
-    $(this).css('opacity', 1);
+    $(this).css('opacity', 1)
   }).on('mouseleave', '.restore-default, .set-value', function () {
-    $(this).css('opacity', 0.25);
+    $(this).css('opacity', 0.25)
   }).on('click', '.restore-default, .set-value', function (e) {
-    e.preventDefault();
-    var href = $(this).attr('href');
-    var fieldSel;
+    e.preventDefault()
+    const href = $(this).attr('href')
+    let fieldSel
 
     if ($(this).hasClass('restore-default')) {
-      fieldSel = href;
-      restoreField(fieldSel.substr(1));
+      fieldSel = href
+      restoreField(fieldSel.substr(1))
     } else {
-      fieldSel = href.match(/^[^=]+/)[0];
-      var value = href.match(/=(.+)$/)[1];
-      setFieldValue($(fieldSel), 'text', value);
+      fieldSel = href.match(/^[^=]+/)[0]
+      const value = href.match(/=(.+)$/)[1]
+      setFieldValue($(fieldSel), 'text', value)
     }
 
-    $(fieldSel).trigger('change');
+    $(fieldSel).trigger('change')
   }).find('.restore-default, .set-value') // inline-block for IE so opacity inheritance works
-  .css({
-    display: 'inline-block',
-    opacity: 0.25
-  });
+    .css({
+      display: 'inline-block',
+      opacity: 0.25
+    })
 }
 
 AJAX.registerOnload('config.js', function () {
-  setupRestoreField();
-}); //
+  setupRestoreField()
+}) //
 // END: "Restore default" and "set value" buttons
 // ------------------------------------------------------------------
 // ------------------------------------------------------------------
@@ -754,171 +732,167 @@ AJAX.registerOnload('config.js', function () {
 //
 
 AJAX.registerOnload('config.js', function () {
-  offerPrefsAutoimport();
-  var $radios = $('#import_local_storage, #export_local_storage');
+  offerPrefsAutoimport()
+  const $radios = $('#import_local_storage, #export_local_storage')
 
   if (!$radios.length) {
-    return;
+    return
   } // enable JavaScript dependent fields
 
-
   $radios.prop('disabled', false).add('#export_text_file, #import_text_file').on('click', function () {
-    var enableId = $(this).attr('id');
-    var disableId;
+    const enableId = $(this).attr('id')
+    let disableId
 
     if (enableId.match(/local_storage$/)) {
-      disableId = enableId.replace(/local_storage$/, 'text_file');
+      disableId = enableId.replace(/local_storage$/, 'text_file')
     } else {
-      disableId = enableId.replace(/text_file$/, 'local_storage');
+      disableId = enableId.replace(/text_file$/, 'local_storage')
     }
 
-    $('#opts_' + disableId).addClass('disabled').find('input').prop('disabled', true);
-    $('#opts_' + enableId).removeClass('disabled').find('input').prop('disabled', false);
-  }); // detect localStorage state
+    $('#opts_' + disableId).addClass('disabled').find('input').prop('disabled', true)
+    $('#opts_' + enableId).removeClass('disabled').find('input').prop('disabled', false)
+  }) // detect localStorage state
 
-  var lsSupported = isStorageSupported('localStorage', true);
-  var lsExists = lsSupported ? window.localStorage.config || false : false;
-  $('div.localStorage-' + (lsSupported ? 'un' : '') + 'supported').hide();
-  $('div.localStorage-' + (lsExists ? 'empty' : 'exists')).hide();
+  const lsSupported = isStorageSupported('localStorage', true)
+  const lsExists = lsSupported ? window.localStorage.config || false : false
+  $('div.localStorage-' + (lsSupported ? 'un' : '') + 'supported').hide()
+  $('div.localStorage-' + (lsExists ? 'empty' : 'exists')).hide()
 
   if (lsExists) {
-    updatePrefsDate();
+    updatePrefsDate()
   }
 
   $('form.prefs-form').on('change', function () {
-    var $form = $(this);
-    var disabled = false;
+    const $form = $(this)
+    let disabled = false
 
     if (!lsSupported) {
-      disabled = $form.find('input[type=radio][value$=local_storage]').prop('checked');
+      disabled = $form.find('input[type=radio][value$=local_storage]').prop('checked')
     } else if (!lsExists && $form.attr('name') === 'prefs_import' && $('#import_local_storage')[0].checked) {
-      disabled = true;
+      disabled = true
     }
 
-    $form.find('input[type=submit]').prop('disabled', disabled);
+    $form.find('input[type=submit]').prop('disabled', disabled)
   }).on('submit', function (e) {
-    var $form = $(this);
+    const $form = $(this)
 
     if ($form.attr('name') === 'prefs_export' && $('#export_local_storage')[0].checked) {
-      e.preventDefault(); // use AJAX to read JSON settings and save them
+      e.preventDefault() // use AJAX to read JSON settings and save them
 
-      savePrefsToLocalStorage($form);
+      savePrefsToLocalStorage($form)
     } else if ($form.attr('name') === 'prefs_import' && $('#import_local_storage')[0].checked) {
       // set 'json' input and submit form
-      $form.find('input[name=json]').val(window.localStorage.config);
+      $form.find('input[name=json]').val(window.localStorage.config)
     }
-  });
+  })
   $(document).on('click', 'div.click-hide-message', function () {
-    $(this).hide().parent('.card-body').css('height', '').next('form').show();
-  });
-});
+    $(this).hide().parent('.card-body').css('height', '').next('form').show()
+  })
+})
 /**
  * Saves user preferences to localStorage
  *
  * @param {Element} form
  */
 
-function savePrefsToLocalStorage(form) {
-  var $form = $(form);
-  var submit = $form.find('input[type=submit]');
-  submit.prop('disabled', true);
+function savePrefsToLocalStorage (form) {
+  const $form = $(form)
+  const submit = $form.find('input[type=submit]')
+  submit.prop('disabled', true)
   $.ajax({
     url: 'index.php?route=/preferences/manage',
     cache: false,
     type: 'POST',
     data: {
-      'ajax_request': true,
-      'server': CommonParams.get('server'),
-      'submit_get_json': true
+      ajax_request: true,
+      server: CommonParams.get('server'),
+      submit_get_json: true
     },
     success: function (data) {
       if (typeof data !== 'undefined' && data.success === true) {
-        window.localStorage.config = data.prefs;
-        window.localStorage.configMtime = data.mtime;
-        window.localStorage.configMtimeLocal = new Date().toUTCString();
-        updatePrefsDate();
-        $('div.localStorage-empty').hide();
-        $('div.localStorage-exists').show();
-        var group = $form.parent('.card-body');
-        group.css('height', group.height() + 'px');
-        $form.hide('fast');
-        $form.prev('.click-hide-message').show('fast');
+        window.localStorage.config = data.prefs
+        window.localStorage.configMtime = data.mtime
+        window.localStorage.configMtimeLocal = new Date().toUTCString()
+        updatePrefsDate()
+        $('div.localStorage-empty').hide()
+        $('div.localStorage-exists').show()
+        const group = $form.parent('.card-body')
+        group.css('height', group.height() + 'px')
+        $form.hide('fast')
+        $form.prev('.click-hide-message').show('fast')
       } else {
-        Functions.ajaxShowMessage(data.error);
+        Functions.ajaxShowMessage(data.error)
       }
     },
     complete: function () {
-      submit.prop('disabled', false);
+      submit.prop('disabled', false)
     }
-  });
+  })
 }
 /**
  * Updates preferences timestamp in Import form
  */
 
-
-function updatePrefsDate() {
-  var d = new Date(window.localStorage.configMtimeLocal);
-  var msg = Messages.strSavedOn.replace('@DATE@', Functions.formatDateTime(d));
-  $('#opts_import_local_storage').find('div.localStorage-exists').html(msg);
+function updatePrefsDate () {
+  const d = new Date(window.localStorage.configMtimeLocal)
+  const msg = Messages.strSavedOn.replace('@DATE@', Functions.formatDateTime(d))
+  $('#opts_import_local_storage').find('div.localStorage-exists').html(msg)
 }
 /**
  * Prepares message which informs that localStorage preferences are available and can be imported or deleted
  */
 
-
-function offerPrefsAutoimport() {
-  var hasConfig = isStorageSupported('localStorage') && (window.localStorage.config || false);
-  var $cnt = $('#prefs_autoload');
+function offerPrefsAutoimport () {
+  const hasConfig = isStorageSupported('localStorage') && (window.localStorage.config || false)
+  const $cnt = $('#prefs_autoload')
 
   if (!$cnt.length || !hasConfig) {
-    return;
+    return
   }
 
   $cnt.find('a').on('click', function (e) {
-    e.preventDefault();
-    var $a = $(this);
+    e.preventDefault()
+    const $a = $(this)
 
     if ($a.attr('href') === '#no') {
-      $cnt.remove();
+      $cnt.remove()
       $.post('index.php', {
-        'server': CommonParams.get('server'),
-        'prefs_autoload': 'hide'
-      }, null, 'html');
-      return;
+        server: CommonParams.get('server'),
+        prefs_autoload: 'hide'
+      }, null, 'html')
+      return
     } else if ($a.attr('href') === '#delete') {
-      $cnt.remove();
-      localStorage.clear();
+      $cnt.remove()
+      localStorage.clear()
       $.post('index.php', {
-        'server': CommonParams.get('server'),
-        'prefs_autoload': 'hide'
-      }, null, 'html');
-      return;
+        server: CommonParams.get('server'),
+        prefs_autoload: 'hide'
+      }, null, 'html')
+      return
     }
 
-    $cnt.find('input[name=json]').val(window.localStorage.config);
-    $cnt.find('form').trigger('submit');
-  });
-  $cnt.show();
+    $cnt.find('input[name=json]').val(window.localStorage.config)
+    $cnt.find('form').trigger('submit')
+  })
+  $cnt.show()
 }
 /**
  * @type {boolean} Support for passive event listener option
  */
 
-
-var PASSIVE_EVENT_LISTENERS = function () {
-  var passive = false;
+const PASSIVE_EVENT_LISTENERS = (function () {
+  let passive = false
 
   try {
-    var options = Object.defineProperty({}, 'passive', {
+    const options = Object.defineProperty({}, 'passive', {
       get: function () {
-        return passive = true;
+        return passive = true
       }
-    });
-    window.addEventListener('_', null, options);
-    window.removeEventListener('_', null, options);
-  } catch (error) {// passive not supported
+    })
+    window.addEventListener('_', null, options)
+    window.removeEventListener('_', null, options)
+  } catch (error) { // passive not supported
   }
 
-  return passive;
-}();
+  return passive
+}())

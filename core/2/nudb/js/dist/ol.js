@@ -1,27 +1,27 @@
-"use strict";
+'use strict'
 
-Object.defineProperty(exports, "__esModule", {
+Object.defineProperty(exports, '__esModule', {
   value: true
-});
-exports.default = void 0;
+})
+exports.default = void 0
 
-var _control = require("ol/control.js");
+const _control = require('ol/control.js')
 
-var _coordinate = require("ol/coordinate.js");
+const _coordinate = require('ol/coordinate.js')
 
-var _extent = require("ol/extent.js");
+const _extent = require('ol/extent.js')
 
-var _geom = require("ol/geom.js");
+const _geom = require('ol/geom.js')
 
-var _layer = require("ol/layer.js");
+const _layer = require('ol/layer.js')
 
-var _proj = require("ol/proj.js");
+const _proj = require('ol/proj.js')
 
-var _source = require("ol/source.js");
+const _source = require('ol/source.js')
 
-var _style = require("ol/style.js");
+const _style = require('ol/style.js')
 
-var _ol = require("ol");
+const _ol = require('ol')
 
 const ol = {
   control: {
@@ -67,6 +67,6 @@ const ol = {
   Feature: _ol.Feature,
   Map: _ol.Map,
   View: _ol.View
-};
-var _default = ol;
-exports.default = _default;
+}
+const _default = ol
+exports.default = _default

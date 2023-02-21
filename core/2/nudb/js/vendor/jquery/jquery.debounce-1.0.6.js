@@ -9,74 +9,63 @@
  */
 
 (function ($) {
+  $.extend({
 
-	$.extend({
-
-		/**
+    /**
 		 * Debounce's decorator
 		 * @param {Function} fn original function
 		 * @param {Number} timeout timeout
 		 * @param {Boolean} [invokeAsap=false] invoke function as soon as possible
 		 * @param {Object} [ctx] context of original function
 		 */
-		debounce: function (fn, timeout, invokeAsap, ctx) {
+    debounce: function (fn, timeout, invokeAsap, ctx) {
+      if (arguments.length == 3 && typeof invokeAsap !== 'boolean') {
+        ctx = invokeAsap
+        invokeAsap = false
+      }
 
-			if (arguments.length == 3 && typeof invokeAsap != 'boolean') {
-				ctx = invokeAsap;
-				invokeAsap = false;
-			}
+      let timer
 
-			var timer;
+      return function () {
+        const args = arguments
+        ctx = ctx || this
 
-			return function () {
+        invokeAsap && !timer && fn.apply(ctx, args)
 
-				var args = arguments;
-				ctx = ctx || this;
+        clearTimeout(timer)
 
-				invokeAsap && !timer && fn.apply(ctx, args);
+        timer = setTimeout(function () {
+          invokeAsap || fn.apply(ctx, args)
+          timer = null
+        }, timeout)
+      }
+    },
 
-				clearTimeout(timer);
-
-				timer = setTimeout(function () {
-					invokeAsap || fn.apply(ctx, args);
-					timer = null;
-				}, timeout);
-
-			};
-
-		},
-
-		/**
+    /**
 		 * Throttle's decorator
 		 * @param {Function} fn original function
 		 * @param {Number} timeout timeout
 		 * @param {Object} [ctx] context of original function
 		 */
-		throttle: function (fn, timeout, ctx) {
+    throttle: function (fn, timeout, ctx) {
+      let timer, args, needInvoke
 
-			var timer, args, needInvoke;
+      return function () {
+        args = arguments
+        needInvoke = true
+        ctx = ctx || this
 
-			return function () {
+        timer || (function () {
+          if (needInvoke) {
+            fn.apply(ctx, args)
+            needInvoke = false
+            timer = setTimeout(arguments.callee, timeout)
+          } else {
+            timer = null
+          }
+        })()
+      }
+    }
 
-				args = arguments;
-				needInvoke = true;
-				ctx = ctx || this;
-
-				timer || (function () {
-					if (needInvoke) {
-						fn.apply(ctx, args);
-						needInvoke = false;
-						timer = setTimeout(arguments.callee, timeout);
-					}
-					else {
-						timer = null;
-					}
-				})();
-
-			};
-
-		}
-
-	});
-
-})(jQuery);
+  })
+})(jQuery)

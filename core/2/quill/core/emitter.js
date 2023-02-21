@@ -1,46 +1,46 @@
-import EventEmitter from 'eventemitter3';
-import instances from './instances';
-import logger from './logger';
+import EventEmitter from 'eventemitter3'
+import instances from './instances'
+import logger from './logger'
 
-const debug = logger('quill:events');
-const EVENTS = ['selectionchange', 'mousedown', 'mouseup', 'click'];
+const debug = logger('quill:events')
+const EVENTS = ['selectionchange', 'mousedown', 'mouseup', 'click']
 
 EVENTS.forEach(eventName => {
   document.addEventListener(eventName, (...args) => {
     Array.from(document.querySelectorAll('.ql-container')).forEach(node => {
-      const quill = instances.get(node);
+      const quill = instances.get(node)
       if (quill && quill.emitter) {
-        quill.emitter.handleDOM(...args);
+        quill.emitter.handleDOM(...args)
       }
-    });
-  });
-});
+    })
+  })
+})
 
 class Emitter extends EventEmitter {
-  constructor() {
-    super();
-    this.listeners = {};
-    this.on('error', debug.error);
+  constructor () {
+    super()
+    this.listeners = {}
+    this.on('error', debug.error)
   }
 
-  emit(...args) {
-    debug.log.call(debug, ...args);
-    super.emit(...args);
+  emit (...args) {
+    debug.log.call(debug, ...args)
+    super.emit(...args)
   }
 
-  handleDOM(event, ...args) {
+  handleDOM (event, ...args) {
     (this.listeners[event.type] || []).forEach(({ node, handler }) => {
       if (event.target === node || node.contains(event.target)) {
-        handler(event, ...args);
+        handler(event, ...args)
       }
-    });
+    })
   }
 
-  listenDOM(eventName, node, handler) {
+  listenDOM (eventName, node, handler) {
     if (!this.listeners[eventName]) {
-      this.listeners[eventName] = [];
+      this.listeners[eventName] = []
     }
-    this.listeners[eventName].push({ node, handler });
+    this.listeners[eventName].push({ node, handler })
   }
 }
 
@@ -52,12 +52,12 @@ Emitter.events = {
   SCROLL_OPTIMIZE: 'scroll-optimize',
   SCROLL_UPDATE: 'scroll-update',
   SELECTION_CHANGE: 'selection-change',
-  TEXT_CHANGE: 'text-change',
-};
+  TEXT_CHANGE: 'text-change'
+}
 Emitter.sources = {
   API: 'api',
   SILENT: 'silent',
-  USER: 'user',
-};
+  USER: 'user'
+}
 
-export default Emitter;
+export default Emitter

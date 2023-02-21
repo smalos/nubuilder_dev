@@ -1,4 +1,4 @@
-"use strict";
+'use strict'
 
 /**
  * This object handles ajax requests for pages. It also
@@ -54,24 +54,24 @@ var AJAX = {
    * @return {number}
    */
   hash: function (key) {
-    var newKey = key;
+    let newKey = key
     /* https://burtleburtle.net/bob/hash/doobs.html#one */
 
-    newKey += '';
-    var len = newKey.length;
-    var hash = 0;
-    var i = 0;
+    newKey += ''
+    const len = newKey.length
+    let hash = 0
+    let i = 0
 
     for (; i < len; ++i) {
-      hash += newKey.charCodeAt(i);
-      hash += hash << 10;
-      hash ^= hash >> 6;
+      hash += newKey.charCodeAt(i)
+      hash += hash << 10
+      hash ^= hash >> 6
     }
 
-    hash += hash << 3;
-    hash ^= hash >> 11;
-    hash += hash << 15;
-    return Math.abs(hash);
+    hash += hash << 3
+    hash ^= hash >> 11
+    hash += hash << 15
+    return Math.abs(hash)
   },
 
   /**
@@ -83,16 +83,16 @@ var AJAX = {
    * @return {self} For chaining
    */
   registerOnload: function (file, func) {
-    var eventName = 'onload_' + AJAX.hash(file);
-    $(document).on(eventName, func);
+    const eventName = 'onload_' + AJAX.hash(file)
+    $(document).on(eventName, func)
 
     if (this.debug) {
       // eslint-disable-next-line no-console
       console.log( // no need to translate
-      'Registered event ' + eventName + ' for file ' + file);
+        'Registered event ' + eventName + ' for file ' + file)
     }
 
-    return this;
+    return this
   },
 
   /**
@@ -106,16 +106,16 @@ var AJAX = {
    * @return {self} For chaining
    */
   registerTeardown: function (file, func) {
-    var eventName = 'teardown_' + AJAX.hash(file);
-    $(document).on(eventName, func);
+    const eventName = 'teardown_' + AJAX.hash(file)
+    $(document).on(eventName, func)
 
     if (this.debug) {
       // eslint-disable-next-line no-console
       console.log( // no need to translate
-      'Registered event ' + eventName + ' for file ' + file);
+        'Registered event ' + eventName + ' for file ' + file)
     }
 
-    return this;
+    return this
   },
 
   /**
@@ -127,13 +127,13 @@ var AJAX = {
    * @return {void}
    */
   fireOnload: function (file) {
-    var eventName = 'onload_' + AJAX.hash(file);
-    $(document).trigger(eventName);
+    const eventName = 'onload_' + AJAX.hash(file)
+    $(document).trigger(eventName)
 
     if (this.debug) {
       // eslint-disable-next-line no-console
       console.log( // no need to translate
-      'Fired event ' + eventName + ' for file ' + file);
+        'Fired event ' + eventName + ' for file ' + file)
     }
   },
 
@@ -146,13 +146,13 @@ var AJAX = {
    * @return {void}
    */
   fireTeardown: function (file) {
-    var eventName = 'teardown_' + AJAX.hash(file);
-    $(document).triggerHandler(eventName);
+    const eventName = 'teardown_' + AJAX.hash(file)
+    $(document).triggerHandler(eventName)
 
     if (this.debug) {
       // eslint-disable-next-line no-console
       console.log( // no need to translate
-      'Fired event ' + eventName + ' for file ' + file);
+        'Fired event ' + eventName + ' for file ' + file)
     }
   },
 
@@ -167,58 +167,55 @@ var AJAX = {
     // don't consider checkbox event
     if (typeof event.target !== 'undefined') {
       if (event.target.type === 'checkbox') {
-        return;
+        return
       }
     }
 
-    var newHash = null;
-    var oldHash = null;
-    var lockId; // CodeMirror lock
+    let newHash = null
+    let oldHash = null
+    let lockId // CodeMirror lock
 
     if (event.data.value === 3) {
-      newHash = event.data.content;
-      oldHash = true;
-      lockId = 'cm';
+      newHash = event.data.content
+      oldHash = true
+      lockId = 'cm'
     } else {
       // Don't lock on enter.
-      if (0 === event.charCode) {
-        return;
+      if (event.charCode === 0) {
+        return
       }
 
-      lockId = $(this).data('lock-id');
+      lockId = $(this).data('lock-id')
 
       if (typeof lockId === 'undefined') {
-        return;
+        return
       }
       /*
        * @todo Fix Code mirror does not give correct full value (query)
        * in textarea, it returns only the change in content.
        */
 
-
       if (event.data.value === 1) {
-        newHash = AJAX.hash($(this).val());
+        newHash = AJAX.hash($(this).val())
       } else {
-        newHash = AJAX.hash($(this).is(':checked'));
+        newHash = AJAX.hash($(this).is(':checked'))
       }
 
-      oldHash = $(this).data('val-hash');
+      oldHash = $(this).data('val-hash')
     } // Set lock if old value !== new value
     // otherwise release lock
 
-
     if (oldHash !== newHash) {
-      AJAX.lockedTargets[lockId] = true;
+      AJAX.lockedTargets[lockId] = true
     } else {
-      delete AJAX.lockedTargets[lockId];
+      delete AJAX.lockedTargets[lockId]
     } // Show lock icon if locked targets is not empty.
     // otherwise remove lock icon
 
-
     if (!jQuery.isEmptyObject(AJAX.lockedTargets)) {
-      $('#lock_page_icon').html(Functions.getImage('s_lock', Messages.strLockToolTip).toString());
+      $('#lock_page_icon').html(Functions.getImage('s_lock', Messages.strLockToolTip).toString())
     } else {
-      $('#lock_page_icon').html('');
+      $('#lock_page_icon').html('')
     }
   },
 
@@ -228,15 +225,15 @@ var AJAX = {
    * @return {void}
    */
   resetLock: function () {
-    AJAX.lockedTargets = {};
-    $('#lock_page_icon').html('');
+    AJAX.lockedTargets = {}
+    $('#lock_page_icon').html('')
   },
   handleMenu: {
     replace: function (content) {
       $('#floating_menubar').html(content) // Remove duplicate wrapper
       // TODO: don't send it in the response
-      .children().first().remove();
-      $('#topmenu').menuResizer(Functions.mainMenuResizerCallback);
+        .children().first().remove()
+      $('#topmenu').menuResizer(Functions.mainMenuResizerCallback)
     }
   },
 
@@ -251,40 +248,39 @@ var AJAX = {
     // In some cases we don't want to handle the request here and either
     // leave the browser deal with it natively (e.g: file download)
     // or leave an existing ajax event handler present elsewhere deal with it
-    var href = $(this).attr('href');
+    const href = $(this).attr('href')
 
     if (typeof event !== 'undefined' && (event.shiftKey || event.ctrlKey || event.metaKey)) {
-      return true;
+      return true
     } else if ($(this).attr('target')) {
-      return true;
+      return true
     } else if ($(this).hasClass('ajax') || $(this).hasClass('disableAjax')) {
       // reset the lockedTargets object, as specified AJAX operation has finished
-      AJAX.resetLock();
-      return true;
+      AJAX.resetLock()
+      return true
     } else if (href && href.match(/^#/)) {
-      return true;
+      return true
     } else if (href && href.match(/^mailto/)) {
-      return true;
+      return true
     } else if ($(this).hasClass('ui-datepicker-next') || $(this).hasClass('ui-datepicker-prev')) {
-      return true;
+      return true
     }
 
     if (typeof event !== 'undefined') {
-      event.preventDefault();
-      event.stopImmediatePropagation();
+      event.preventDefault()
+      event.stopImmediatePropagation()
     } // triggers a confirm dialog if:
     // the user has performed some operations on loaded page
     // the user clicks on some link, (won't trigger for buttons)
     // the click event is not triggered by script
 
-
     if (typeof event !== 'undefined' && event.type === 'click' && event.isTrigger !== true && !jQuery.isEmptyObject(AJAX.lockedTargets) && confirm(Messages.strConfirmNavigation) === false) {
-      return false;
+      return false
     }
 
-    AJAX.resetLock();
-    var isLink = !!href || false;
-    var previousLinkAborted = false;
+    AJAX.resetLock()
+    let isLink = !!href || false
+    let previousLinkAborted = false
 
     if (AJAX.active === true) {
       // Cancel the old request if abortable, when the user requests
@@ -292,60 +288,60 @@ var AJAX = {
       // a request well in progress.
       if (AJAX.xhr) {
         // In case of a link request, attempt aborting
-        AJAX.xhr.abort();
+        AJAX.xhr.abort()
 
         if (AJAX.xhr.status === 0 && AJAX.xhr.statusText === 'abort') {
           // If aborted
-          AJAX.$msgbox = Functions.ajaxShowMessage(Messages.strAbortedRequest);
-          AJAX.active = false;
-          AJAX.xhr = null;
-          previousLinkAborted = true;
+          AJAX.$msgbox = Functions.ajaxShowMessage(Messages.strAbortedRequest)
+          AJAX.active = false
+          AJAX.xhr = null
+          previousLinkAborted = true
         } else {
           // If can't abort
-          return false;
+          return false
         }
       } else {
         // In case submitting a form, don't attempt aborting
-        return false;
+        return false
       }
     }
 
-    AJAX.source = $(this);
+    AJAX.source = $(this)
     $('html, body').animate({
       scrollTop: 0
-    }, 'fast');
-    var url = isLink ? href : $(this).attr('action');
-    var argsep = CommonParams.get('arg_separator');
-    var params = 'ajax_request=true' + argsep + 'ajax_page_request=true';
-    var dataPost = AJAX.source.getPostData();
+    }, 'fast')
+    const url = isLink ? href : $(this).attr('action')
+    const argsep = CommonParams.get('arg_separator')
+    let params = 'ajax_request=true' + argsep + 'ajax_page_request=true'
+    const dataPost = AJAX.source.getPostData()
 
     if (!isLink) {
-      params += argsep + $(this).serialize();
+      params += argsep + $(this).serialize()
     } else if (dataPost) {
-      params += argsep + dataPost;
-      isLink = false;
+      params += argsep + dataPost
+      isLink = false
     }
 
     if (AJAX.debug) {
       // eslint-disable-next-line no-console
-      console.log('Loading: ' + url); // no need to translate
+      console.log('Loading: ' + url) // no need to translate
     }
 
     if (isLink) {
-      AJAX.active = true;
-      AJAX.$msgbox = Functions.ajaxShowMessage(); // Save reference for the new link request
+      AJAX.active = true
+      AJAX.$msgbox = Functions.ajaxShowMessage() // Save reference for the new link request
 
-      AJAX.xhr = $.get(url, params, AJAX.responseHandler);
-      var state = {
+      AJAX.xhr = $.get(url, params, AJAX.responseHandler)
+      const state = {
         url: href
-      };
+      }
 
       if (previousLinkAborted) {
         // hack: there is already an aborted entry on stack
         // so just modify the aborted one
-        history.replaceState(state, null, href);
+        history.replaceState(state, null, href)
       } else {
-        history.pushState(state, null, href);
+        history.pushState(state, null, href)
       }
     } else {
       /**
@@ -353,17 +349,17 @@ var AJAX = {
        * The event was saved in the jQuery data object by an onload
        * handler defined below. Workaround for bug #3583316
        */
-      var onsubmit = $(this).data('onsubmit'); // Submit the request if there is no onsubmit handler
+      const onsubmit = $(this).data('onsubmit') // Submit the request if there is no onsubmit handler
       // or if it returns a value that evaluates to true
 
       if (typeof onsubmit !== 'function' || onsubmit.apply(this, [event])) {
-        AJAX.active = true;
-        AJAX.$msgbox = Functions.ajaxShowMessage();
+        AJAX.active = true
+        AJAX.$msgbox = Functions.ajaxShowMessage()
 
         if ($(this).attr('id') === 'login_form') {
-          $.post(url, params, AJAX.loginResponseHandler);
+          $.post(url, params, AJAX.loginResponseHandler)
         } else {
-          $.post(url, params, AJAX.responseHandler);
+          $.post(url, params, AJAX.responseHandler)
         }
       }
     }
@@ -381,101 +377,100 @@ var AJAX = {
    */
   loginResponseHandler: function (data) {
     if (typeof data === 'undefined' || data === null) {
-      return;
+      return
     }
 
-    Functions.ajaxRemoveMessage(AJAX.$msgbox);
-    CommonParams.set('token', data.new_token);
-    AJAX.scriptHandler.load([]);
+    Functions.ajaxRemoveMessage(AJAX.$msgbox)
+    CommonParams.set('token', data.new_token)
+    AJAX.scriptHandler.load([])
 
     if (data.displayMessage) {
-      $('#page_content').prepend(data.displayMessage);
-      Functions.highlightSql($('#page_content'));
+      $('#page_content').prepend(data.displayMessage)
+      Functions.highlightSql($('#page_content'))
     }
 
-    $('#pma_errors').remove();
-    var msg = '';
+    $('#pma_errors').remove()
+    let msg = ''
 
     if (data.errSubmitMsg) {
-      msg = data.errSubmitMsg;
+      msg = data.errSubmitMsg
     }
 
     if (data.errors) {
       $('<div></div>', {
         id: 'pma_errors',
         class: 'clearfloat d-print-none'
-      }).insertAfter('#selflink').append(data.errors); // bind for php error reporting forms (bottom)
+      }).insertAfter('#selflink').append(data.errors) // bind for php error reporting forms (bottom)
 
       $('#pma_ignore_errors_bottom').on('click', function (e) {
-        e.preventDefault();
-        Functions.ignorePhpErrors();
-      });
+        e.preventDefault()
+        Functions.ignorePhpErrors()
+      })
       $('#pma_ignore_all_errors_bottom').on('click', function (e) {
-        e.preventDefault();
-        Functions.ignorePhpErrors(false);
-      }); // In case of 'sendErrorReport'='always'
+        e.preventDefault()
+        Functions.ignorePhpErrors(false)
+      }) // In case of 'sendErrorReport'='always'
       // submit the hidden error reporting form.
 
       if (data.sendErrorAlways === '1' && data.stopErrorReportLoop !== '1') {
-        $('#pma_report_errors_form').trigger('submit');
-        Functions.ajaxShowMessage(Messages.phpErrorsBeingSubmitted, false);
+        $('#pma_report_errors_form').trigger('submit')
+        Functions.ajaxShowMessage(Messages.phpErrorsBeingSubmitted, false)
         $('html, body').animate({
           scrollTop: $(document).height()
-        }, 'slow');
+        }, 'slow')
       } else if (data.promptPhpErrors) {
         // otherwise just prompt user if it is set so.
-        msg = msg + Messages.phpErrorsFound; // scroll to bottom where all the errors are displayed.
+        msg = msg + Messages.phpErrorsFound // scroll to bottom where all the errors are displayed.
 
         $('html, body').animate({
           scrollTop: $(document).height()
-        }, 'slow');
+        }, 'slow')
       }
     }
 
-    Functions.ajaxShowMessage(msg, false); // bind for php error reporting forms (popup)
+    Functions.ajaxShowMessage(msg, false) // bind for php error reporting forms (popup)
 
     $('#pma_ignore_errors_popup').on('click', function () {
-      Functions.ignorePhpErrors();
-    });
+      Functions.ignorePhpErrors()
+    })
     $('#pma_ignore_all_errors_popup').on('click', function () {
-      Functions.ignorePhpErrors(false);
-    });
+      Functions.ignorePhpErrors(false)
+    })
 
     if (typeof data.success !== 'undefined' && data.success) {
       // reload page if user trying to login has changed
       if (CommonParams.get('user') !== data.params.user) {
-        window.location = 'index.php';
-        Functions.ajaxShowMessage(Messages.strLoading, false);
-        AJAX.active = false;
-        AJAX.xhr = null;
-        return;
+        window.location = 'index.php'
+        Functions.ajaxShowMessage(Messages.strLoading, false)
+        AJAX.active = false
+        AJAX.xhr = null
+        return
       } // remove the login modal if the login is successful otherwise show error.
-
 
       if (typeof data.logged_in !== 'undefined' && data.logged_in === 1) {
         if ($('#modalOverlay').length) {
-          $('#modalOverlay').remove();
+          $('#modalOverlay').remove()
         }
 
-        $('fieldset.disabled_for_expiration').removeAttr('disabled').removeClass('disabled_for_expiration');
-        AJAX.fireTeardown('functions.js');
-        AJAX.fireOnload('functions.js');
+        $('fieldset.disabled_for_expiration').removeAttr('disabled').removeClass('disabled_for_expiration')
+        AJAX.fireTeardown('functions.js')
+        AJAX.fireOnload('functions.js')
       }
 
       if (typeof data.new_token !== 'undefined') {
-        $('input[name=token]').val(data.new_token);
+        $('input[name=token]').val(data.new_token)
       }
     } else if (typeof data.logged_in !== 'undefined' && data.logged_in === 0) {
-      $('#modalOverlay').replaceWith(data.error);
+      $('#modalOverlay').replaceWith(data.error)
     } else {
-      Functions.ajaxShowMessage(data.error, false);
-      AJAX.active = false;
-      AJAX.xhr = null;
-      Functions.handleRedirectAndReload(data);
+      Functions.ajaxShowMessage(data.error, false)
+      AJAX.active = false
+      AJAX.xhr = null
+      Functions.handleRedirectAndReload(data)
 
       if (data.fieldWithError) {
-        $(':input.error').removeClass('error');
-        $('#' + data.fieldWithError).addClass('error');
+        $(':input.error').removeClass('error')
+        $('#' + data.fieldWithError).addClass('error')
       }
     }
   },
@@ -495,159 +490,158 @@ var AJAX = {
    */
   responseHandler: function (data) {
     if (typeof data === 'undefined' || data === null) {
-      return;
+      return
     }
 
     if (typeof data.success !== 'undefined' && data.success) {
       $('html, body').animate({
         scrollTop: 0
-      }, 'fast');
-      Functions.ajaxRemoveMessage(AJAX.$msgbox);
+      }, 'fast')
+      Functions.ajaxRemoveMessage(AJAX.$msgbox)
 
       if (data.redirect) {
-        Functions.ajaxShowMessage(data.redirect, false);
-        AJAX.active = false;
-        AJAX.xhr = null;
-        return;
+        Functions.ajaxShowMessage(data.redirect, false)
+        AJAX.active = false
+        AJAX.xhr = null
+        return
       }
 
       AJAX.scriptHandler.reset(function () {
         if (data.reloadNavigation) {
-          Navigation.reload();
+          Navigation.reload()
         }
 
         if (data.title) {
-          $('title').replaceWith(data.title);
+          $('title').replaceWith(data.title)
         }
 
         if (data.menu) {
-          var state = {
+          const state = {
             url: data.selflink,
             menu: data.menu
-          };
-          history.replaceState(state, null);
-          AJAX.handleMenu.replace(data.menu);
+          }
+          history.replaceState(state, null)
+          AJAX.handleMenu.replace(data.menu)
         }
 
         if (data.disableNaviSettings) {
-          Navigation.disableSettings();
+          Navigation.disableSettings()
         } else {
-          Navigation.ensureSettings(data.selflink);
+          Navigation.ensureSettings(data.selflink)
         } // Remove all containers that may have
         // been added outside of #page_content
 
-
-        $('body').children().not('#pma_navigation').not('#floating_menubar').not('#page_nav_icons').not('#page_content').not('#selflink').not('#pma_header').not('#pma_footer').not('#pma_demo').not('#pma_console_container').not('#prefs_autoload').remove(); // Replace #page_content with new content
+        $('body').children().not('#pma_navigation').not('#floating_menubar').not('#page_nav_icons').not('#page_content').not('#selflink').not('#pma_header').not('#pma_footer').not('#pma_demo').not('#pma_console_container').not('#prefs_autoload').remove() // Replace #page_content with new content
 
         if (data.message && data.message.length > 0) {
-          $('#page_content').replaceWith('<div id=\'page_content\'>' + data.message + '</div>');
-          Functions.highlightSql($('#page_content'));
-          Functions.checkNumberOfFields();
+          $('#page_content').replaceWith('<div id=\'page_content\'>' + data.message + '</div>')
+          Functions.highlightSql($('#page_content'))
+          Functions.checkNumberOfFields()
         }
 
         if (data.selflink) {
-          var source = data.selflink.split('?')[0]; // Check for faulty links
+          const source = data.selflink.split('?')[0] // Check for faulty links
 
-          var $selflinkReplace = {
+          const $selflinkReplace = {
             'index.php?route=/import': 'index.php?route=/table/sql',
             'index.php?route=/table/chart': 'index.php?route=/sql',
             'index.php?route=/table/gis-visualization': 'index.php?route=/sql'
-          };
-
-          if ($selflinkReplace[source]) {
-            var replacement = $selflinkReplace[source];
-            data.selflink = data.selflink.replace(source, replacement);
           }
 
-          $('#selflink').find('> a').attr('href', data.selflink);
+          if ($selflinkReplace[source]) {
+            const replacement = $selflinkReplace[source]
+            data.selflink = data.selflink.replace(source, replacement)
+          }
+
+          $('#selflink').find('> a').attr('href', data.selflink)
         }
 
         if (data.params) {
-          CommonParams.setAll(data.params);
+          CommonParams.setAll(data.params)
         }
 
         if (data.scripts) {
-          AJAX.scriptHandler.load(data.scripts);
+          AJAX.scriptHandler.load(data.scripts)
         }
 
         if (data.displayMessage) {
-          $('#page_content').prepend(data.displayMessage);
-          Functions.highlightSql($('#page_content'));
+          $('#page_content').prepend(data.displayMessage)
+          Functions.highlightSql($('#page_content'))
         }
 
-        $('#pma_errors').remove();
-        var msg = '';
+        $('#pma_errors').remove()
+        let msg = ''
 
         if (data.errSubmitMsg) {
-          msg = data.errSubmitMsg;
+          msg = data.errSubmitMsg
         }
 
         if (data.errors) {
           $('<div></div>', {
             id: 'pma_errors',
             class: 'clearfloat d-print-none'
-          }).insertAfter('#selflink').append(data.errors); // bind for php error reporting forms (bottom)
+          }).insertAfter('#selflink').append(data.errors) // bind for php error reporting forms (bottom)
 
           $('#pma_ignore_errors_bottom').on('click', function (e) {
-            e.preventDefault();
-            Functions.ignorePhpErrors();
-          });
+            e.preventDefault()
+            Functions.ignorePhpErrors()
+          })
           $('#pma_ignore_all_errors_bottom').on('click', function (e) {
-            e.preventDefault();
-            Functions.ignorePhpErrors(false);
-          }); // In case of 'sendErrorReport'='always'
+            e.preventDefault()
+            Functions.ignorePhpErrors(false)
+          }) // In case of 'sendErrorReport'='always'
           // submit the hidden error reporting form.
 
           if (data.sendErrorAlways === '1' && data.stopErrorReportLoop !== '1') {
-            $('#pma_report_errors_form').trigger('submit');
-            Functions.ajaxShowMessage(Messages.phpErrorsBeingSubmitted, false);
+            $('#pma_report_errors_form').trigger('submit')
+            Functions.ajaxShowMessage(Messages.phpErrorsBeingSubmitted, false)
             $('html, body').animate({
               scrollTop: $(document).height()
-            }, 'slow');
+            }, 'slow')
           } else if (data.promptPhpErrors) {
             // otherwise just prompt user if it is set so.
-            msg = msg + Messages.phpErrorsFound; // scroll to bottom where all the errors are displayed.
+            msg = msg + Messages.phpErrorsFound // scroll to bottom where all the errors are displayed.
 
             $('html, body').animate({
               scrollTop: $(document).height()
-            }, 'slow');
+            }, 'slow')
           }
         }
 
-        Functions.ajaxShowMessage(msg, false); // bind for php error reporting forms (popup)
+        Functions.ajaxShowMessage(msg, false) // bind for php error reporting forms (popup)
 
         $('#pma_ignore_errors_popup').on('click', function () {
-          Functions.ignorePhpErrors();
-        });
+          Functions.ignorePhpErrors()
+        })
         $('#pma_ignore_all_errors_popup').on('click', function () {
-          Functions.ignorePhpErrors(false);
-        });
+          Functions.ignorePhpErrors(false)
+        })
 
         if (typeof AJAX.callback === 'function') {
-          AJAX.callback.call();
+          AJAX.callback.call()
         }
 
-        AJAX.callback = function () {};
-      });
+        AJAX.callback = function () {}
+      })
     } else {
-      Functions.ajaxShowMessage(data.error, false);
-      Functions.ajaxRemoveMessage(AJAX.$msgbox);
-      var $ajaxError = $('<div></div>');
+      Functions.ajaxShowMessage(data.error, false)
+      Functions.ajaxRemoveMessage(AJAX.$msgbox)
+      const $ajaxError = $('<div></div>')
       $ajaxError.attr({
-        'id': 'ajaxError'
-      });
-      $('#page_content').append($ajaxError);
-      $ajaxError.html(data.error);
+        id: 'ajaxError'
+      })
+      $('#page_content').append($ajaxError)
+      $ajaxError.html(data.error)
       $('html, body').animate({
         scrollTop: $(document).height()
-      }, 200);
-      AJAX.active = false;
-      AJAX.xhr = null;
-      Functions.handleRedirectAndReload(data);
+      }, 200)
+      AJAX.active = false
+      AJAX.xhr = null
+      Functions.handleRedirectAndReload(data)
 
       if (data.fieldWithError) {
-        $(':input.error').removeClass('error');
-        $('#' + data.fieldWithError).addClass('error');
+        $(':input.error').removeClass('error')
+        $('#' + data.fieldWithError).addClass('error')
       }
     }
   },
@@ -692,15 +686,15 @@ var AJAX = {
      * @return {self} For chaining
      */
     add: function (file, fire) {
-      this.scripts.push(file);
+      this.scripts.push(file)
 
       if (fire) {
         // Record whether to fire any events for the file
         // This is necessary to correctly tear down the initial page
-        this.scriptsToBeFired.push(file);
+        this.scriptsToBeFired.push(file)
       }
 
-      return this;
+      return this
     },
 
     /**
@@ -712,44 +706,43 @@ var AJAX = {
      * @return {void}
      */
     load: function (files, callback) {
-      var self = this;
-      var i; // Clear loaded scripts if they are from another version of phpMyAdmin.
+      const self = this
+      let i // Clear loaded scripts if they are from another version of phpMyAdmin.
       // Depends on common params being set before loading scripts in responseHandler
 
       if (self.scriptsVersion === null) {
-        self.scriptsVersion = CommonParams.get('version');
+        self.scriptsVersion = CommonParams.get('version')
       } else if (self.scriptsVersion !== CommonParams.get('version')) {
-        self.scripts = [];
-        self.scriptsVersion = CommonParams.get('version');
+        self.scripts = []
+        self.scriptsVersion = CommonParams.get('version')
       }
 
-      self.scriptsCompleted = false;
-      self.scriptsToBeFired = []; // We need to first complete list of files to load
+      self.scriptsCompleted = false
+      self.scriptsToBeFired = [] // We need to first complete list of files to load
       // as next loop will directly fire requests to load them
       // and that triggers removal of them from
       // self.scriptsToBeLoaded
 
       for (i in files) {
-        self.scriptsToBeLoaded.push(files[i].name);
+        self.scriptsToBeLoaded.push(files[i].name)
 
         if (files[i].fire) {
-          self.scriptsToBeFired.push(files[i].name);
+          self.scriptsToBeFired.push(files[i].name)
         }
       }
 
       for (i in files) {
-        var script = files[i].name; // Only for scripts that we don't already have
+        const script = files[i].name // Only for scripts that we don't already have
 
         if ($.inArray(script, self.scripts) === -1) {
-          this.add(script);
-          this.appendScript(script, callback);
+          this.add(script)
+          this.appendScript(script, callback)
         } else {
-          self.done(script, callback);
+          self.done(script, callback)
         }
       } // Trigger callback if there is nothing else to load
 
-
-      self.done(null, callback);
+      self.done(null, callback)
     },
 
     /**
@@ -762,24 +755,23 @@ var AJAX = {
      */
     done: function (script, callback) {
       if ($.inArray(script, this.scriptsToBeFired)) {
-        AJAX.fireOnload(script);
+        AJAX.fireOnload(script)
       }
 
       if ($.inArray(script, this.scriptsToBeLoaded)) {
-        this.scriptsToBeLoaded.splice($.inArray(script, this.scriptsToBeLoaded), 1);
+        this.scriptsToBeLoaded.splice($.inArray(script, this.scriptsToBeLoaded), 1)
       }
 
       if (script === null) {
-        this.scriptsCompleted = true;
+        this.scriptsCompleted = true
       }
       /* We need to wait for last signal (with null) or last script load */
 
-
-      AJAX.active = this.scriptsToBeLoaded.length > 0 || !this.scriptsCompleted;
+      AJAX.active = this.scriptsToBeLoaded.length > 0 || !this.scriptsCompleted
       /* Run callback on last script */
 
       if (!AJAX.active && typeof callback === 'function') {
-        callback();
+        callback()
       }
     },
 
@@ -792,19 +784,19 @@ var AJAX = {
      * @return {void}
      */
     appendScript: function (name, callback) {
-      var head = document.head || document.getElementsByTagName('head')[0];
-      var script = document.createElement('script');
-      var self = this;
-      script.type = 'text/javascript';
-      var file = name.indexOf('vendor/') !== -1 ? name : 'dist/' + name;
-      script.src = 'js/' + file + '?' + 'v=' + encodeURIComponent(CommonParams.get('version'));
-      script.async = false;
+      const head = document.head || document.getElementsByTagName('head')[0]
+      const script = document.createElement('script')
+      const self = this
+      script.type = 'text/javascript'
+      const file = name.indexOf('vendor/') !== -1 ? name : 'dist/' + name
+      script.src = 'js/' + file + '?' + 'v=' + encodeURIComponent(CommonParams.get('version'))
+      script.async = false
 
       script.onload = function () {
-        self.done(name, callback);
-      };
+        self.done(name, callback)
+      }
 
-      head.appendChild(script);
+      head.appendChild(script)
     },
 
     /**
@@ -816,22 +808,22 @@ var AJAX = {
      * @return {void}
      */
     reset: function (callback) {
-      for (var i in this.scriptsToBeFired) {
-        AJAX.fireTeardown(this.scriptsToBeFired[i]);
+      for (const i in this.scriptsToBeFired) {
+        AJAX.fireTeardown(this.scriptsToBeFired[i])
       }
 
-      this.scriptsToBeFired = [];
+      this.scriptsToBeFired = []
       /**
        * Re-attach a generic event handler to clicks
        * on pages and submissions of forms
        */
 
-      $(document).off('click', 'a').on('click', 'a', AJAX.requestHandler);
-      $(document).off('submit', 'form').on('submit', 'form', AJAX.requestHandler);
-      callback();
+      $(document).off('click', 'a').on('click', 'a', AJAX.requestHandler)
+      $(document).off('submit', 'form').on('submit', 'form', AJAX.requestHandler)
+      callback()
     }
   }
-};
+}
 /**
  * Here we register a function that will remove the onsubmit event from all
  * forms that will be handled by the generic page loader. We then save this
@@ -846,28 +838,28 @@ AJAX.registerOnload('functions.js', function () {
   // ensures that it will be fired for all pages
   $('form').not('.ajax').not('.disableAjax').each(function () {
     if ($(this).attr('onsubmit')) {
-      $(this).data('onsubmit', this.onsubmit).attr('onsubmit', '');
+      $(this).data('onsubmit', this.onsubmit).attr('onsubmit', '')
     }
-  });
-  var $pageContent = $('#page_content');
+  })
+  const $pageContent = $('#page_content')
   /**
    * Workaround for passing submit button name,value on ajax form submit
    * by appending hidden element with submit button name and value.
    */
 
   $pageContent.on('click', 'form input[type=submit]', function () {
-    var buttonName = $(this).attr('name');
+    const buttonName = $(this).attr('name')
 
     if (typeof buttonName === 'undefined') {
-      return;
+      return
     }
 
     $(this).closest('form').append($('<input>', {
-      'type': 'hidden',
-      'name': buttonName,
-      'value': $(this).val()
-    }));
-  });
+      type: 'hidden',
+      name: buttonName,
+      value: $(this).val()
+    }))
+  })
   /**
    * Attach event listener to events when user modify visible
    * Input,Textarea and select fields to make changes in forms
@@ -875,10 +867,10 @@ AJAX.registerOnload('functions.js', function () {
 
   $pageContent.on('keyup change', 'form.lock-page textarea, ' + 'form.lock-page input[type="text"], ' + 'form.lock-page input[type="number"], ' + 'form.lock-page select', {
     value: 1
-  }, AJAX.lockPageHandler);
+  }, AJAX.lockPageHandler)
   $pageContent.on('change', 'form.lock-page input[type="checkbox"], ' + 'form.lock-page input[type="radio"]', {
     value: 2
-  }, AJAX.lockPageHandler);
+  }, AJAX.lockPageHandler)
   /**
    * Reset lock when lock-page form reset event is fired
    * Note: reset does not bubble in all browser so attach to
@@ -886,52 +878,52 @@ AJAX.registerOnload('functions.js', function () {
    */
 
   $('form.lock-page').on('reset', function () {
-    AJAX.resetLock();
-  });
-});
+    AJAX.resetLock()
+  })
+})
 /**
  * Page load event handler
  */
 
 $(function () {
-  var menuContent = $('<div></div>').append($('#server-breadcrumb').clone()).append($('#topmenucontainer').clone()).html(); // set initial state reload
+  const menuContent = $('<div></div>').append($('#server-breadcrumb').clone()).append($('#topmenucontainer').clone()).html() // set initial state reload
 
-  var initState = 'state' in window.history && window.history.state !== null;
-  var initURL = $('#selflink').find('> a').attr('href') || location.href;
-  var state = {
+  let initState = 'state' in window.history && window.history.state !== null
+  const initURL = $('#selflink').find('> a').attr('href') || location.href
+  const state = {
     url: initURL,
     menu: menuContent
-  };
-  history.replaceState(state, null);
+  }
+  history.replaceState(state, null)
   $(window).on('popstate', function (event) {
-    var initPop = !initState && location.href === initURL;
-    initState = true; // check if popstate fired on first page itself
+    const initPop = !initState && location.href === initURL
+    initState = true // check if popstate fired on first page itself
 
     if (initPop) {
-      return;
+      return
     }
 
-    var state = event.originalEvent.state;
+    const state = event.originalEvent.state
 
     if (state && state.menu) {
-      AJAX.$msgbox = Functions.ajaxShowMessage();
-      var params = 'ajax_request=true' + CommonParams.get('arg_separator') + 'ajax_page_request=true';
-      var url = state.url || location.href;
-      $.get(url, params, AJAX.responseHandler); // TODO: Check if sometimes menu is not retrieved from server,
+      AJAX.$msgbox = Functions.ajaxShowMessage()
+      const params = 'ajax_request=true' + CommonParams.get('arg_separator') + 'ajax_page_request=true'
+      const url = state.url || location.href
+      $.get(url, params, AJAX.responseHandler) // TODO: Check if sometimes menu is not retrieved from server,
       // Not sure but it seems menu was missing only for printview which
       // been removed lately, so if it's right some dead menu checks/fallbacks
       // may need to be removed from this file and Header.php
       // AJAX.handleMenu.replace(event.originalEvent.state.menu);
     }
-  });
-});
+  })
+})
 /**
  * Attach a generic event handler to clicks
  * on pages and submissions of forms
  */
 
-$(document).on('click', 'a', AJAX.requestHandler);
-$(document).on('submit', 'form', AJAX.requestHandler);
+$(document).on('click', 'a', AJAX.requestHandler)
+$(document).on('submit', 'form', AJAX.requestHandler)
 /**
  * Gracefully handle fatal server errors
  * (e.g: 500 - Internal server error)
@@ -940,26 +932,25 @@ $(document).on('submit', 'form', AJAX.requestHandler);
 $(document).on('ajaxError', function (event, request) {
   if (AJAX.debug) {
     // eslint-disable-next-line no-console
-    console.log('AJAX error: status=' + request.status + ', text=' + request.statusText);
+    console.log('AJAX error: status=' + request.status + ', text=' + request.statusText)
   } // Don't handle aborted requests
 
-
   if (request.status !== 0 || request.statusText !== 'abort') {
-    var details = '';
-    var state = request.state();
+    let details = ''
+    const state = request.state()
 
     if (request.status !== 0) {
-      details += '<div>' + Functions.escapeHtml(Functions.sprintf(Messages.strErrorCode, request.status)) + '</div>';
+      details += '<div>' + Functions.escapeHtml(Functions.sprintf(Messages.strErrorCode, request.status)) + '</div>'
     }
 
-    details += '<div>' + Functions.escapeHtml(Functions.sprintf(Messages.strErrorText, request.statusText + ' (' + state + ')')) + '</div>';
+    details += '<div>' + Functions.escapeHtml(Functions.sprintf(Messages.strErrorText, request.statusText + ' (' + state + ')')) + '</div>'
 
     if (state === 'rejected' || state === 'timeout') {
-      details += '<div>' + Functions.escapeHtml(Messages.strErrorConnection) + '</div>';
+      details += '<div>' + Functions.escapeHtml(Messages.strErrorConnection) + '</div>'
     }
 
-    Functions.ajaxShowMessage('<div class="alert alert-danger" role="alert">' + Messages.strErrorProcessingRequest + details + '</div>', false);
-    AJAX.active = false;
-    AJAX.xhr = null;
+    Functions.ajaxShowMessage('<div class="alert alert-danger" role="alert">' + Messages.strErrorProcessingRequest + details + '</div>', false)
+    AJAX.active = false
+    AJAX.xhr = null
   }
-});
+})

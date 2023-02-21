@@ -1,4 +1,4 @@
-"use strict";
+'use strict'
 
 /**
  * JSON syntax highlighting transformation plugin
@@ -13,6 +13,6 @@ AJAX.registerOnload('transformations/json_editor.js', function () {
       indentUnit: 4,
       mode: 'application/json',
       lineWrapping: true
-    });
-  });
-});
+    })
+  })
+})

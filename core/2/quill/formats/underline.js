@@ -1,7 +1,7 @@
-import Inline from '../blots/inline';
+import Inline from '../blots/inline'
 
 class Underline extends Inline {}
-Underline.blotName = 'underline';
-Underline.tagName = 'U';
+Underline.blotName = 'underline'
+Underline.tagName = 'U'
 
-export default Underline;
+export default Underline

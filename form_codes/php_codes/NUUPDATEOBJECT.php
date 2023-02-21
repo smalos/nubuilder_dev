@@ -14,7 +14,7 @@ if ($type == 'tab') {
             WHERE `zzzzsys_tab_id` = ?
     ";
 
-    nuRunQuery($q, array($value, $id));
+    nuRunQuery($q, [$value, $id]);
 
 } else if ($type == 'edit') {
 
@@ -24,7 +24,7 @@ if ($type == 'tab') {
         WHERE `sob_all_zzzzsys_form_id` = ? AND `sob_all_id` = ?
     ";
 
-    nuRunQuery($q, array($value, $formId, $id));
+    nuRunQuery($q, [$value, $formId, $id]);
 
 } else {
 
@@ -34,6 +34,6 @@ if ($type == 'tab') {
             WHERE `sbr_zzzzsys_form_id` = ? AND `sbr_order` = ?
     ";
 
-    nuRunQuery($q, array($value, $formId, $id));
+    nuRunQuery($q, [$value, $formId, $id]);
 
 }

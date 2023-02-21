@@ -17,6 +17,9 @@ nuDisplayInputIcon();
 nuDisable('sob_calc_formula');
 nuSetToolTip('sob_all_id_create_button', nuTranslate('Add database column'));
 
+window.parentTabs = parent.$('.nuTab');
+
+
 var tabIdDescLeft = $('#sob_all_zzzzsys_tab_iddescription').cssNumber('left') + 11;
 $('#sob_all_zzzzsys_tab_iddescription').css('left', tabIdDescLeft + 'px');
 
@@ -715,4 +718,56 @@ function addFileUploadScript() {
     
     
     
+}
+
+
+// Pick Tabs
+
+function openMenu(event, menu, element) {
+    event.stopPropagation();
+    ctxmenu.show(menu, element);
+}
+
+
+function setTabId(tabTitle) {
+
+    const tab = parent.$('.nuTab').filter(function() {
+        return $(this).html() == tabTitle;
+    });
+
+    if (tab.length == 1) {
+        nuGetLookupId(tab.attr('data-nu-tab-id'), 'sob_all_zzzzsys_tab_id', true, true);
+
+    }
+
+}
+
+function menuPickTabsClick(element, event) {
+
+    if (!nuIsIframe()) {
+          return;
+    }
+
+    var items = [];
+
+    const item = {
+        text: nuTranslate('Tabs')
+    };
+
+    items.push(item);
+
+    window.parentTabs.each(function() {
+        var item =
+            {
+                text: nuContextMenuItemText(this.innerHTML, "fa-regular fa-square"),
+                action: () => setTabId(this.innerHTML)
+            }
+
+        items.push(item);
+    });
+
+    const menu = [items]
+
+    openMenu(event, items, element);
+
 }

@@ -22,7 +22,7 @@ if ($nuDevOde) {
     $nuNewDBV = '#set_db_version_inc#';
     if ($nuNewDBV != '') {
         $qry = "UPDATE zzzzsys_info SET inf_details = ? WHERE  inf_code = 'nuDBVersion'";
-        nuRunQuery($qry, array($nuNewDBV));
+        nuRunQuery($qry, [$nuNewDBV]);
         $nuDBV = $nuNewDBV;
     } else {
         $nuDBV = '#set_db_version#';
@@ -31,7 +31,7 @@ if ($nuDevOde) {
     $nuNewFilesV = '#set_files_version_inc#';
     if ($nuNewFilesV != '') {
         $qry = "UPDATE zzzzsys_info SET inf_details = ? WHERE  inf_code = 'nuFilesVersion'";
-        nuRunQuery($qry, array($nuNewFilesV));
+        nuRunQuery($qry, [$nuNewFilesV]);
         $nuFilesV = $nuNewFilesV;
     } else {
         $nuFilesV = '#set_files_version#';

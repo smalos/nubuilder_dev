@@ -16,7 +16,7 @@ function nuConfigValueToTable($line, $setting, $oldValue) {
         $newValue = str_replace("Sunday", "0", $newValue);
     }
 
-    if ($update) nuRunQuery('UPDATE zzzzsys_config SET cfg_value = ? WHERE cfg_setting = ?', array($newValue, $setting));
+    if ($update) nuRunQuery('UPDATE zzzzsys_config SET cfg_value = ? WHERE cfg_setting = ?', [$newValue, $setting]);
 
     return $update;
 

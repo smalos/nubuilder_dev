@@ -18,9 +18,7 @@ function lookupPk($arr, $key) {
 }
 
 function addToArray(array & $arr, $key, $value) {
-    array_push($arr, array(
-        $key => $value
-    ));
+    array_push($arr, [$key => $value]);
 }
 
 function getPk($pk) {
@@ -78,7 +76,7 @@ function formSQL() {
 
 function formExists($f) {
 
-    $t = nuRunQuery(formSQL(), array($f));
+    $t = nuRunQuery(formSQL(), [$f]);
     return db_num_rows($t) == 1;
 
 }
@@ -167,7 +165,7 @@ function writeRecord($table, $row, &$first, $ident) {
 
 function getFormType($f) {
 
-    $t = nuRunQuery(formSQL() , array($f));
+    $t = nuRunQuery(formSQL() , [$f]);
     $row = db_fetch_array($t);
 
     return $row['sfo_type'];
@@ -176,15 +174,15 @@ function getFormType($f) {
 
 function getFormInfo($f) {
 
-    $t = nuRunQuery(formSQL() , array($f));
+    $t = nuRunQuery(formSQL() , [$f]);
     $row = db_fetch_object($t);
 
-    return array(
+    return [
         "code" => $row->sfo_code,
         "description" => $row->sfo_description,
         "type" => $row->sfo_type,
         "table" => $row->sfo_table
-    );
+    ];
 
 }
 
@@ -194,7 +192,7 @@ function getNewFormCode($code) {
         return $code;
     } else {    
         $s = "SELECT COUNT(zzzzsys_form_id) + 1 FROM zzzzsys_form WHERE sfo_code LIKE ?";
-        $t = nuRunQuery($s, array($code . '_clone%'));
+        $t = nuRunQuery($s, [$code . '_clone%']);
         $r = db_fetch_row($t);
         return $code . '_clone_' . $r[0];
     }
@@ -203,7 +201,7 @@ function getNewFormCode($code) {
 
 function cloneForm($f1) {
 
-    $t = nuRunQuery(formSQL() , array($f1));
+    $t = nuRunQuery(formSQL(), [$f1]);
     $row = db_fetch_array($t);
 
     $newPk = getPk($row['zzzzsys_form_id']);
@@ -228,7 +226,7 @@ function cloneFormPHP($f1, $f2) {
             zzzzsys_form_id = ?
 	";
 
-    $t = nuRunQuery($s, array($f1));
+    $t = nuRunQuery($s, [$f1]);
 
     while ($row = db_fetch_array($t)) {
 
@@ -244,10 +242,10 @@ function cloneFormPHP($f1, $f2) {
 
 function cloneFormTabs($f1, $f2, $postifx = '') {
 
-    $tabPks = array();
+    $tabPks = [];
     
     $s = "SELECT * FROM zzzzsys_tab AS tab1 WHERE syt_zzzzsys_form_id  = ?".whereTabs();
-    $t = nuRunQuery($s, array($f1));
+    $t = nuRunQuery($s, [$f1]);
 
     while ($row = db_fetch_array($t)) {
 
@@ -268,7 +266,7 @@ function cloneFormTabs($f1, $f2, $postifx = '') {
 function cloneFormBrowse($f1, $f2) {
 
     $s = "SELECT * FROM zzzzsys_browse WHERE sbr_zzzzsys_form_id  = ?";
-    $t = nuRunQuery($s, array($f1));
+    $t = nuRunQuery($s, [$f1]);
 
     while ($row = db_fetch_array($t)) {
 
@@ -306,9 +304,9 @@ function getTabIds($f1, $f2) {
             tab1.syt_zzzzsys_form_id = ? AND tab2.syt_zzzzsys_form_id = ? 
     ".whereTabs();
 
-    $t = nuRunQuery($s, array($f1, $f2));
+    $t = nuRunQuery($s, [$f1, $f2]);
 
-    $tabPks = array();
+    $tabPks = [];
     while ($r = db_fetch_object($t)) {
         addToArray($tabPks, $r->tab1, $r->tab2);
     }
@@ -320,7 +318,7 @@ function getTabIds($f1, $f2) {
 function cloneObjects($f1, $f2, array & $objectPks, $tabPks) {
 
     $s = "SELECT * FROM zzzzsys_object WHERE sob_all_zzzzsys_form_id = ?";
-    $t = nuRunQuery($s, array($f1));
+    $t = nuRunQuery($s, [$f1]);
   
     while ($row = db_fetch_array($t)) {
 
@@ -355,7 +353,7 @@ function cloneObjectsPHP($f1, $objectPks) {
            sob_all_zzzzsys_form_id = ?
 	";
 
-    $t = nuRunQuery($s, array($f1));
+    $t = nuRunQuery($s, [$f1]);
 
     while ($row = db_fetch_array($t)) {
 
@@ -381,7 +379,7 @@ function cloneFormSelect($f1, $f2, array & $formSelectPks) {
         WHERE LEFT(zzzzsys_select_id, LENGTH(zzzzsys_select_id) - 3)  = ?
 	";
 
-    $t = nuRunQuery($s, array($f1));
+    $t = nuRunQuery($s, [$f1]);
 
     while ($row = db_fetch_array($t)) {
 
@@ -410,7 +408,7 @@ function cloneFormSelectClause($f1, $formSelectPks) {
            WHERE zzzzsys_form_id  = ? 
 	";
 
-    $t = nuRunQuery($s, array($f1));
+    $t = nuRunQuery($s, [$f1]);
 
     while ($row = db_fetch_array($t)) {
 
@@ -436,7 +434,7 @@ function cloneObjectsSelect($f1, $objectPks, array & $selectPks) {
            sob_all_zzzzsys_form_id = ?
 	";
 
-    $t = nuRunQuery($s, array($f1));
+    $t = nuRunQuery($s, [$f1]);
 
     while ($row = db_fetch_array($t)) {
 
@@ -468,7 +466,7 @@ function cloneObjectsSelectClause($f1, $selectPks) {
            sob_all_zzzzsys_form_id = ?
 	";
 
-    $t = nuRunQuery($s, array($f1));
+    $t = nuRunQuery($s, [$f1]);
 
     while ($row = db_fetch_array($t)) {
 
@@ -498,7 +496,7 @@ function cloneObjectsEvents($f1, $objectPks) {
                 sob_all_zzzzsys_form_id = ?
         )
     ";
-    $t = nuRunQuery($s, array($f1));
+    $t = nuRunQuery($s, [$f1]);
 
     while ($row = db_fetch_array($t)) {
 
@@ -551,14 +549,14 @@ function clearHashCookies() {
 
 function showError($msg) {
     
-    nuJavascriptCallback("nuMessage(['<h2>Error</h2><br>" . $msg . "']);" . clearHashCookies());
+    nuJavaScriptCallback("nuMessage(['<h2>Error</h2><br>" . $msg . "']);" . clearHashCookies());
     
 }
 
 function showForm($f2, $dump) {
 
     if ($dump == '1') return;
-    nuJavascriptCallback(getOpenForm($f2) . clearHashCookies());
+    nuJavaScriptCallback(getOpenForm($f2) . clearHashCookies());
 
 }
 
@@ -621,7 +619,7 @@ function processIframeForms($f1, $tabPks, $dump) {
         
     $s .= whereRunIframeforms();
      
-    $t = nuRunQuery($s, array($f1,'Run','i'));
+    $t = nuRunQuery($s, [$f1,'Run','i']);
 
     while ($row = db_fetch_array($t)) {
             
@@ -648,7 +646,7 @@ function processSubforms($f1, $tabPks, $dump) {
          WHERE sob_all_zzzzsys_form_id = ? AND sob_all_type = ?
         ".whereSubforms();
 
-    $t = nuRunQuery($s, array($f1,'subform'));
+    $t = nuRunQuery($s, [$f1,'subform']);
     while ($row = db_fetch_array($t)) {
             
            $f1 = $row['sob_subform_zzzzsys_form_id'];
@@ -670,7 +668,7 @@ function processForm($f1, &$f2, &$tabPks) {
         return;
     }
 
-    $formSelectPks = array();
+    $formSelectPks = [];
     
     $f2 = cloneForm($f1);
     $tabPks = cloneFormTabs($f1, $f2);
@@ -686,8 +684,8 @@ function processObjects($f1, $f2, &$tabPks) {
 
     if ("#cloner_objects#" == '0') return;
 
-    $objectPks = array();
-    $selectPks = array();
+    $objectPks = [];
+    $selectPks = [];
     
     cloneObjects($f1, $f2, $objectPks, $tabPks);
     cloneObjectsPHP($f1, $objectPks);

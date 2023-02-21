@@ -1,7 +1,4 @@
-
 $s = "
-
-
 
 SELECT 
 	sob_all_zzzzsys_form_id AS theform,
@@ -31,15 +28,14 @@ su.sob_all_zzzzsys_form_id = '#sob_all_zzzzsys_form_id#' AND
 
 ";
 
-
+$a  = [];
 $t  = nuRunQuery($s);
-$a  = array();
-
 while($r = db_fetch_object($t)){
     $a[]  = $r;    
 }
 
 $j  = json_encode($a);
+
 $js = "
 
 function nuCalcObjects(){
@@ -48,4 +44,4 @@ function nuCalcObjects(){
 
 ";
 
-nuAddJavascript($js);
+nuAddJavaScript($js);

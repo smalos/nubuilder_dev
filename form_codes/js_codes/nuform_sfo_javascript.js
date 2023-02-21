@@ -64,8 +64,6 @@ function JsMod(i) {
 
     var js = $('#' + i);
 
-    js.css('padding', '3px 3px 3px 3px')
-
     if (js.val() !== '') {
         $('#nuTab2').css('font-weight', 'bold');
     }

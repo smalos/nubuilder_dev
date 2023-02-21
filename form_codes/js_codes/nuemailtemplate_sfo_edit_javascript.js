@@ -29,7 +29,9 @@ function insertAtCursor(myField, myValue) {
     const txtToAdd = myValue;
     txt.val(textAreaTxt.substring(0, caretPos) + txtToAdd + textAreaTxt.substring(caretPos));
     txt.focus();
-    txt.prop('selectionEnd', caretPos + txtToAdd.length);
+    const endOfText = caretPos + txtToAdd.length;
+    txt.prop('selectionStart', endOfText);
+    txt.prop('selectionEnd', endOfText);
 }
 
 function wrapText(elementID, openTag, closeTag) {

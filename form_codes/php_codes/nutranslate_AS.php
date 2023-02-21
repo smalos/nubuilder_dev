@@ -4,4 +4,4 @@ $c  = db_fetch_row($t)[0];
 
 $j  = ";$('#$i').val($c);";
 
-nuJavascriptCallback($j);
+nuJavaScriptCallback($j);

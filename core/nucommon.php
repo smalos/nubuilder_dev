@@ -1074,7 +1074,7 @@ function nuPunctuation($f){
 
 function nuTTList($id, $l){
 
-	$t										= nuRunQuery('SELECT sob_all_id FROM zzzzsys_object WHERE  sob_all_zzzzsys_form_id = ?' , array($l));
+	$t										= nuRunQuery('SELECT sob_all_id FROM zzzzsys_object WHERE sob_all_zzzzsys_form_id = ?',[$l]);
 
 	while($r = db_fetch_object($t)){						//-- add default empty hash variables
 		$_POST['nuHash'][$r->sob_all_id]	= '';
@@ -1232,7 +1232,7 @@ function nuBuildFormSchema(){
 
 		while($r = db_fetch_object($t)){
 
-			if(in_array($r->sob_all_type, array('input', 'lookup', 'select', 'textarea'))){
+			if(in_array($r->sob_all_type, ['input', 'lookup', 'select', 'textarea'])){
 				$a[] = [$r->zzzzsys_object_id, $r->sob_all_id, $r->sob_all_label, $r->sob_all_type, $r->sob_input_type];
 			}
 

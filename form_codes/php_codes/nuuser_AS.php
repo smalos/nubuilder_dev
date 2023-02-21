@@ -8,7 +8,7 @@ if ('#check_password#' != '') {
         $pw = md5('#check_password#');
     }
 
-    nuRunQuery("UPDATE zzzzsys_user SET sus_login_password = '$pw' WHERE zzzzsys_user_id = ?", array($userId));
+    nuRunQuery("UPDATE zzzzsys_user SET sus_login_password = '$pw' WHERE zzzzsys_user_id = ?", [$userId]);
 
     nuSetUserJSONData('PASSWORD_CHANGED_TIME', time(), $userId);
     nuSetUserJSONData('PASSWORD_CHANGED_SOURCE', 'admin', $userId);

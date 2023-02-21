@@ -2,7 +2,7 @@ function nuGetDisplayValue($formId, $obj) {
 
     $sql = "SELECT sob_display_sql FROM `zzzzsys_object` WHERE sob_all_zzzzsys_form_id = ? AND sob_all_id = ?";
 
-    $t = nuRunQuery($sql, array($formId, $obj));
+    $t = nuRunQuery($sql, [$formId, $obj]);
 
     if (db_num_rows($t) == 1) {
         $r = db_fetch_row($t);
@@ -55,7 +55,7 @@ function nuRefreshDisplayObject($displayId, $formId, $prefix) {
 		";
 	}
     
-    nuJavascriptCallback($js);
+    nuJavaScriptCallback($js);
 
 }
 

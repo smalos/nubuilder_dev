@@ -28,4 +28,4 @@ if ($action == 'next' || $action == 'back') {
 
 $j = " onOpenRecord('$goto_pk','$action'); ";
 
-nuJavascriptCallback($j);
+nuJavaScriptCallback($j);

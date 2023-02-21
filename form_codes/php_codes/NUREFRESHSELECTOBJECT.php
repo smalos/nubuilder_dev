@@ -9,9 +9,9 @@ function nuGetSelectValues($formId, $selectId) {
             sob_all_zzzzsys_form_id = ? AND sob_all_id = ?
     ";
 
-    $t = nuRunQuery($sql, array($formId, $selectId));
+    $t = nuRunQuery($sql, [$formId, $selectId]);
 
-    $a = array();
+    $a = [];
     if (db_num_rows($t) == 1) {
 
         $r = db_fetch_row($t);
@@ -94,7 +94,7 @@ function nuRefreshSelectObject($selectId, $formId, $removeBlank, $prefix) {
     $prefix = hashCookieNotSetOrEmpty($prefix) ? '' : $prefix;
 
     $js = nuPopulateSelectObject($formId, $selectId, $removeBlank, $prefix);
-    nuJavascriptCallback($js);
+    nuJavaScriptCallback($js);
 
 }
 

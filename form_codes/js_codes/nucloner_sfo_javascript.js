@@ -51,26 +51,26 @@ function runCloner() {
 
     nuSetProperty('cloner_refresh_selectId', '');
 
-    var tabs = selectToIndexArray('clo_tabs');
+    const tabs = selectToIndexArray('clo_tabs');
     nuSetProperty('cloner_tabs', tabs.length === 0 ? '' : JSON.stringify(tabs));
 
-    var subforms = $('#clo_subforms_include').is(':checked');
-    var clo_subforms = selectToValueArray('clo_subforms');
+    const subforms = $('#clo_subforms_include').is(':checked');
+    const clo_subforms = selectToValueArray('clo_subforms');
     nuSetProperty('cloner_subforms', subforms === false || clo_subforms.length === 0 ? '0' : JSON.stringify(clo_subforms));
 
-    var formsRunIFrame = selectToValueArray('clo_iframe_forms');
+    const formsRunIFrame = selectToValueArray('clo_iframe_forms');
     nuSetProperty('cloner_iframe_forms', nuGetValue('clo_subforms_include') == false|| formsRunIFrame.length === 0 ? '0' : JSON.stringify(formsRunIFrame));
 
-    var dump = $('#clo_dump').is(':checked');
+    const dump = $('#clo_dump').is(':checked');
     nuSetProperty('cloner_dump', dump ? '1' : '0');
 
-    var noObjects = $('#clo_objects').is(':checked');
+    const noObjects = $('#clo_objects').is(':checked');
     nuSetProperty('cloner_objects', noObjects ? '0' : '1');
 
-    var newPks = $('#clo_new_pks').is(':checked');
+    const newPks = $('#clo_new_pks').is(':checked');
     nuSetProperty('cloner_new_pks', newPks ? '1' : '0');
     
-    var replaceInto = $('#clo_sql_replace_into').is(':checked');
+    const replaceInto = $('#clo_sql_replace_into').is(':checked');
     nuSetProperty('cloner_replace_into', replaceInto ? '1' : '0');
 
     nuSetProperty('cloner_form_source', $('#clo_form_source').val());
@@ -78,7 +78,10 @@ function runCloner() {
     nuSetProperty('cloner_notes', '#clo_notes#');
 
     dump ? nuRunPHP('nucloner', '', 1) : nuRunPHPHidden('nucloner', 0);
-
+    
+    const tables = selectToValueArray('clo_tables_include');
+    nuSetProperty('nubackup_tables_include', tables.length === 0 ? '' : JSON.stringify(tables));
+    
 }
 
 function setTitle() {
@@ -184,7 +187,7 @@ if (nuFormType() == 'edit') {
 
     $('#clo_subforms').nuLabelOnTop(-18, 25)
     $('#clo_iframe_forms').nuLabelOnTop(-18, 25)
-    $('#clo_tabs').nuLabelOnTop();
+    nuLabelOnTop(['clo_tabs','clo_tables_include','clo_tables_exclude']);
     
     $('#label_clo_subforms').prop('for','clo_subforms_include');
     $('#label_clo_iframe_forms').prop('for','clo_iframe_forms_include');
@@ -199,4 +202,13 @@ if (nuFormType() == 'edit') {
     setTitle();
 
     nuHasNotBeenEdited();
+}
+
+
+function unselectAllOptionsStartingWith(selectId, prefix) {
+  $("#" + selectId + " option").each(function() {
+    if ($(this).text().startsWith(prefix)) {
+      $(this).prop("selected", false);
+    }
+  });
 }

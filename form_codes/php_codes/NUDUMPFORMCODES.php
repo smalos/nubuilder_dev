@@ -22,9 +22,8 @@ while ($r = db_fetch_object($t)) {
 function dumpFile($folder, $sfoCode, $code, $postfix, $extension) {
 
     $postfix = $postfix == '' ? '' : "_" . $postfix;
-
     $file = $sfoCode . $postfix . "." . $extension;
-
+    $code = $code == NULL ? '' : $code;
 
     if (strlen($code) > 0) {
         $dir = dirname(__DIR__, 1) . DIRECTORY_SEPARATOR. "form_codes". DIRECTORY_SEPARATOR .$folder . DIRECTORY_SEPARATOR . $file;

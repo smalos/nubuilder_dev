@@ -67,4 +67,4 @@ $js = "
    
 ";
 
-nuAddJavascript($js . $j);
+nuAddJavaScript($js . $j);

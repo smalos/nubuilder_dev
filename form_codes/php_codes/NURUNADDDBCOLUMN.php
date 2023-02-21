@@ -10,7 +10,7 @@ if (preg_match('[DELETE |DROP |INSERT |;]', strtoupper($sql))) {
     $r = - 2;
 }
 else {
-    $r = nuRunQuery($sql, array() , true);
+    $r = nuRunQuery($sql, [] , true);
 }
 
 if ($r == 0) {
@@ -25,4 +25,4 @@ else if ($r == - 2) {
 
 }
 
-nuJavascriptCallback($js);
+nuJavaScriptCallback($js);

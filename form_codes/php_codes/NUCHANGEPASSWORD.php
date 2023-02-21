@@ -12,7 +12,7 @@ $s = "
  WHERE zzzzsys_session_id = ?
 ";
 
-$t = nuRunQuery($s, array($ses));
+$t = nuRunQuery($s, [$ses]);
 $r = db_fetch_object($t);
 $j = json_decode($r->sss_access);
 
@@ -24,7 +24,7 @@ $s = "
  WHERE zzzzsys_user_id = ?
 ";
 
-$t = nuRunQuery($s, array($userId));
+$t = nuRunQuery($s, [$userId]);
 $r = db_fetch_object($t);
 $current = $r->sus_login_password;
 
@@ -69,7 +69,7 @@ if($will == $was){
 
  $pwHash = $useMd5 == true ? md5($will) : nuPasswordHash($will);
 
- nuRunQuery($s, array($pwHash, $userId));
+ nuRunQuery($s, [$pwHash, $userId]);
 
  nuSetUserJSONData('PASSWORD_CHANGED_TIME', time() , $userId);
  nuSetUserJSONData('PASSWORD_CHANGED_SOURCE', 'user', $userId);
@@ -82,5 +82,5 @@ if($will == $was){
 }
 
 
-nuJavascriptCallback($js);
+nuJavaScriptCallback($js);
 

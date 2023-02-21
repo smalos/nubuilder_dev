@@ -46,7 +46,7 @@ if (nuFormType() == 'edit') {
         nuSetTitle(nuTranslate('New'));
     } else {
         var frmInfo = $('#sfo_description').val() + ' ('+ $('#sfo_code').val()+')';
-        if (window.nuFORM.breadcrumbs.length == 1) $('#nuTab0').html(frmInfo);
+        //   if (window.nuFORM.breadcrumbs.length == 1) $('#nuTab0').html(frmInfo);
         nuSetTitle(frmInfo);
         nuUpdateAclCount();
     }

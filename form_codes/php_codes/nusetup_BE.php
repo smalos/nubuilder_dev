@@ -13,7 +13,7 @@ if ($configCode != null) {
     eval($config['code']);
 }
 
-nuAddJavascript($configJS);
+nuAddJavaScript($configJS);
 
 
 if (isset($_SESSION['nubuilder_session_data']['USER_ADDITIONAL1_LABEL']) && isset($nuConfigUserAdditional1Label)) {
@@ -59,4 +59,4 @@ $j = "
 
 ";
 
-nuAddJavascript($j);
+nuAddJavaScript($j);

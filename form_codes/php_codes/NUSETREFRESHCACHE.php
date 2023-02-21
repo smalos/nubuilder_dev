@@ -1,4 +1,5 @@
 nuSetJSONDataAll('REFRESH_CACHE','1');
+nuCreateViewsOrTables();
 
 $js = "
 
@@ -11,5 +12,5 @@ setTimeout(msg, 1000);
 
 ";
 
-nuJavascriptCallback($js);
+nuJavaScriptCallback($js);
 

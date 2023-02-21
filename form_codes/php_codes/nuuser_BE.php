@@ -10,4 +10,4 @@ $j = "
     	
 ";
 
-nuAddJavascript($j);
+nuAddJavaScript($j);

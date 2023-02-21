@@ -1,17 +1,17 @@
 
 function getCSVFiles() {
 
-    $f = array();
+    $f = [];
     $dir = '../temp/';
     $dh = opendir($dir);
     while (false !== ($fileName = readdir($dh))) {
         $ext = substr($fileName, strrpos($fileName, '.') + 1);
-        if (in_array($ext, array(
+        if (in_array($ext, [
             "txt",
             "csv",
             "tab",
             "asc"
-        ))) $f[] = $fileName;
+        ])) $f[] = $fileName;
     }
     closedir($dh);
     return $f;
@@ -21,11 +21,11 @@ if ('csvfiles') {
     $f = getCSVFiles();
 }
 else {
-    $f = array();
+    $f = [];
 
 }
 
-$a = array();
+$a = [];
 
 for ($i = 0;$i < count($f);$i++) {
 
@@ -34,5 +34,5 @@ for ($i = 0;$i < count($f);$i++) {
     }
 }
 
-nuAddJavascript("\n var nuCSVfiles = [" . implode(',', $a) . "];\n");
+nuAddJavaScript("\n var nuCSVfiles = [" . implode(',', $a) . "];\n");
 

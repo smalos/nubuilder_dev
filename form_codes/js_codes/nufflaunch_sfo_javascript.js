@@ -1,18 +1,34 @@
 nuInit();
 
+function nuFFSetPrimaryKey() {
+
+    let pk = '';
+
+    if (tableExists) {
+        const tableSchema = nuSERVERRESPONSE.tableSchema[fastform_table.value];
+        pk = tableSchema === undefined ? '': tableSchema.primary_key;
+    } else {
+        pk = nuGetValue('fastform_table')+'_id';
+    }
+
+    nuSetValue('fastform_primary_key', pk);
+    nuShow('fastform_primary_key', pk == '' || !tableExists)
+
+}
+
 function nuInit() {
 
     $("[id$='ff_browse']").nuHide();
     $('.nuActionButton').nuHide();
 
-    nuHide(['fastform_prefix', 'nuFFAvailableColumnsWord', 'check_nulog', 'nuFFAvailableColumns']);
+    nuHide(['fastform_prefix', 'nuFFAvailableColumnsWord', 'check_nulog', 'nuFFAvailableColumns','fastform_primary_key']);
     nuDisable('nuFFAvailableColumns');
 
     nuSelectRemoveMultiple();
     nuSelectRemoveEmpty('obj_sf000ff_type', '-1');
     nuSelectRemoveEmpty('fastform_type', '-1');
     nuMoveFieldPrefixToSubform();
-    nuSetValue('fastform_type','browseedit');
+    nuSetValue('fastform_type', 'browseedit');
 
     nuAddActionButton('nuRunPHPHidden', 'Build Fast Form', 'nuRunPHPHidden("RUNFF");');
     nuSetToolTip('fastform_table', nuTranslate('Either pick an existing table or enter a new table name.'), true);
@@ -25,51 +41,52 @@ function nuInit() {
     $("#fastform_type > option").each(function() {
         $(this).addClass('nu_' + this.value);
     });
-    
+
     $('#fastform_prefix').on('click', function(e) {
         e.stopPropagation();
     });
-    
+
     // Show all items again when clicking on the datalist arrow down button
     $('#fastform_table')
-        .on('click', function(e) {
-            var t = $(this);
-            var inpLeft = t.offset().left;
-            var inpWidth = t.width();
-            var clickedLeft = e.clientX;
-            var clickedInpLeft = clickedLeft - inpLeft;
-            var arrowBtnWidth = 12;
-            if ((inpWidth - clickedInpLeft) < arrowBtnWidth) {
-                if (t.val() !== "") {
-                    t.val('');
-                }
+    .on('click', function(e) {
+        var t = $(this);
+        var inpLeft = t.offset().left;
+        var inpWidth = t.width();
+        var clickedLeft = e.clientX;
+        var clickedInpLeft = clickedLeft - inpLeft;
+        var arrowBtnWidth = 12;
+        if ((inpWidth - clickedInpLeft) < arrowBtnWidth) {
+            if (t.val() !== "") {
+                t.val('');
             }
-        })
-
-        .on('input', function() {
-
-        nuSetFFTable();
-        nuShowAvailableFields(false);
-
-        var selectedOption = $('option[value="' + $(this).val() + '"]');
-        if (selectedOption.length) {
-
-            nuSetProperty('available_columns', $('#fastform_table').val());
-            nuSetProperty('assigned_columns', '');
-
-            $('#nuFFAvailableColumns').empty();
-            nuAvailableColumnsSetLoading();
-            nuRefreshSelectObject('nuFFAvailableColumns', '', true);
-
         }
-    });
-    
+    })
+
+    .on('input',
+        function() {
+
+            nuSetFFTable();
+            nuShowAvailableFields(false);
+
+            var selectedOption = $('option[value="' + $(this).val() + '"]');
+            if (selectedOption.length) {
+
+                nuSetProperty('available_columns', $('#fastform_table').val());
+                nuSetProperty('assigned_columns', '');
+
+                $('#nuFFAvailableColumns').empty();
+                nuAvailableColumnsSetLoading();
+                nuRefreshSelectObject('nuFFAvailableColumns', '', true);
+
+            }
+        });
+
     $('#fastform_table').focus();
 
 }
 
 function nuNoStoreObject(text) {
-    return ['Word', 'Subform', 'Image', 'HTML', 'Button' ].indexOf(text) !== -1;
+    return ['Word', 'Subform', 'Image', 'HTML', 'Button'].indexOf(text) !== -1;
 }
 
 function nuNoBrowseObject(text) {
@@ -77,7 +94,7 @@ function nuNoBrowseObject(text) {
 }
 
 function nuSetFFCheckboxes(type) {
-  
+
     let checkboxes = $("[id$='ff_browse']:checkbox");
     if (type.startsWith('browse')) {
 
@@ -91,7 +108,7 @@ function nuSetFFCheckboxes(type) {
     } else {
         checkboxes.hide();
     }
-  
+
 }
 
 function nuOnFormTypeChanged() {
@@ -115,19 +132,19 @@ var tableExists = false;
 function nuSetFFTable() {
 
     tableExists = nuFORM.getTables().indexOf(nuGetValue('fastform_table')) !== -1;
-    
-    $("[id$='ff_column_picker']")
-		.prop('disabled', !tableExists)
-		.toggleClass('nuReadonly', tableExists);
 
-    nuShow(['fastform_prefix','check_nulog'], !tableExists);
+    $("[id$='ff_column_picker']")
+    .prop('disabled', !tableExists)
+    .toggleClass('nuReadonly', tableExists);
+
+    nuShow(['fastform_prefix', 'check_nulog'], !tableExists);
 
     let c = $('#nuFFAvailableColumns');
 
     let l;
     let rl;
-    let title =  '';
-    
+    let title = '';
+
     if (tableExists) {
         l = c.cssNumber('left') + c.cssNumber('width') + 30;
         rl = '1473px';
@@ -175,18 +192,18 @@ function nuShowFFO(e) {
 
 function nuGetFFDataType(h) {
 
-    let                         t = "VARCHAR(1000)";
-    
-    if (h == 'Checkbox')        t = "VARCHAR(1)";
-    if (h == 'Display')         t = "VARCHAR(50)";
-    if (h == 'Lookup')          t = "VARCHAR(25)";
-    if (h == 'Textarea')        t = "TEXT";
-    if (h == 'Calc')            t = "DECIMAL";
-    if (h == 'nuDate')          t = "DATE";
-    if (h == 'File')            t = "LONGTEXT";
-    if (h == 'nuAutoNumber')    t = "BIGINT UNSIGNED";
-    if (h == 'Number')          t = "INT";
-    if (h == 'nuNumber')        t = "DECIMAL(12,4)";
+    let t = "VARCHAR(1000)";
+
+    if (h == 'Checkbox') t = "VARCHAR(1)";
+    if (h == 'Display') t = "VARCHAR(50)";
+    if (h == 'Lookup') t = "VARCHAR(25)";
+    if (h == 'Textarea') t = "TEXT";
+    if (h == 'Calc') t = "DECIMAL";
+    if (h == 'nuDate') t = "DATE";
+    if (h == 'File') t = "LONGTEXT";
+    if (h == 'nuAutoNumber') t = "BIGINT UNSIGNED";
+    if (h == 'Number') t = "INT";
+    if (h == 'nuNumber') t = "DECIMAL(12,4)";
     if (h == 'Button' || h == 'HTML' || h == 'Image' || h == 'Word' || h == 'Subform') t = null;
 
     return t;
@@ -201,7 +218,7 @@ function nuEnableFFDataType() {
         var sel = $("#" + typeId + " option:selected").text();
         var noBrowse = nuNoBrowseObject(sel);
 
-        $(this).nuEnable(sel !== '' && !tableExists  && !noBrowse && nuFFFormType() !== 'launch');
+        $(this).nuEnable(sel !== '' && !tableExists && !noBrowse && nuFFFormType() !== 'launch');
         if (nuFFFormType() == 'launch') $(this).val('');
 
     });
@@ -216,9 +233,9 @@ function nuSetFFDataType(id, h) {
 
     if (tableExists && !noStoreObject) {
         let index = nuSERVERRESPONSE.tableSchema[fastform_table.value].names.indexOf('cot_code')
-        t = index !== -1 ? nuSERVERRESPONSE.tableSchema[fastform_table.value].types[index] : '';
+        t = index !== -1 ? nuSERVERRESPONSE.tableSchema[fastform_table.value].types[index]: '';
     } else
-    if (dataType !== null && !tableExists && !noStoreObject && nuFFFormType() !== 'launch') {
+        if (dataType !== null && !tableExists && !noStoreObject && nuFFFormType() !== 'launch') {
         t = dataType;
     } else {
         t = '';
@@ -260,7 +277,7 @@ function nuSelectFFObjects(e) {
     nuSetFFTypeColor(r[0]);
 
     if (nuNoBrowseObject(e.target.innerHTML)) {
-        $(sfrow + 'ff_browse').hide().attr('data-nu-no-browse','');
+        $(sfrow + 'ff_browse').hide().attr('data-nu-no-browse', '');
     } else {
         $(sfrow + 'ff_browse').show().removeAttr('data-nu-no-browse');
     }
@@ -276,7 +293,7 @@ function nuSelectFFObjects(e) {
 function nuOnChangeFFType(t, event) {
 
     let target = event.target;
-	let i = target.id;
+    let i = target.id;
 
     let id = nuSubformRowObject(i, 'ff_id');
     let browse = nuSubformRowObject(i, 'ff_browse');
@@ -290,20 +307,20 @@ function nuOnChangeFFType(t, event) {
     nuSetPlaceholder(label.attr('id'), typeText + number);
 
     if (field.val() == '') {
-		label.val(typeText + number);
-	}
+        label.val(typeText + number);
+    }
 
     id.val(t.value);
 
     let noStoreObj = nuNoStoreObject(typeText);
     if (noStoreObj || nuFFFormType() === 'launch') {
-        $(browse).hide().attr('data-nu-no-browse','').prop('checked', 0);
+        $(browse).hide().attr('data-nu-no-browse', '').prop('checked', 0);
         nuSetValue(browse.id, true);
     } else {
         $(browse).show();
     }
 
-    let objTypeText = nuGetValue($(objType).attr('id'),'text');
+    let objTypeText = nuGetValue($(objType).attr('id'), 'text');
     nuSetFFDataType('#' + $(dataType).attr('id'), objTypeText);
 
     nuEnableFFDataType();
@@ -313,13 +330,13 @@ function nuOnChangeFFType(t, event) {
 
 function nuOnChangeFFField(t, event) {
 
-	if (tableExists) {
-	 
-		let i = nuSERVERRESPONSE.tableSchema[fastform_table.value].names.indexOf(t.value);
-		let dataType = i === -1 ? '' : nuSERVERRESPONSE.tableSchema[fastform_table.value].types[i].toUpperCase();
-		nuSubformRowObject(event.target.id, 'ff_datatype').val(dataType);
-		 
-	}
+    if (tableExists) {
+
+        let i = nuSERVERRESPONSE.tableSchema[fastform_table.value].names.indexOf(t.value);
+        let dataType = i === -1 ? '': nuSERVERRESPONSE.tableSchema[fastform_table.value].types[i].toUpperCase();
+        nuSubformRowObject(event.target.id, 'ff_datatype').val(dataType);
+
+    }
 
 
 }
@@ -341,7 +358,8 @@ function onColumnPicker(event) {
 
 function nuShowAvailableFields(v) {
 
-    let ac = ['nuFFAvailableColumns','nuFFAvailableColumnsWord'];
+    let ac = ['nuFFAvailableColumns',
+        'nuFFAvailableColumnsWord'];
     if (!tableExists) {
         nuHide(ac);
         return;
@@ -392,12 +410,12 @@ function nuMoveFieldPrefixToSubform() {
 
 function nuSetLabel(field, label) {
 
-        let i = field.indexOf('_');
-        if (i == 2 || i == 3) {
-            field = field.substring(i + 1);
-        }
+    let i = field.indexOf('_');
+    if (i == 2 || i == 3) {
+        field = field.substring(i + 1);
+    }
 
-        label.val(field.replaceAll('_', ' ').capitalise().toTitleCase()).change();
+    label.val(field.replaceAll('_', ' ').capitalise().toTitleCase()).change();
 
 }
 
@@ -433,7 +451,7 @@ function nuAvailableColumnsSetLoading() {
 
 function nuChangePrefix(prefix) {
 
-	prefix = prefix.trim() === '' ? '' : prefix + '_';
+    prefix = prefix.trim() === '' ? '': prefix + '_';
     let fieldArr = nuSubformColumnArray('obj_sf', 'ff_field');
 
     for (var i = 0; i < fieldArr.length; i++) {
@@ -454,7 +472,7 @@ function nuDisableLastFFRow() {
 
     let l = nuSubformObject('obj_sf').rows.length;
 
-    let rowPrefix = '#obj_sf' + nuPad3(l == 1 ? 0 : l - 1);
+    let rowPrefix = '#obj_sf' + nuPad3(l == 1 ? 0: l - 1);
     $(rowPrefix + 'ff_label').nuDisable();
     $(rowPrefix + 'ff_field').nuDisable();
     $(rowPrefix + 'ff_type').nuDisable();
@@ -504,7 +522,7 @@ function nuOnBlurFFLabel(t, event) {
             let v = $(t).val();
             if (v !== '') {
                 let prefix = $('#fastform_prefix').val();
-                ff_field.val((prefix === '' ? '' : prefix + '_') + v.toLowerCase().replaceAll(' ', '_')).change();
+                ff_field.val((prefix === '' ? '': prefix + '_') + v.toLowerCase().replaceAll(' ', '_')).change();
             }
         }
     }
@@ -538,25 +556,25 @@ function nuClickDelete(event) {
     let checked = $('#' + id).is(":checked");
 
     $('[id^=' + sf + nuPad3(row) + ']')
-        .not(':button, :checkbox')
-        .toggleClass('nuSubformDeleteTicked', checked)
-        .toggleClass('nuReadonly', checked)
-        .nuEnable(!checked);
+    .not(':button, :checkbox')
+    .toggleClass('nuSubformDeleteTicked', checked)
+    .toggleClass('nuReadonly', checked)
+    .nuEnable(!checked);
 
 }
 
 function nuFFInvalidColumns() {
 
-    let msg ='';
+    let msg = '';
     let table = nuGetValue('fastform_table');
-    
+
     if (nuFORM.getTables().indexOf(table) == -1) return '';
 
     let sf = nuSubformObject('obj_sf');
     for (let i = 0; i < sf.rows.length; i++) {
-        
+
         let field = sf.rows[i][2];
-        let type = nuGetValue('obj_sf' + nuPad3(i) + 'ff_type','text');
+        let type = nuGetValue('obj_sf' + nuPad3(i) + 'ff_type', 'text');
         let exists = nuFORM.tableSchema[table].names.indexOf(field);
         if (sf.deleted[i] != 1 && exists == -1 && !nuNoStoreObject(type)) {
             msg += nuTranslate('Invalid Field Name') + ' <b>' + field + '</b><br>'
@@ -572,26 +590,28 @@ function nuBeforeSave() {
 
     let table = nuGetValue('fastform_table');
     let type = nuGetValue('fastform_type');
-	let fk = nuGetValue('fastform_fk');
-	
-    if (table === '' && type !== 'launch') {
+    let pk = nuGetValue('fastform_primary_key');
+    let fk = nuGetValue('fastform_fk');
 
+    if (table === '' && type !== 'launch') {
         nuMessage(['<b>' + nuTranslate('Table Name') + '</b> ' + nuTranslate('cannot be left blank')]);
         return false;
-
     }
 
     if (type === '') {
-
         nuMessage(['<b>' + nuTranslate('Form Type') + '</b> ' + nuTranslate('cannot be left blank')]);
         return false;
+    }
 
+    if (pk === '') {
+        nuMessage(['<b>' + nuTranslate('Primary Key') + '</b> ' + nuTranslate('cannot be left blank')]);
+        return false;
     }
 
     if (type.startsWith('browse') && $("[data-nu-field='ff_browse']:checked").length === 0) {
 
-         nuMessage([nuTranslate('At least 1 Browse needs to be checked')]);
-         return false;
+        nuMessage([nuTranslate('At least 1 Browse needs to be checked')]);
+        return false;
 
     }
 
@@ -603,12 +623,12 @@ function nuBeforeSave() {
 
     }
 
-	let pk = table + '_id'; 
+    //	let pk = table + '_id';
     if (fieldArr.includes(pk)) {
-        
+
         nuMessage(nuTranslate('The Primary Key %s must not be entered.').replace('%s', '<b>' + pk + '</b>'));
         return false;
-        
+
     }
 
     if (type === 'subform' && table !== '' && nuFORM.getTables().indexOf(table) === -1 && fk === '') {
@@ -629,20 +649,20 @@ function nuBeforeSave() {
         return false;
 
     }
-    
+
     if (nuGetValue('obj_sf000ff_field') == '') {
-        
+
         nuMessage(nuTranslate(' At least one Field must be specified'));
         return false;
 
     }
-    
+
     let invalidColumns = nuFFInvalidColumns();
     if (invalidColumns !== '') {
-    
+
         nuMessage(invalidColumns);
         return false;
-    
+
     }
 
     return true;

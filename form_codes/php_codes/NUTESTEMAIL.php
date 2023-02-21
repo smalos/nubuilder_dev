@@ -14,7 +14,7 @@ if (! $recipient || $fromAddress == '' || $fromName = '' || $body == '' || $subj
     return;
 }
 
-$result = nuSendEmail($to, $fromAddress, $fromName, $body, $subject, array(), true, $cc, $bcc, array(), $priority);
+$result = nuSendEmail($to, $fromAddress, $fromName, $body, $subject, [], true, $cc, $bcc, [], $priority);
 
 if (count($result) == 2) {
     showMessage(nuTranslate('Result'), $result[1]);
@@ -23,5 +23,5 @@ if (count($result) == 2) {
 }    
 
 function showMessage($title, $msg) {
-    nuJavascriptCallback("nuMessage(['<h2>".$title."</h2><br>" . $msg . "']);");
+    nuJavaScriptCallback("nuMessage(['<h2>".$title."</h2><br>" . $msg . "']);");
 }

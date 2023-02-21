@@ -20,7 +20,7 @@ function nuValidateSubforms(){
 				FROM zzzzsys_object
 				WHERE zzzzsys_object_id = ?
 			';																						//-- get Form
-		$t	= nuRunQuery($s, array($sf->object_id));
+		$t	= nuRunQuery($s, [$sf->object_id]);
 		$r	= db_fetch_row($t);
 		$f	= nuObjKey($r,0,'') == '' ? $sf->object_id : nuObjKey($r,0);
 		$l	= nuObjKey($r,1);
@@ -28,7 +28,7 @@ function nuValidateSubforms(){
 		if(nuObjKey($r,2,'') != 1){																	//-- not readonly
 
 			$s	= 'SELECT sob_all_id AS id, sob_all_label AS label, sob_all_validate AS validate FROM zzzzsys_object WHERE sob_all_zzzzsys_form_id = ? ';			//-- get Objects
-			$t	= nuRunQuery($s, array($f));
+			$t	= nuRunQuery($s, [$f]);
 
 			while($r = db_fetch_object($t)){
 				$a[$r->id]			= $r->validate;
@@ -112,14 +112,14 @@ function nuCheckAccessLevel($data){
 	}
 
 	$s		= "SELECT slf_save_button, slf_delete_button FROM zzzzsys_access_form WHERE slf_zzzzsys_access_id = ? AND slf_zzzzsys_form_id = ?";
-	$t		= nuRunQuery($s, array($u, $f));
+	$t		= nuRunQuery($s, [$u, $f]);
 	$r		= db_fetch_object($t);
 
-	if($a == 'save' and $r->slf_save_button != 1){
+	if($a == 'save' && $r->slf_save_button != 1){
 		nuDisplayError(nuTranslate("Save is disabled for this Access Level"));
 	}
 
-	if($a == 'delete' and $r->slf_delete_button != 1){
+	if($a == 'delete' && $r->slf_delete_button != 1){
 		nuDisplayError(nuTranslate("Delete is disabled for this Access Level"));
 	}
 
@@ -132,7 +132,7 @@ function nuDuplicate($S, $R, $F){
 	$i		= $S->rows[$R][0];
 	$v		= $S->rows[$R][$F];
 	$sql	= "SELECT $S->primary_key FROM $S->table WHERE $f = ? AND $S->primary_key != ? ";
-	$t		= nuRunQuery($sql, array($v, $i));
+	$t		= nuRunQuery($sql, [$v, $i]);
 	$r		= db_num_rows($t);
 
 	return $r > 0;
@@ -167,12 +167,12 @@ function nuUpdateDatabaseSave($pv, $r, $pk, $table, $F, $V, $I, $deleted, $log, 
 			$jd		= json_decode($logr[0]);
 
 			if(gettype($jd) == 'object'){
-				$jd->edited	= Array('user' => $user, 'time' => time());
+				$jd->edited	= ['user' => $user, 'time' => time()];
 			}else{
 
 				$jd			= new stdClass;
-				$jd->added	= Array('user' => 'unknown', 'time' => 0);
-				$jd->edited	= Array('user' => $user, 'time' => time());
+				$jd->added	= ['user' => 'unknown', 'time' => 0];
+				$jd->edited	= ['user' => $user, 'time' => time()];
 
 			}
 
@@ -420,7 +420,7 @@ function nuUpdateDatabase(){
 				if($log){
 
 					$jd			= new stdClass;
-					$jd->added	= Array('user' => $user, 'time' => time());
+					$jd->added	= ['user' => $user, 'time' => time()];
 					$je			= addslashes(json_encode($jd));
 					$V[]		= "'$je'";
 					$I[]		= "`$table"."_nulog`";
@@ -595,17 +595,17 @@ function nuSubFormsEdited($nudata, $CTSTN) {
 
 function nuDeleteRow($r, $p){
 
-	nuRunQuery("DELETE FROM `$r->sfo_table` WHERE `$r->sfo_primary_key` = ? ", array($p));
+	nuRunQuery("DELETE FROM `$r->sfo_table` WHERE `$r->sfo_primary_key` = ? ", [$p]);
 
 }
 
 function nuInsertRow($r, $p){
 
-	$T	= nuRunQuery("SELECT COUNT(*) FROM `$r->sfo_table` WHERE `$r->sfo_primary_key` = ? ", array($p));
+	$T	= nuRunQuery("SELECT COUNT(*) FROM `$r->sfo_table` WHERE `$r->sfo_primary_key` = ? ", [$p]);
 	$R	= db_fetch_row($T);
 
 	if($R[0] == 0){
-		nuRunQuery("INSERT INTO `$r->sfo_table` (`$r->sfo_primary_key`) VALUES (?) ", array($p));
+		nuRunQuery("INSERT INTO `$r->sfo_table` (`$r->sfo_primary_key`) VALUES (?) ", [$p]);
 	}
 
 }
@@ -667,7 +667,7 @@ function nuEditObjects($id){
 function nuAutoNumber($form_id, $field_id, $value){
 
 	$s		= "SELECT sob_all_type, sob_input_type, zzzzsys_object_id FROM zzzzsys_object WHERE sob_all_zzzzsys_form_id = ? AND sob_all_id = ? ";
-	$t		= nuRunQuery($s, array($form_id, $field_id));
+	$t		= nuRunQuery($s, [$form_id, $field_id]);
 	$r		= db_fetch_object($t);
 	$input	= $r->sob_all_type == 'input';
 	$auto	= $r->sob_input_type == 'nuAutoNumber';

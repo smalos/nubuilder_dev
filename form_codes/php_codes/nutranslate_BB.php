@@ -23,4 +23,4 @@ $js = "
  
 ";
 
-nuAddJavascript($js);
+nuAddJavaScript($js);

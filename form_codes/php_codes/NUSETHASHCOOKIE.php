@@ -1,13 +1,13 @@
-$i = '#hcname#';
-$nj = '#hcvalue#';
+$name = '#NUSETHASHCOOKIE_NAME#';
+$value = '#NUSETHASHCOOKIE_VALUE#';
 
-nuSetProperty($i, $nj, true);
+nuSetProperty($name, $value, true);
 
 
 $js = "
     if(window.nuOnPropertySet){
-        nuOnPropertySet('$i', '$nj');
+        nuOnPropertySet('$name', '$value');
     }
 ";
 
-nuJavascriptCallback($js);
+nuJavaScriptCallback($js);

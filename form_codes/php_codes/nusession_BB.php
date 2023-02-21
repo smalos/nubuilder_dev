@@ -1,3 +1,3 @@
-if(nuDemo()){
-	nuDisplayError(nuTranslate('Not available in the Demo')."..");
+if (nuDemo()) {
+    nuDisplayError(nuTranslate('Not available in the Demo')."..");
 }

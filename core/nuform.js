@@ -542,7 +542,7 @@ function nuAddHomeLogout() {
 
 }
 
-function nuAddIconToBreadCrumb(id, title, right, handler, _class) {
+function nuAddIconToBreadCrumb(id, title, right, handler, iconClass) {
 
 	var l = document.createElement('div');
 	l.setAttribute('id', id);
@@ -550,13 +550,10 @@ function nuAddIconToBreadCrumb(id, title, right, handler, _class) {
 	$('#nuBreadcrumbHolder').append(l);
 
 	$('#' + id)
-		.addClass('nuNotBreadcrumb')
-		.css('cursor', "pointer")
-		.css('font-size', 16)
-		.css('position', 'absolute')
-		.css('right', right)
+		.addClass('nuBreadcrumbIcon')
 		.attr('onclick', handler)
-		.html('<i class="' + _class + '" style="font-size:17px;"></i>')
+		.css('right', right)
+		.html('<i class="' + iconClass + '" style="font-size:17px;"></i>')
 		.attr('title', nuTranslate(title));
 
 }
@@ -689,8 +686,13 @@ function nuAddActionButtons(form) {
 
 		nuAddActionButton("Search", "<i class='fa fa-search'></i>" + searchCaption, 'nuSearchAction()');
 
-		if (button.Add == 1) { nuAddActionButton('Add', addCaption, 'nuAddAction()'); }
-		if (button.Print == 1) { nuAddActionButton('Print', printCaption, 'nuPrintAction()'); }
+		if (button.Add == 1) { 
+			nuAddActionButton('Add', addCaption, 'nuAddAction()'); 
+		}
+
+		if (button.Print == 1 && nuFORM.getCurrent().browse_rows.length > 0) { 
+			nuAddActionButton('Print', printCaption, 'nuPrintAction()'); 
+		}
 
 		nuSearchFieldSetSearchType(isMobile);
 
@@ -3651,7 +3653,7 @@ function nuGetOptionsList(f, t, p, a, type) {
 	if (typeBrowse) {
 		list.push(items.Search);
 		if (buttons.Add == '1') { list.push(items.Add); }
-		if (buttons.Print == '1') { list.push(items.Print); }
+		if (buttons.Print == '1' && nuFORM.getCurrent().browse_rows.length > 0) { list.push(items.Print); }
 	}
 
 	if (typeLaunch && typeEdit && type != 'subform') {
@@ -4124,8 +4126,8 @@ function nuBrowseTable() {
 	var h = bc.row_height;
 	var t = parseInt($('#nuBrowseTitle0').css('height'), 10) - h - 2;
 	var l = 7;
-	var borderLeft;
-	var borderRight;
+	// var borderLeft;
+	// var borderRight;
 
 	const brCount = bc.browse_rows;
 	const $record = $('#nuRECORD');	
@@ -4169,7 +4171,7 @@ function nuBrowseTable() {
 			var div = document.createElement('div');
 			div.setAttribute('id', id);
 
-			$('#nuRECORD').append(div);
+			$record.append(div);
 
 			var $id = $('#' + id);
 
@@ -4263,7 +4265,7 @@ function nuBrowseTable() {
 	var divFooter = document.createElement('div');
 	divFooter.setAttribute('id', 'nuBrowseFooter');
 
-	$('#nuRECORD').append(divFooter);
+	$record.append(divFooter);
 
 	$(divFooter)
 	.addClass('nuBrowseFooter')
@@ -4294,7 +4296,7 @@ function nuBrowseTable() {
 	});
 
 	$('body').css('height', h - 30);
-	$('#nuRECORD').css('height', 0).css('width', 0);
+	$record.css('height', 0).css('width', 0);
 
 }
 

@@ -909,8 +909,7 @@ function nuDRAG(w, i, l, p, prop) {
 	}
 
 	const drgDiv =  nuCreateElementWithId(tagType, id, p + 'nuRECORD');
-
-	let $id = $('#' + id);
+	let $id = $(drgDiv);
 
 	nuSetObjectBounds($id, obj.top, obj.left, obj.width, obj.height)
 	.css({
@@ -1012,7 +1011,7 @@ function nuINPUTfileFileSystem($fromId, w, i, l, p, prop, id) {
 	var obj = prop.objects[i];
 	id = id !== undefined ? id : p + obj.id;
 
-	const inp =  nuCreateElementWithId('div', 'nuBreadcrumb0', p + 'nuRECORD');
+	nuCreateElementWithId('div', 'nuBreadcrumb0', p + 'nuRECORD');
 
 	obj = nuLabelOrPosition(obj, w, i, l, p, prop);
 
@@ -4536,28 +4535,6 @@ function nuBrowseAdditionalNavButtons() {
 			$('#nuEnd').css(disabled);
 		}
 	}
-
-}
-
-function nuPrintEditForm() {
-
-	$('#nuBreadcrumbHolder').hide();
-	$('#nuTabHolder').hide();
-	$('.nuActionButton').hide();
-
-	window.onafterprint = function (e) {
-		$(window).off('mousemove', window.onafterprint);
-
-		$('#nuBreadcrumbHolder').show();
-		$('#nuTabHolder').show();
-		$('.nuActionButton').show();
-	};
-
-	window.print();
-
-	setTimeout(function () {
-		$(window).one('mousemove', window.onafterprint);
-	}, 1);
 
 }
 

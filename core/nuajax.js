@@ -1,50 +1,52 @@
-
 function nuAjax(w, successCallback, errorCallback) {
 
-	w = nuAddEditFieldsToHash(w);
-	w = JSON.stringify(w);
+	// Serialize data
+	const data = JSON.stringify(nuAddEditFieldsToHash(w));
 
+	// Send AJAX request
 	$.ajax({
-
 		async: true,
 		dataType: "json",
 		url: "core/nuapi.php",
 		method: "POST",
-		data: { nuSTATE: w },
-		success: function (data, textStatus, jqXHR) {
-			successCallback(data, textStatus, jqXHR);
+		data: {
+			nuSTATE: data
 		},
-		error: function (jqXHR, textStatus, errorThrown) {
-
-			window.test = jqXHR.responseText;
-
-			if (errorCallback !== undefined) {
+		success: (data, textStatus, jqXHR) => successCallback(data, textStatus, jqXHR),
+		error: (jqXHR, textStatus, errorThrown) => {
+			// Call error callback if defined
+			if (errorCallback) {
 				errorCallback(jqXHR, textStatus, errorThrown);
-			};
-
-			let err = nuFormatAjaxErrorMessage(jqXHR, errorThrown);
-
-			let msgDiv;
-
-			if (parent.$('#nuModal').length > 0 && parent.$('#nuModal').siblings(".nuDragDialog").css("visibility") == "hidden") {
-				msgDiv = parent.nuMessage(err);
-				nuClosePopup();
-			} else {
-				msgDiv = nuMessage(err);
 			}
 
-			if (window.nuOnMessage) {
-				nuOnMessage(msgDiv, err);
-			}
+			nuAjaxShowError(jqXHR, errorThrown);
 
 		},
-
-		complete: function (jqXHR, textStatus) {
-			//--
-		}
-
+		complete: (jqXHR, textStatus) => {
+			// Do something when the request completes
+		},
 	});
+}
 
+function nuAjaxShowError() {
+
+	// Format error message and display it
+	const err = nuFormatAjaxErrorMessage(jqXHR, errorThrown);
+	let msgDiv;
+	if (nuHasHiddenModalDragDialog()) {
+		msgDiv = parent.nuMessage(err);
+		nuClosePopup(); 
+	} else {
+		msgDiv = nuMessage(err);
+	}
+	if (window.nuOnMessage) {
+		nuOnMessage(msgDiv, err);
+	}
+
+}
+
+function nuHasHiddenModalDragDialog() {
+	return parent.$('#nuModal').length > 0 && parent.$('#nuModal').siblings(".nuDragDialog").css("visibility") == "hidden";
 }
 
 function nuForm(f, r, filter, search, n, like) {
@@ -137,60 +139,50 @@ function nuForm(f, r, filter, search, n, like) {
 }
 
 
-function nuGetReport(f, r) {
+function nuGetReport(formId, recordId) {
 
-	if (nuOpenNewBrowserTab('getreport', f, r, '')) { return; }
-
-	var last = window.nuFORM.addBreadcrumb();
-
-	last.session_id = window.nuSESSION;
-	last.call_type = 'getreport';
-	last.form_id = f;
-	last.record_id = r;
-
-	if (parent['nuHashFromEditForm'] === undefined) {
-		last.hash = [];
-	} else {
-		last.hash = parent.nuHashFromEditForm();
+	if (nuOpenNewBrowserTab('getreport', formId, recordId, '')) { 
+		return; 
 	}
 
-	var successCallback = function (data, textStatus, jqXHR) {
+	let last = window.nuFORM.addBreadcrumb();
+	last.session_id = window.nuSESSION;
+	last.call_type = 'getreport';
+	last.form_id = formId;
+	last.record_id = recordId;
 
-		var fm = data;
+	const hash = parent.nuHashFromEditForm ? parent.nuHashFromEditForm() : [];
 
-		if (!nuDisplayError(fm)) {
-			nuBuildForm(fm);
+	let successCallback = function (data, textStatus, jqXHR) {
+		if (!nuDisplayError(data)) {
+			nuBuildForm(data);
 		}
-
 	};
 
 	nuAjax(last, successCallback);
 
 }
 
+function nuRunReport(formId, iFrame) {
 
-function nuRunReport(f, iframe) {
-
-	var current = nuFORM.getCurrent();
-	var last = $.extend(true, {}, current);
+	const current = nuFORM.getCurrent();
+	let last = $.extend(true, {}, current);
 
 	last.session_id = window.nuSESSION;
 	last.call_type = 'runreport';
-	last.form_id = f;
-	last.hash = parent.nuHashFromEditForm();
+	last.form_id = formId;
+	last.hash = parent.nuHashFromEditForm ? parent.nuHashFromEditForm() : [];
 
-	var successCallback = function (data, textStatus, jqXHR) {
+	const successCallback = function (data, textStatus, jqXHR) {
 
-		var fm = data;
+		if (!nuDisplayError(data)) {
 
-		if (!nuDisplayError(fm)) {
+			const pdfUrl = 'core/nurunpdf.php?i=' + data.id;
 
-			var pdfUrl = 'core/nurunpdf.php?i=' + fm.id;
-
-			if (iframe === undefined) {
+			if (iFrame === undefined) {
 				window.open(pdfUrl);
 			} else {
-				parent.$('#' + iframe).attr('src', pdfUrl);
+				parent.$('#' + iFrame).attr('src', pdfUrl);
 			}
 
 		}
@@ -201,24 +193,26 @@ function nuRunReport(f, iframe) {
 
 }
 
-function nuRunReportSave(f, tag = null, callback = null) {
+function nuRunReportSave(formId, tag = null, callback = null) {
 
-	var current = nuFORM.getCurrent();
-	var last = $.extend(true, {}, current);
+	const current = nuFORM.getCurrent();
+	const last = $.extend(true, {}, current);
+
 	last.session_id = window.nuSESSION;
 	last.call_type = 'runreport';
-	last.form_id = f;
+	last.form_id = formId;
 	last.hash = nuHashFromEditForm();
-	var successCallback = function (data, textStatus, jqXHR) {
 
-		var fm = data;
+	const successCallback = function (data, textStatus, jqXHR) {
+
+		const fm = data;
 
 		if (!nuDisplayError(fm)) {
 
-			var fd = new FormData();
-			fd.append('ID', fm.id);
-			fd.append('tag', tag);
-			var xhr = new XMLHttpRequest();
+			let formData = new FormData();
+			formData.append('ID', fm.id);
+			formData.append('tag', tag);
+			let xhr = new XMLHttpRequest();
 
 			if (callback !== null) {
 				xhr.onreadystatechange = function () {
@@ -230,7 +224,7 @@ function nuRunReportSave(f, tag = null, callback = null) {
 			}
 
 			xhr.open('POST', 'core/nurunpdf.php', true);
-			xhr.send(fd);
+			xhr.send(formData);
 
 		}
 
@@ -250,23 +244,20 @@ function nuAskLogout() {
 
 }
 
-function nuLogout(f, iframe) {
+function nuLogout() {
 
-	let top = window.top;
-    top.nuFORM.addBreadcrumb();
+	const winTop = window.top;
+    winTop.nuFORM.addBreadcrumb();
 
-	var last = top.nuFORM.getCurrent();
-
+	const last = winTop.nuFORM.getCurrent();
 	last.session_id = window.nuSESSION;
 	last.call_type = 'logout';
 
-	var successCallback = function (data, textStatus, jqXHR) {
+	const successCallback = function (data, textStatus, jqXHR) {
 
-		var fm = data;
-
-		if (!nuDisplayError(fm)) {
+		if (!nuDisplayError(data)) {
 			sessionStorage.removeItem('nukeepalive');
-			top.window.open('index.php', '_self');
+			winTop.window.open('index.php', '_self');
 		}
 
 	};
@@ -275,19 +266,21 @@ function nuLogout(f, iframe) {
 
 }
 
-function nuGetPHP(f, r) {
+function nuGetPHP(formId, recordId) {
 
-	if (nuOpenNewBrowserTab('getphp', f, r, '')) { return; }
+	if (nuOpenNewBrowserTab('getphp', formId, recordId, '')) {
+		return;
+	}
 
 	window.nuFORM.addBreadcrumb();
 
-	var current = nuFORM.getCurrent();
-	var last = $.extend(true, {}, current);
+	const current = nuFORM.getCurrent();
+	let last = $.extend(true, {}, current);
 
 	last.session_id = window.nuSESSION;
 	last.call_type = 'getphp';
-	last.form_id = f;
-	last.record_id = r;
+	last.form_id = formId;
+	last.record_id = recordId;
 
 	if (parent['nuHashFromEditForm'] === undefined) {
 		last.hash = [];
@@ -295,15 +288,11 @@ function nuGetPHP(f, r) {
 		last.hash = parent.nuHashFromEditForm();
 	}
 
-	var successCallback = function (data, textStatus, jqXHR) {
+	const successCallback = function (data) {
 
-		var fm = data;
-
-		if (!nuDisplayError(fm)) {
-
-			nuFORM.setProperty('record_id', fm.record_id);
-			nuBuildForm(fm);
-
+		if (!nuDisplayError(data)) {
+			nuFORM.setProperty('record_id', data.record_id);
+			nuBuildForm(data);
 		} else {
 			window.nuFORM.breadcrumbs.pop();
 		}
@@ -313,53 +302,40 @@ function nuGetPHP(f, r) {
 
 }
 
-function nuRunPHP(pCode, iframe, rbs) {
+function nuRunPHP(code, iFrame, runBeforeSave) {
 
-	if (arguments.length < 3) {
-
-		if (window.nuBeforeSave) {
-			if (nuBeforeSave() === false) { return; }
+	if (!runBeforeSave) {
+		if (nuBeforeSave && nuBeforeSave() === false) {
+			return;
 		}
-
 	}
 
-	var current = nuFORM.getCurrent();
-	var last = $.extend(true, {}, current);
+	const current = nuFORM.getCurrent();
+	let last = $.extend(true, {}, current);
 
 	last.session_id = nuSESSION;
 	last.call_type = 'runphp';
-	last.form_id = pCode;
+	last.form_id = code;
 	last.nuFORMdata = nuFORM.data();
 
 	if (nuFORM.getCurrent() === undefined) {
-
 		last.record_id = parent.nuFORM.getCurrent().record_id;
-
-		if (parent['nuHashFromEditForm'] === undefined) {
-			last.hash = [];
-		} else {
-			last.hash = parent.nuHashFromEditForm();
-		}
-
+		last.hash = parent['nuHashFromEditForm'] === undefined ? [] : parent.nuHashFromEditForm();
 	} else {
-
 		last.record_id = nuFORM.getCurrent().record_id;
 		last.hash = nuHashFromEditForm();
-
 	}
 
-	var successCallback = function (data, textStatus, jqXHR) {
+	const successCallback = function (data, textStatus, jqXHR) {
 
-		var fm = data;
+		if (!nuDisplayError(data)) {
 
-		if (!nuDisplayError(fm)) {
+			const pdfUrl = `core/nurunphp.php?i=${fm.id}`;
 
-			var pdfUrl = 'core/nurunphp.php?i=' + fm.id;
-
-			if (iframe === undefined || iframe === '') {
+			if (!iFrame) {
 				window.open(pdfUrl);
 			} else {
-				parent.$('#' + iframe).attr('src', pdfUrl);
+				parent.$('#' + iFrame).attr('src', pdfUrl);
 			}
 
 		}
@@ -614,11 +590,11 @@ function nuGetLookupId(pk, id, setFocus, setEdited) {
 
 }
 
-function nuGetLookupCode(e) {
+function nuGetLookupCode(event) {
 	
-	const nuTarget = e.target.getAttribute('data-nu-target');
+	const nuTarget = event.target.getAttribute('data-nu-target');
 	
-	if (e.currentTarget && e.currentTarget.value.length == 0) {
+	if (event.currentTarget && event.currentTarget.value.length == 0) {
 		window.nuLOOKUPCLEARING = true;
 		$('#' + nuTarget).addClass('nuEdited');
 		nuSetValue(nuTarget, '');
@@ -627,23 +603,23 @@ function nuGetLookupCode(e) {
 		return;
 	}
 	
-	var last = window.nuFORM.getCurrent();
+	let last = window.nuFORM.getCurrent();
 
 	last.session_id = window.nuSESSION;
 	last.call_type = 'getlookupcode';
-	last.object_id = e.target.getAttribute('data-nu-object-id');
+	last.object_id = event.target.getAttribute('data-nu-object-id');
 	last.target = nuTarget;
-	last.code = e.target.value;
+	last.code = event.target.value;
 	last.hash = nuHashFromEditForm();
 
 	window.nuLOOKUPSTATE[last.object_id] = 'looking';
 
-	var successCallback = function (data, textStatus, jqXHR) {
+	const successCallback = function (data) {
 
 		nuSERVERRESPONSELU = data;
 
 		if (!nuDisplayError(data)) {
-			nuChooseOneLookupRecord(e, data);
+			nuChooseOneLookupRecord(event, data);
 		}
 
 	};
@@ -655,23 +631,18 @@ function nuGetLookupCode(e) {
 
 function nuPrintAction() {
 
-	var last = window.nuFORM.getCurrent();
+	let last = window.nuFORM.getCurrent();
 
 	last.call_type = 'runhtml';
 	last.browse_columns = nuSERVERRESPONSE.browse_columns;
 	last.browse_sql = nuSERVERRESPONSE.browse_sql;
 	last.session_id = window.nuSESSION;
 
-	var successCallback = function (data, textStatus, jqXHR) {
+	const successCallback = function (data, textStatus, jqXHR) {
 
-		var fm = data;
-
-		if (!nuDisplayError(fm)) {
-
-			var p = 'core/nurunhtml.php?i=' + fm.id;
-
+		if (!nuDisplayError(data)) {
+			var p = 'core/nurunhtml.php?i=' + data.id;
 			window.open(p);
-
 		}
 
 	};
@@ -712,13 +683,13 @@ function nuUpdateData(action, instruction, close) {
 
 	if (nuFORM.getCurrent().record_id == -1) { nuSetProperty('NEW_RECORD', 1); }
 
-	var current = window.nuFORM.getCurrent();
-	var last = $.extend(true, {}, current);
+	const current = window.nuFORM.getCurrent();
+	let last = $.extend(true, {}, current);
 
-	var f = last.form_id;
+	const formId = last.form_id;
 	window.nuLASTRECORD = last.record_id;
 
-	if (arguments.length == 2) {
+	if (instruction !== undefined) {
 		last.instruction = instruction;
 	}
 
@@ -730,25 +701,22 @@ function nuUpdateData(action, instruction, close) {
 
 	$('.nuActionButton').hide();
 
-	var successCallback = function (data, textStatus, jqXHR) {
+	const successCallback = function (data, textStatus, jqXHR) {
 
-		var fm = data;
-
-		if (nuDisplayError(fm)) {
+		if (nuDisplayError(data)) {
 
 			$('.nuActionButton').show();
-
 			nuAbortSave();
 
 		} else {
 
-			if (fm.after_event) {
-				nuMESSAGES = fm.errors;
+			if (data.after_event) {
+				nuMESSAGES = data.errors;
 			}
 
 			if ($('#nuDelete').prop('checked')) {
 
-				if (action == "delete" && instruction == "all" && fm.record_id == "") {
+				if (action == "delete" && instruction == "all" && data.record_id == "") {
 
 					nuSearchAction();
 					nuGetBreadcrumb();
@@ -757,7 +725,6 @@ function nuUpdateData(action, instruction, close) {
 				}
 
 				window.nuFORM.removeLast();						//-- return to browse
-
 				if ($('.nuBreadcrumb').length == 0) {
 					window.close();
 				} else {
@@ -783,10 +750,10 @@ function nuUpdateData(action, instruction, close) {
 
 			} else {
 
-				nuForm(f, fm.record_id, fm.filter, fm.search, 1);		//-- go to saved or created record
+				nuForm(formId, data.record_id, data.filter, data.search, 1);		//-- go to saved or created record
 				nuUpdateMessage('Record Saved');
 
-				if (instruction == 'close') {
+				if (instruction === 'close') {
 					nuFORM.edited = false;
 					nuOpenPreviousBreadcrumb();
 				}
@@ -801,14 +768,13 @@ function nuUpdateData(action, instruction, close) {
 
 function nuSaveAfterDrag() {
 
-	const f = $('#nuDragDialog iframe')[0].contentWindow.nuFORM;
-
-	var last = f.getCurrent();
+	const contentWin = getNuDragDialogIframes[0].contentWindow;
+	let last = contentWin.nuFORM.getCurrent();
 
 	last.call_type = 'nudragsave';
-	last.nuDragState = $('#nuDragDialog iframe')[0].contentWindow.nuDragOptionsState;
+	last.nuDragState = contentWin.nuDragOptionsState;
 
-	var successCallback = function (data, textStatus, jqXHR) {
+	const successCallback = function (data, textStatus, jqXHR) {
 
 		if (nuDisplayError(data.errors)) {
 			alert(data.errors[0]);
@@ -826,21 +792,20 @@ function nuSaveAfterDrag() {
 
 }
 
-function nuOpenNewBrowserTab(c, f, r, filter) {
+function nuOpenNewBrowserTab(type, formId, recordId, filter) {
 
 	if (window.nuNEW == 1) {
 
 		window.nuNEW = 0;
+		window.nuOPENER.push(new nuOpener('F', formId, recordId, filter));
 
-		window.nuOPENER.push(new nuOpener('F', f, r, filter));
-
-		nuOpenerAppend('type', c);
+		nuOpenerAppend('type', type);
 
 		const len = window.nuOPENER.length - 1;
-		const id = window.nuOPENER[window.nuOPENER.length - 1].id;
-		const u = window.location.origin + window.location.pathname + '?i=' + len + '&opener=' + id;
+		const openerId = window.nuOPENER[len].id;
+		const url = `${window.location.origin}${window.location.pathname}?i=${len}&opener=${openerId}`;
 
-		window.open(u);
+		window.open(url);
 
 		return true;
 

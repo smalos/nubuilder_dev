@@ -1650,31 +1650,35 @@ function nuUserLanguage($e = ''){
 
 }
 
-function nuTranslate($e){
+function nuTranslate($englishStr) {
 
-		$l	= nuUserLanguage();
+	$language = nuUserLanguage();
+	if (empty($language)) {
+		return $englishStr;
+	}
 
-		if ($l == '') return $e;
+	$query = "
+				SELECT trl_translation
+				FROM zzzzsys_translate
+				WHERE trl_language = ?
+				AND trl_english = ?
+				ORDER BY trl_english, IF(zzzzsys_translate_id like 'nu%', 1, 0)
 
-		$s	= "
-						SELECT trl_translation
-						FROM zzzzsys_translate
-						WHERE trl_language = ?
-						AND trl_english = ?
-						ORDER BY trl_english, IF(zzzzsys_translate_id like 'nu%', 1, 0)
+	";
 
-			";
+	$stmt = nuRunQuery($query, [$language, $englishStr]);
+	$translatedStr = db_num_rows($stmt) == 0 ? $englishStr : db_fetch_object($stmt)->trl_translation;
 
-		$t		= nuRunQuery($s, [$l, $e]);
+	if (func_num_args() > 1 && nuStringContains('%', $translatedStr)) {
+		$args = func_get_args();
+		array_shift($args);
+		$translatedStr = vsprintf($translatedStr, $args);
+	}
 
-		$tr = '';
-		if (db_num_rows($t) != 0) {
-			$tr		= db_fetch_object($t)->trl_translation;
-		}
-
-		return $tr == '' ? $e : $tr;
+	return $translatedStr;
 
 }
+
 
 function nuToCSV($table, $file, $d){
 
@@ -1934,14 +1938,20 @@ function nuGetHttpOrigin() {
 	return $origin;
 }
 
-function nuGetRecordURL($origin = '', $subFolder = '', $homepageId = '', $formId = '') {
+function nuGetRecordURL($origin = null, $subFolder = null, $homepageId = null, $formId = null) {
 
-	$homepageId = $homepageId != '' ? '&h='. $homepageId : '';
-	$origin = $origin == '' ? nuGetHttpOrigin() : $origin;
-	$formId = $formId == '' ? nuHash() ['form_id'] : $formId;
+	$homepageId = $homepageId ? '&h='. $homepageId : '';
+	$origin = $origin ? $origin : nuGetHttpOrigin();
 
-	$recordId = nuReplaceHashVariables('#record_id#');
-	if ($recordId == '-1' && "#RECORD_ID#" != '-1') $recordId = nuReplaceHashVariables('#RECORD_ID#');
+	if (!$formId) {
+		$hash = nuHash();
+		$formId = $hash['form_id'] == '' ? $hash['FORM_ID'] : $hash['form_id'];
+	}
+
+	$recordIdL = nuReplaceHashVariables('#record_id#');
+	$recordIdC = nuReplaceHashVariables('#RECORD_ID#');
+
+	$recordId = $recordIdL ? $recordIdL : $recordIdC;
 
 	return $origin. $subFolder . '/index.php?f=' . $formId . '&r=' . $recordId . $homepageId;
 

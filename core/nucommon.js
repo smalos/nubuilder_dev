@@ -228,7 +228,17 @@ jQuery.fn.extend({
 	},
 	nuSetPlaceholder: function(placeholder, translate) {
 		return nuSetPlaceholder(this.attr('id'), placeholder, translate);
-	}
+	},
+	nuTogglePassword: function(show) {
+		return this.each(function() {
+			let $input = $(this);
+			let type = $input.attr('type') === 'password' ? 'text' : 'password';
+			if (show !== undefined) {
+				type = show ? 'text' : 'password';
+			}
+			$input.attr('type', type);
+		});
+  }	
 
 });
 
@@ -335,7 +345,7 @@ function nuGetBreadcrumb(bc) {
 	var c = window.nuFORM.getCurrent();
 
 	if (c === undefined) {
-		$('#nuDragDialog iframe').remove();
+		getNuDragDialogIframes().remove();
 	} else {
 		nuForm(c.form_id, c.record_id, c.filter, c.search, 1);
 	}
@@ -345,22 +355,21 @@ function nuGetBreadcrumb(bc) {
 
 function nuOpenPreviousBreadcrumb(b) {
 
-	// If a popup is open, close it
-	if (parent.$('#nuModal').length > 0) {
+	const breadcrumbs = window.nuFORM.breadcrumbs;
+	const modal = parent.$('#nuModal');
+
+	if (modal.length) {
 		nuClosePopup();
 		return;
 	}
 
-	if (b === undefined) {
-		var b = 2;
-	} else {
-		b = b + 1;
-	}
-
-	var l = window.nuFORM.breadcrumbs.length;
+	b = b ? b + 1 : 2;
+	
+	const l = breadcrumbs.length;
 	if (l > 1) {
 		nuGetBreadcrumb(l - b);
 	}
+
 }
 
 function nuDisplayError(e) {
@@ -381,24 +390,26 @@ function nuDisplayError(e) {
 
 function nuFormatAjaxErrorMessage(jqXHR, exception) {
 
-	if (jqXHR.status === 0) {
-		return nuTranslate('Not connected. Please verify your network connection.');
-	} else if (jqXHR.status == 403) {
-		return ['<h3>' + nuTranslate('Access Forbidden.') + '</h3>', jqXHR.responseText];
-	} else if (jqXHR.status == 404) {
-		return nuTranslate('The requested page was not found.') + ' [404]';
-	} else if (jqXHR.status == 500) {
-		return nuTranslate('Internal Server Error.') + ' [500]';
-	} else if (exception === 'parsererror') {
-		return nuTranslate('Requested JSON parse failed.');
-	} else if (exception === 'timeout') {
-		return nuTranslate('Time out error.');
-	} else if (exception === 'abort') {
-		return nuTranslate('Ajax request aborted.');
-	}
+	const errorMessages = {
+		0: nuTranslate('Not connected. Please verify your network connection.'),
+		403: {
+			message: `<h3>${nuTranslate('Access Forbidden.')}</h3>`,
+			response: jqXHR.responseText,
+		},
+		404: nuTranslate('The requested page was not found.') + ' [404]',
+		500: nuTranslate('Internal Server Error.') + ' [500]',
+		parsererror: nuTranslate('Requested JSON parse failed.'),
+		timeout: nuTranslate('Time out error.'),
+		abort: nuTranslate('Ajax request aborted.'),
+	};
 
-	return ['<h3>' + nuTranslate('Uncaught Error.') + '</h3>', jqXHR.responseText];
+	const errorMessage = errorMessages[jqXHR.status] || errorMessages[exception] || {
+		message: `<h3>${nuTranslate('Uncaught Error.')}</h3>`,
+		response: jqXHR.responseText,
+	};
 
+	return errorMessage;
+ 
 }
 
 function nuLogin(loginTopRow, nuconfigNuWelcomeBodyInnerHTML, logonMode='normal', onlySsoExcept={}, lastUser="") {
@@ -1023,27 +1034,22 @@ function nuTranslateToEnglish(str) {
 	if (!str) return '';
 
 	str = String(str);
-	if (str.charAt(0) == '|') return str.substring(1);
+	if (str.charAt(0) === '|') return str.substring(1);
 
-	let l = nuLANGUAGE.find(elem => elem.translation === str);
-	return !l ? str : l.english;
+	const l = nuLANGUAGE.find(({translation}) => translation === str);
+	return l ? l.english : str;
 
 }
 
 function nuIsOpener() {
-
-	if (window.opener !== null) {
-		return true;
-	}
-
-	return false;
+	return window.opener !== null;
 }
 
 function nuPreview(a) {
 
 	const r = nuRecordId();
 
-	if (r == '-1') {
+	if (r === '-1') {
 
 		alert(nuTranslate('Form must be saved first..'));
 		return;
@@ -1103,27 +1109,20 @@ function nuPopJS() {				//-- used in database
 
 function nuGetLookupFields(id) {
 
-	var i = id.substr(0, id.length - 4);
-	var o = $('#' + id);
-	var a = [];
+	const prefix = id.slice(0, -4);
+	const $id = $('#' + id);
+	const lookupFields = [];
 
-	if (o.length == 1) {
-
-		if (o.attr('data-nu-type') == 'subform') {
-
-			a.push(i);
-			a.push(id);
-			a.push(i + 'description');
-
+	if ($id.length === 1) {
+		const type = $id.attr('data-nu-type');
+		if (type === 'subform') {
+			lookupFields.push(prefix, id, prefix + 'description');
 		} else {
-			a.push('nunosuchfield');
-			a.push(id);
-			a.push('nunosuchfield');
+			lookupFields.push('nunosuchfield', id, 'nunosuchfield');
 		}
-
 	}
 
-	return a;
+	return lookupFields;
 
 }
 
@@ -1138,97 +1137,80 @@ function nuObjectComponents(i) {
 
 }
 
-function nuEnable(i, enable) {					//-- Enable Edit Form Object
-
+function nuEnable(i, enable) {
+  
 	if (enable === false) {
 		nuDisable(i);
 		return;
 	}
 
-	var a = [];
-	if (!$.isArray(i)) {
-		a.push(i);
-	} else {
-		a = i;
-	}
+	const ids = Array.isArray(i) ? i : [i];
 
-	$.each(a, function (index) {
+	$.each(ids, function(index) {
 
-		i = a[index];
+		const id = ids[index];
+		const components = nuObjectComponents(id);
 
-		var o = nuObjectComponents(i);
+		for (let c = 0; c < components.length; c++) {
 
-		for (var c = 0; c < o.length; c++) {
+			if (c === 1) {
+				continue;
+			} // skip label
 
-			if (c === 1) { continue; }		// skip label
+			$currentComponent = $('#' + components[c]);
 
-			$('#' + o[c])
+			$currentComponent
 				.removeClass('nuReadonly')
 				.prop('readonly', false)
 				.prop('disabled', false);
 
-			if (c == 2) { //-- button
+			if (c === 2) { //-- button
+				$currentComponent.on("click", () => nuBuildLookup(components[c], ""));
+			}
 
-				$('#' + o[c])
-					.on("click", function () {
-						nuBuildLookup(this, "");
-					})
+		}
 
+	});
+ 
+}
+
+function nuDisable(i) { //-- Disable Edit Form Object
+  
+	const ids = Array.isArray(i) ? i : [i];
+
+	$.each(ids, function(index) {
+		const id = ids[index];
+		const components = nuObjectComponents(id);
+
+		for (let c = 0; c < components.length; c++) {
+			if (c === 1) {
+				continue;
+			} // skip label
+
+			$currentComponent = $('#' + components[c]);
+			$currentComponent
+				.addClass('nuReadonly')
+				.prop('readonly', true)
+				.prop('disabled', true);
+
+			if (c === 2) { //-- button
+				$currentComponent.off();
 			}
 		}
 	});
 
 }
 
-function nuReadonly(i) {					//-- set Edit Form Object to readonly
+function nuReadonly(i) {
 
-	var o = nuObjectComponents(i);
+	const o = nuObjectComponents(i);
 
-	for (var c = 0; c < o.length; c++) {
-
-		if (c === 1) { continue; }		// skip label
-
-		$('#' + o[c])
+	o.forEach((component, index) => {
+		if (index === 1) return; 		// Skip label
+		$('#' + component)
 			.addClass('nuReadonly')
 			.attr('onclick', "return false")
 			.prop('readonly', true);
-
-	}
-
-}
-
-function nuDisable(i) {					//-- Disable Edit Form Object
-
-	var a = [];
-	if (!$.isArray(i)) {
-		a.push(i);
-	} else {
-		a = i;
-	}
-
-	$.each(a, function (index) {
-
-		i = a[index];
-
-		var o = nuObjectComponents(i);
-
-		for (var c = 0; c < o.length; c++) {
-
-			if (c === 1) { continue; }		// skip label
-
-			$('#' + o[c])
-				.addClass('nuReadonly')
-				.prop('readonly', true)
-				.prop('disabled', true);
-
-			if (c == 2) { //-- button
-
-				$('#' + o[c]).off();
-
-			}
-
-		}
-
 	});
 
 }
@@ -1315,21 +1297,17 @@ function nuHide(i) {
 
 }
 
+
 function nuRemove(i) {
 
-	let arr = [];
-	if (!$.isArray(i)) {
-		arr.push(i);
-	} else {
-		arr = i;
-	}
+	const arr = Array.isArray(i) ? i : [i];
 
-	for (let s = 0; s < arr.length; s++) {
+	for (const s of arr) {
 
-		const o = nuObjectComponents(arr[s]);
+		const o = nuObjectComponents(s);
 
-		for (let c = 0; c < o.length; c++) {
-			$('#' + o[c]).remove();
+		for (const c of o) {
+			$('#' + c).remove();
 		}
 	}
 
@@ -1376,37 +1354,35 @@ function nuDuplicates(arr) {
 
 function nuResizeWindow(e) {
 
-	if (e.target.id != 'dialogTitleWords') { return; }
+	if (e.target.id !== 'dialogTitleWords') return;
 
-	var d = $('#nuDragDialog');
-	var D = $('.nuDragOptionsBox');
-	var W = 0;
-	var w = $('#nuWindow');
-	var f = $('#nuDragDialog iframe')[0].contentWindow;
-	var l = parseInt(d.css('left'), 10);
-
-	if (D.length != 0) {
-		W = parseInt(D.css('width'), 10);
-	}
-
-	if (l == 2) {
-
-		d.css(f.nuDialogSize);
-		w.css(f.nuWindowSize);
-
+	const dialog = $('#nuDragDialog');
+	const dialogLeft = parseInt(dialog.css('left'), 10);
+	const win = $('#nuWindow');
+	const dragOptionsBox = $('.nuDragOptionsBox');
+	
+	if (dialogLeft === 2) {
+		const contentWin = getNuDragDialogIframes[0].contentWindow;
+		dialog.css(contentWin.nuDialogSize);
+		win.css(contentWin.nuWindowSize);
 	} else {
 
-		d.css({ top: 0, left: 2, width: window.innerWidth - 30, height: window.innerHeight });
+		dialog.css({
+			top: 0,
+			left: 2,
+			width: window.innerWidth - 30,
+			height: window.innerHeight
+		});
 
-		var dh = parseInt(d.css('height'), 10) - 50;
-		var dw = parseInt(d.css('width'), 10) - W - 10;
+		const dialogWidth = dragOptionsBox.length ? parseInt(dragOptionsBox.css('width'), 10) : 0;
 
-		w.css({ top: 30, width: dw, height: dh });
+		win.css({
+			top: 30,
+			width: parseInt(dialog.css('width'), 10) - dialogWidth - 10,
+			height: parseInt(dialog.css('height'), 10) - 50
+		});
 
 	}
-
-	window.frames[window.frames.length - 1].frameElement.contentWindow.nuResize();
-
 }
 
 function nuGetFunctionList() {
@@ -1454,14 +1430,13 @@ function nuSetSuffix(a) {
 
 }
 
-function nuWhen(w) {
+function nuWhen(timestamp) {
+	
+	if (!timestamp) return;
 
-	const numax = (Date.now() / 1000) - Number(w);
-	const numin = numax;
-	const nusec = String(Math.ceil(numin));
-	var nuhtm = nusec + (nusec == 1 ? ' second ago' : ' seconds ago');
-
-	return nuhtm;
+	const secondsElapsed = Math.ceil((Date.now() / 1000) - timestamp);
+	const timeUnit = secondsElapsed === 1 ? 'second' : 'seconds';
+	return `${secondsElapsed} ${timeUnit} ago`;
 
 }
 
@@ -1562,10 +1537,11 @@ function nuSelectedTabTitle(parent = null) {
 
 function nuSelectNextTab(i) {
 
-	const selectedTab = $('.nuTabSelected')[0].id.substring(5);
-	const nextTab = parseInt(selectedTab, 10) + i;
-	const e = document.getElementById('nuTab' + nextTab);
-	if (e !== null) {
+	const selectedTab = $('.nuTabSelected')[0];
+	const selectedTabId = selectedTab.id.substring(5);
+	const nextTabId = parseInt(selectedTabId, 10) + i;
+	const e = document.getElementById('nuTab' + nextTabId);
+	if (e) {
 		nuSelectTab(e);
 	}
 
@@ -1667,11 +1643,12 @@ function nuAttachFile(j, c) {
 
 function nuButtonIcon(j) {
 
-	$(j)
-		.css('text-align', 'left')
-		.css('padding', '0px 0px 0px 35px')
-		.css('background-size', '30px')
-		.css('background-repeat', 'no-repeat')
+    $(j).css({
+        'text-align': 'left',
+        'padding': '0px 0px 0px 35px',
+        'background-size': '30px',
+        'background-repeat': 'no-repeat'
+    });
 
 }
 
@@ -1825,83 +1802,6 @@ function nuIsSaved() {
 	return window.nuSAVED;
 }
 
-function nuSortSubform(sfName, c, e) {
-
-	if (!e.target.classList.contains('nuSubformTitle')) return;
-
-	var sf = [];
-	const obj = nuSubformObject(sfName);
-	const so = obj.fields[c];
-	const count = obj.rows.length;
-	var h = 0;
-	var t = false;
-	const objSf = $('#' + sfName);
-	var noAdd = objSf.attr('data-nu-add') == '0';
-
-	const records = $("[ID^='" + sfName + "'][ID$='nuRECORD']");
-	const newRecord = records.last();
-	const newRecordId = newRecord.attr('id');
-
-	records.each(function (index) {
-
-		var id = this.id;
-
-		if (id !== newRecordId) { // exclude new record
-
-			const f = this.id.replaceAll('nuRECORD', '');
-			h = parseInt($(this).css('height'), 10);
-
-			const objF = $('#' + f + so);
-			t = objF.hasClass('input_number') || objF.hasClass('input_nuNumber') || objF.hasClass('nuCalculator');
-			let v = objF.val();
-			let m = objF.attr('data-nu-format');
-			const l = objF.hasClass('nuHiddenLookup');
-
-			if (m != '') {
-				v = nuFORM.removeFormatting(v, m);
-			}
-
-			if (l) {
-				v = $('#' + f + so + 'code').val();
-			}
-
-			const o = { 'form': id, 'value': v };
-			if (!(index == count && noAdd)) sf.push(o);
-
-		}
-
-	});
-
-	let rows;
-	if ($(e.target).attr('data-nu-order') == 'asc') {
-
-		rows = t ? sf.sort(nuDecendingSortNumberColumn) : sf.sort(nuDecendingSortColumn);
-		$(e.target).attr('data-nu-order', 'desc');
-
-	} else {
-
-		rows = t ? sf.sort(nuAscendingSortNumberColumn) : sf.sort(nuAscendingSortColumn);
-		$(e.target).attr('data-nu-order', 'asc');
-
-	}
-
-	let top = 0;
-
-	for (let i = 0; i < rows.length; i++) {
-
-		$('#' + rows[i].form).css('top', top).data('nu-top-position', top); // save top position
-		top = top + h;
-
-	}
-
-	newRecord.css('top', top).data('nu-top-position', top);
-
-	if (objSf.data('nu-filtered') === true) {
-		objSf.find('.nuSubformFilter').first().change();
-	}
-
-}
-
 function nuAscendingSortColumn(a, b) {
 
 	if (a.value < b.value) { return -1; }
@@ -1983,43 +1883,6 @@ function nuTransformScale() {
 
 }
 
-function nuSetBrowserColumns(c) {
-
-	const p = nuTotalWidth('nucell_0_0') - $('#nucell_0_0').width(); //-- padding
-	var l = 7;
-
-	for (let i = 0; i < c.length; i++) {
-
-		$('[data-nu-column="' + i + '"]').css({
-			'left': l,
-			'width': c[i]
-		});
-		$('#nuBrowseTitle' + i).css({
-			'left': l,
-			'width': c[i]
-		});
-		l = l + c[i] + (c[i] == 0 ? 0 : p);
-
-	}
-
-	$('#nuBrowseFooter').css('width', l - 7);
-
-	nuFORM.breadcrumbs[nuFORM.breadcrumbs.length - 1].column_widths = c;
-
-	if (nuCurrentProperties().browse_filtered_rows == 0) {
-
-		$('#nucell_0_0').css({
-			'width': l - 20	,
-			'z-index': '2'
-
-		});
-
-		$("div[id^='nucell_']").not('#nucell_0_0').hide();
-
-	}
-
-}
-
 function nuStopBrowserResize() {
 
 	if (nuFormType() == 'browse') {
@@ -2040,47 +1903,12 @@ function nuDisableBrowseResize() {
 
 }
 
-function nuResizeBrowseColumns(force) {
-
-	var w = nuArrayColumn(nuSERVERRESPONSE.browse_columns, 'width').map(Number);
-	var t = 0;
-	const p = nuTotalWidth('nucell_0_0') - $('#nucell_0_0').width();	//-- padding
-
-	if ((nuFORM.getCurrent().refreshed != 0 && force !== true) && nuMainForm()) { return; }
-
-	if (nuMainForm()) {
-
-		for (var i = 0; i < w.length; i++) {
-			t = t + w[i];
-		}
-
-		for (var i = 0; i < w.length; i++) {
-			w[i] = parseInt((window.innerWidth - 30) * w[i] / t, 10) - p;
-		}
-
-	} else {
-
-		var W = nuTotalWidth('nuBrowseFooter') + 22;
-
-		$('#nuDragDialog', window.parent.document).css('width', W + 14);
-		$('#nuWindow', window.parent.document).css('width', W);
-
-		$('body').css('width', W);
-
-	}
-
-	if (nuFORM.getCurrent().refreshed != 0 && force !== true) { return; }
-
-	nuSetBrowserColumns(w);
-
-}
-
 function nuDragTitleEvents() {
 
 	if (nuFormType() != 'browse') { return; }
 
 	const colWidths = nuFORM.getCurrent().column_widths == 0 ? nuGetColumWidths() : nuFORM.getCurrent().column_widths;
-	nuSetBrowserColumns(colWidths);
+	nuSetBrowseColumns(colWidths);
 
 	$('#nubody').on('mousemove.nuresizecolumn', function (event) { nuDragBrowseColumn(event, 'pointer'); });
 
@@ -2097,91 +1925,6 @@ function nuDragTitleEvents() {
 	$('.nuBrowseTitle').on('touchcancel.nuresizecolumn', function (event) { nuEndBrowseResize(event); });
 
 }
-
-function nuGetColumWidths() {
-
-	let a = [];
-
-	$("div[id^='nuBrowseTitle']").each(function (index) {
-		a.push(parseInt($(this).css('width'), 10));
-	});
-
-	return a;
-
-}
-
-function nuDownBrowseResize(e, p) {
-
-	e.preventDefault();
-
-	window.nuBROWSERESIZE.mouse_down = true;
-	window.nuBROWSERESIZE.pointer = p;
-
-	const target = e.target.id.replace('nusort_', 'nuBrowseTitle');
-
-	window.nuBROWSERESIZE.moving_element = target;
-	window.nuBROWSERESIZE.x_position = e.clientX;
-
-	$('#' + target).addClass('nuBrowseResize');
-
-}
-
-
-
-function nuEndBrowseResize(e) {
-
-	window.nuBROWSERESIZE.mouse_down = false;
-	window.nuBROWSERESIZE.moving_element = '';
-	$('.nuBrowseTitle').removeClass('nuBrowseResize');
-
-}
-
-
-
-function nuDragBrowseColumn(e, p) {
-
-	if (e.target.id === '') return; 	//  not on ctxmenu
-
-	e.preventDefault();
-
-	if (window.nuBROWSERESIZE.mouse_down) {
-
-		window.nuBROWSERESIZE.pointer = p; // added
-		const id = window.nuBROWSERESIZE.moving_element;
-		const offset_limit = 100000000;
-		const min_offset = 2;
-		var x = e.pageX;
-
-		if (window.nuBROWSERESIZE.pointer == "finger_touch") {
-			x = e.changedTouches[0].clientX;
-		}
-
-		var x_offset = x - window.nuBROWSERESIZE.x_position;
-
-		window.nuBROWSERESIZE.x_position = x;
-
-		if (x !== 0 && Math.abs(x_offset) > min_offset) {
-
-			if (x_offset < offset_limit) {
-
-				let c = Number(id.substr(13));
-
-				let m = nuFORM.breadcrumbs[nuFORM.breadcrumbs.length - 1].column_widths[c] + x_offset
-				if (m < 40) { m = 40; }
-
-				nuFORM.breadcrumbs[nuFORM.breadcrumbs.length - 1].column_widths[c] = m;
-				nuSetBrowserColumns(nuFORM.breadcrumbs[nuFORM.breadcrumbs.length - 1].column_widths)
-
-			} else {
-				console.log('Offset size exceeds limit');
-			}
-
-		}
-
-	}
-
-}
-
 
 function nuRemovePX(s) {
 	return Number(String(s).split('px')[0]);
@@ -2252,78 +1995,6 @@ function nuSetBrowserTabTitle(prefix) {
 	}
 	prefix = prefix === '' ? '' : prefix + ' - ';
 	document.title = prefix + t;
-
-}
-
-function nuBrowseTitleMultiLine() {
-
-	$('#nuActionHolder').css({ 'height': '40px' });
-	$('.nuBrowseTitle').css('top', "-20px");
-}
-
-
-function nuSetBrowseColumnWidth(column, width) {
-
-	var cw = this;
-	if (nuIsIframe()) {
-		cw = parent.$("#" + window.frameElement.id)[0].contentWindow;
-	}
-	cw.nuFORM.breadcrumbs[cw.nuFORM.breadcrumbs.length - 1].column_widths[column] = width;
-	cw.nuSetBrowserColumns(cw.nuFORM.breadcrumbs[cw.nuFORM.breadcrumbs.length - 1].column_widths);
-
-}
-
-function nuBrowseAdditionalNavButtons() {
-
-	if (nuFormType() == 'browse') {
-
-		const disabled = {
-			'opacity': '0.3',
-			'pointer-events': 'none'
-		};
-
-		const currentPage = Number($('#browsePage').val());
-		const lastPage = nuCurrentProperties().pages;
-
-		let html = '<span id="nuFirst" class="nuBrowsePage"><i class="fa fa-step-backward" style="font-size: 16px" onclick="nuGetPage(1)">&nbsp;&nbsp;&nbsp;&nbsp;</i></span>';
-		$(html).insertBefore("#nuLast");
-
-		html = '<span id="nuEnd" class="nuBrowsePage">&nbsp;&nbsp;&nbsp;&nbsp;<i class="fa fa-step-forward nuBrowsePage" style="font-size: 16px" onclick="nuGetPage(' + lastPage + ')"></i></span>';
-		$(html).insertAfter("#nuNext");
-
-
-		if (currentPage == 1) {
-			$('#nuFirst').css(disabled);
-			$('#nuLast').css(disabled);
-		}
-
-		if (currentPage == lastPage) {
-			$('#nuNext').css(disabled);
-			$('#nuEnd').css(disabled);
-		}
-	}
-
-}
-
-function nuPrintEditForm() {
-
-	$('#nuBreadcrumbHolder').hide();
-	$('#nuTabHolder').hide();
-	$('.nuActionButton').hide();
-
-	window.onafterprint = function (e) {
-		$(window).off('mousemove', window.onafterprint);
-
-		$('#nuBreadcrumbHolder').show();
-		$('#nuTabHolder').show();
-		$('.nuActionButton').show();
-	};
-
-	window.print();
-
-	setTimeout(function () {
-		$(window).one('mousemove', window.onafterprint);
-	}, 1);
 
 }
 
@@ -2515,7 +2186,7 @@ function nuSetBrowseColumnSize(column, size) {
 		cw = parent.$("#" + window.frameElement.id)[0].contentWindow;
 	}
 	cw.nuFORM.breadcrumbs[cw.nuFORM.breadcrumbs.length - 1].column_widths[column] = size;
-	cw.nuSetBrowserColumns(cw.nuFORM.breadcrumbs[cw.nuFORM.breadcrumbs.length - 1].column_widths)
+	cw.nuSetBrowseColumns(cw.nuFORM.breadcrumbs[cw.nuFORM.breadcrumbs.length - 1].column_widths)
 
 }
 
@@ -2683,16 +2354,17 @@ jQuery.fn.nuHighlight = function (pat) {
 	}) : this;
 };
 
+function nuInputMaxLength(id, maxLength, labelId) {
 
-function nuInputMaxLength(id, maxLength, label) {
+	const $input = $('#' + id);
+	$input.attr('maxlength', maxLength);
 
-	$('#' + id).attr('maxlength', maxLength);
-
-	if (label) {
-		$('#' + label).html(maxLength + '/' + maxLength);
-		$('#' + id).keyup(function () {
-			var textlen = maxLength - $(this).val().length;
-			$('#' + label).html(textlen + '/' + maxLength);
+	if (labelId) {
+		const $label = $('#' + labelId);
+		$label.html(`${maxLength}/${maxLength}`);
+		$input.on('input', function() {
+			const textLen = maxLength - this.value.length;
+			$label.html(`${textLen}/${maxLength}`);
 		});
 	}
 
@@ -2847,67 +2519,6 @@ function nuArrayColumn(arr, n) {
 	return arr.map(x => x[n]);
 }
 
-function nuSetSaveButtonPosition(t, l, h, w, fs) {
-
-	var sb = $('#nuSaveButton');
-	sb.appendTo('div#nuRECORD');
-
-	// not defined or 0
-	if (!w) w = sb.cssNumber("width");
-	if (!h) h = sb.cssNumber("height");
-
-	sb.css({
-		"top": t + "px",
-		"left": l + "px",
-		"width": w + "px",
-		"position": "absolute",
-		"height": h + "px",
-		"margin": "unset"
-	});
-
-	sb.attr('data-nu-tab', '0');
-	sb.attr('data-nu-form', '');
-
-	if (fs) sb[0].style.fontSize = fs + "px";
-	if (nuSelectedTabNumber() !== '0') sb.css('display', 'none');
-
-	return sb;
-
-}
-
-function nuAttachSaveButtonTo(i, dx, dy, h, w, fs) {
-
-	var sb = $('#nuSaveButton');
-	var dest = $('#' + i);
-
-	if (dest === undefined || nuDebugOut(dest, i)) return false;
-
-	dest.after(sb);
-
-	if (!dx || dx == 0) dx = 0;
-	if (!dy || dy == 0) dy = 0;
-	if (!w || w == 0) w = sb.cssNumber("width");
-	if (!h || h == 0) h = sb.cssNumber("height");
-
-	sb.css({
-		"top": dest.cssNumber("top") + dest.cssNumber("height") + 15 + dy,
-		"left": dest.cssNumber("left") + dx,
-		"width": w,
-		"position": "absolute",
-		"height": h,
-		"margin": "unset"
-	});
-
-	sb.attr('data-nu-tab', '0');
-	sb.attr('data-nu-form', '');
-
-	if (fs) sb[0].style.fontSize = fs + "px";
-	if (nuSelectedTabNumber() !== '0') sb.css('display', 'none');
-
-	return sb;
-
-}
-
 function nuBase64decode(str) {
 
 	const text = atob(str);
@@ -3056,4 +2667,19 @@ function nuEscapeHTML(string) {
 
 function nuDelay(ms) {
 	return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+function nuInsertAtCaret(id, string) {
+
+	const txt = $('#' + id);
+	const caretPos = txt[0].selectionStart;
+	const value = txt.val();
+
+	txt.val(value.substring(0, caretPos) + string + value.substring(caretPos));
+	txt.focus();
+
+	const endOfText = caretPos + string.length;
+	txt.prop('selectionStart', endOfText);
+	txt.prop('selectionEnd', endOfText);
+
 }

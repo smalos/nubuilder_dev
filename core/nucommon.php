@@ -576,21 +576,12 @@ function nuSetSysJSONValue($tbl, $jk, $jv, $pk) {
 
 }
 
-function nuGetProcedure($i){
+function nuGetProcedure($id) {
 
-	$a		= [];
-	$a[]	= $i;
-	$s		= "
-
-	SELECT sph_php
-	FROM zzzzsys_php
-	WHERE zzzzsys_php_id = ?
-
-	";
-	$t		= nuRunQuery($s, $a);
-	$r		= db_fetch_row($t);
-
-	return $r[0];
+	$query = "SELECT sph_php FROM zzzzsys_php WHERE zzzzsys_php_id = ?";
+	$result = nuRunQuery($query, [$id]);
+	$row = db_fetch_row($result);
+	return isset($row[0]) ? $row[0] : false;
 
 }
 
@@ -2172,16 +2163,17 @@ function nuGetGlobalProperties() {
 
 function nuSetGlobalPropertiesJS() {
 
-	$a = nuGetGlobalProperties();
-	$js = "";
-	foreach ($a as $p => $v) {
-		$js .= "nuSetProperty('". $p ."','" . addslashes($v) ."');\n";
+	$gp = nuGetGlobalProperties();
+	$js = '';
+
+	foreach ($gp as $property => $value) {
+		$js .= "nuSetProperty('$property', '" . addslashes($value) . "');\n";
+	}
+	if ($js !== '') {
+		nuAddJavaScript($js, false, true);
 	}
 
-	if ($js != '') nuAddJavaScript($js);
-
 }
-
 // nuAddToHashCookies: replaced by nuSetProperty. May be removed in the future
 function nuAddToHashCookies($i, $nj, $global = false){
 	nuSetProperty($i, $nj, $global);

@@ -303,28 +303,23 @@ function nuGetFormObject($F, $R, $OBJS, $tabs = null){
 					$title = $r->sob_html_title ?? '';
 					$htmlj = "";
 
-					if($r->sob_html_chart_type == 'p'){
-						$htmlj	= "\nnuChart('$r->sob_all_id', 'PieChart', '$htmljs', '$title', '$h', '$v', 'bars', false);";
-					}
+					$chart_options = [
+						'p' => ['type' => 'PieChart', 'stacked' => false],
+						'l' => ['type' => 'ComboChart', 'stacked' => false, 'chart_type' => 'lines'],
+						'b' => ['type' => 'ComboChart', 'stacked' => false, 'chart_type' => 'bars'],
+						'bs' => ['type' => 'ComboChart', 'stacked' => true, 'chart_type' => 'bars'],
+						'bh' => ['type' => 'BarChart', 'stacked' => false, 'chart_type' => 'bars'],
+						'bhs' => ['type' => 'BarChart', 'stacked' => true, 'chart_type' => 'bars'],
+					];
 
-					if($r->sob_html_chart_type == 'l'){
-						$htmlj	= "\nnuChart('$r->sob_all_id', 'ComboChart', '$htmljs', '$title', '$h', '$v', 'lines', false);";
-					}
+					$chart_type = $r->sob_html_chart_type ?? '';
 
-					if($r->sob_html_chart_type == 'b'){
-						$htmlj	= "\nnuChart('$r->sob_all_id', 'ComboChart', '$htmljs', '$title', '$h', '$v', 'bars', false);";
-					}
+					if (array_key_exists($chart_type, $chart_options)) {
+						$type = $chart_options[$chart_type]['type'];
+						$stacked = $chart_options[$chart_type]['stacked'];
+						$chart_type = $chart_options[$chart_type]['chart_type'];
 
-					if($r->sob_html_chart_type == 'bs'){
-						$htmlj	= "\nnuChart('$r->sob_all_id', 'ComboChart', '$htmljs', '$title', '$h', '$v', 'bars', true);";
-					}
-
-					if($r->sob_html_chart_type == 'bh'){
-						$htmlj	= "\nnuChart('$r->sob_all_id', 'BarChart', '$htmljs', '$title', '$h', '$v', 'bars', false);";
-					}
-
-					if($r->sob_html_chart_type == 'bhs'){
-						$htmlj	= "\nnuChart('$r->sob_all_id', 'BarChart', '$htmljs', '$title', '$h', '$v', 'bars', true);";
+						$htmlj = "\nnuChart('$r->sob_all_id', '$type', '$htmljs', '$title', '$h', '$v', '$chart_type', $stacked);";
 					}
 
 					nuAddJavaScript($htmlj);
@@ -341,7 +336,7 @@ function nuGetFormObject($F, $R, $OBJS, $tabs = null){
 
 				$o->multiple		= $r->sob_select_multiple;
 				$o->select2			= $r->sob_select_2 ?? null;
-				$o->options			= nuSelectOptions(nuReplaceHashVariables($r->sob_select_sql));
+				$o->options			= nuSelectOptions($r->sob_select_sql);
 
 			}
 
@@ -750,27 +745,27 @@ function nuGetOtherLookupValues($o){
 
 function nuGetAllLookupValues(){
 
-	$OID					= $_POST['nuSTATE']['object_id'];
-	$PK						= $_POST['nuSTATE']['primary_key'];
-	$s						= "SELECT * FROM zzzzsys_object WHERE zzzzsys_object_id = ?";
-	$t						= nuRunQuery($s, [$OID]);
-	$r						= db_fetch_object($t);
-	$o						= nuDefaultObject($r, []);
-	$o->description_width	= $r->sob_lookup_description_width;
-	$o->form_id				= $r->sob_lookup_zzzzsys_form_id;
-	$o->value				= $PK;
+	$objectId 						= $_POST['nuSTATE']['object_id'];
+	$primaryKey 					= $_POST['nuSTATE']['primary_key'];
+	$query 							= "SELECT * FROM `zzzzsys_object` WHERE `zzzzsys_object_id` = ?";
+	$stmt 							= nuRunQuery($query, [$objectId]);
+	$row 							= db_fetch_object($stmt);
+	$object 						= nuDefaultObject($row, []);
+	$object->description_width		= $row->sob_lookup_description_width;
+	$object->form_id 				= $row->sob_lookup_zzzzsys_form_id;
+	$object->value 					= $primaryKey;
 
-	$l						= nuGetLookupValues($r, $o);
+	$lookupValues = nuGetLookupValues($row, $object);
 
-	$_POST['nuHash']['LOOKUP_RECORD_ID'] = $l[0][1];
+	$_POST['nuHash']['LOOKUP_RECORD_ID'] = $lookupValues[0][1];
 
-	$e						= nuGetOtherLookupValues($o);
+	$otherLookupValues 				= nuGetOtherLookupValues($object);
 
-	$f						= new stdClass;
-	$f->lookup_values		= array_merge($l, $e);
-	$f->lookup_javascript	= nuObjKey($GLOBALS,'EXTRAJS', '') . ";$r->sob_lookup_javascript";
+	$result 						= new stdClass;
+	$result->lookup_values 			= array_merge($lookupValues, $otherLookupValues);
+	$result->lookup_javascript		= nuObjKey($GLOBALS, 'EXTRAJS', '') . ";$row->sob_lookup_javascript";
 
-	return $f;
+	return $result;
 
 }
 
@@ -902,28 +897,28 @@ function nuSetFormValue($f, $v){
 
 function nuDataListOptions($sql) {
 
-	$a				= [];
+	$result				= [];
 
 	$s = strtoupper(trim($sql));
 
 	if (substr($s, 0, 6) == 'SELECT' || substr($s, 0, 4) == 'SHOW') {	//-- sql statement
 
-			$t		= nuRunQuery($sql);
+			$stmt		= nuRunQuery($sql);
 
 			if (nuErrorFound()) {
 				return;
 			}
 
-			while ($r = db_fetch_row($t)) {
-				$a[]	= $r;
+			while ($row = db_fetch_row($stmt)) {
+				$result[]	= $row;
 			}
 	} else if (substr(trim($s), 0, 1) == '[') {
-		$a = json_decode($sql);
+		$result = json_decode($sql);
 	} else {
 		return $sql;
 	}
 
-	return $a;
+	return $result;
 
 }
 
@@ -937,15 +932,46 @@ function nuSelectAddOption($text, $value) {
 
 }
 
+
+function nuRunQueryEx($sql, $sqlWithHK) {
+
+		
+	global $nuDevSelectQueryRunParameterised;
+	
+	if ($nuDevSelectQueryRunParameterised) {
+		
+		$args = [];
+		$sqlWithHK = preg_replace_callback('/#(\'?)(.*?)(\'?)#/', function($match) use(&$count, &$args) {
+			$args[] = $match[2];
+			return '?';
+		}, $sqlWithHK);
+		$sqlWithHK = str_replace("'?'", "?", $sqlWithHK);
+		
+		foreach ($args as &$value) {
+			$value = nuReplaceHashVariables('#' . $value. '#');
+		}
+
+		return nuRunQuery($sqlWithHK, $args);
+	
+	} else {
+		nuRunQuery($sql);
+	}
+	
+}
+
+
 function nuSelectOptions($sql) {
 
 	$options = [];
-	
+
+	$sqlWithHk = $sql;
+	$sql = nuReplaceHashVariables($sql);
+
 	$sqlFirstChars = trim(substr($sql, 0, 20));
 
 	if (nuStringStartsWith('SELECT', $sqlFirstChars, true) || nuStringStartsWith('WITH', $sqlFirstChars, true)) {	//-- sql statement
-
-		$stmt = nuRunQuery($sql);
+		
+		$stmt = nuRunQueryEx($sql, $sqlWithHk);
 
 		if (nuErrorFound()) {
 			return;
@@ -1796,14 +1822,17 @@ function nuAddPrintButtons($f, $t, $a){
 
 }
 
-function nuAddJavaScript($js, $bc = false){
+function nuAddJavaScript($js, $bc = false, $first = false){
 
-	if ($bc == true) {
-		if (isset($GLOBALS['EXTRAJS_BC'])) {
-			$GLOBALS['EXTRAJS_BC'] = $GLOBALS['EXTRAJS_BC'] . "\n\n" . $js;
+	$extraJSKey = $bc ? 'EXTRAJS_BC' : 'EXTRAJS';
+	if (isset($GLOBALS[$extraJSKey])) {
+		$extraJS = $GLOBALS[$extraJSKey];
+		if ($first) {
+			$extraJS = $js . "\n\n" . $extraJS;
+		} else {
+			$extraJS .= "\n\n" . $js;
 		}
-	} else if (isset($GLOBALS['EXTRAJS'])) {
-		$GLOBALS['EXTRAJS'] = $GLOBALS['EXTRAJS'] . "\n\n" . $js;
+		$GLOBALS[$extraJSKey] = $extraJS;
 	}
 
 }

@@ -1,70 +1,23 @@
-<?php
+<?php 
 
 mb_internal_encoding('UTF-8');
 
 $_POST['RunQuery']		= 0;
-
-if (isset($_SESSION['nubuilder_session_data'])) {
-	$sessionData		= $_SESSION['nubuilder_session_data'];
-}
-
-$DBHost					= isset($sessionData['DB_HOST'])		? $sessionData['DB_HOST']		: $nuConfigDBHost;
-$DBName					= isset($sessionData['DB_NAME'])		? $sessionData['DB_NAME']		: $nuConfigDBName;
-$DBUser					= isset($sessionData['DB_USER'])		? $sessionData['DB_USER']		: $nuConfigDBUser;
-$DBPassword				= isset($sessionData['DB_PASSWORD'])	? $sessionData['DB_PASSWORD']	: $nuConfigDBPassword;
-$DBCharset				= isset($sessionData['DB_CHARSET'])		? $sessionData['DB_CHARSET']	: 'utf8';
-$DBOptions				= isset($sessionData['DB_OPTIONS'])		? $sessionData['DB_OPTIONS']	: (isset($nuConfigDBOptions) ? $nuConfigDBOptions : null);
-
-$charSet				= [PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES $DBCharset"];
-
-if (is_array($DBOptions)) {
-	array_merge($charSet, $DBOptions);
-} else {
-	$DBOptions = $charSet;
-}
+$DBHost					= $_SESSION['nubuilder_session_data']['DB_HOST'];
+$DBName					= $_SESSION['nubuilder_session_data']['DB_NAME'];
+$DBUser					= $_SESSION['nubuilder_session_data']['DB_USER'];
+$DBPassword				= $_SESSION['nubuilder_session_data']['DB_PASSWORD'];
+$DBCharset				= $_SESSION['nubuilder_session_data']['DB_CHARSET'];
 
 try {
-	$nuDB 				= new PDO("mysql:host=$DBHost;dbname=$DBName;charset=$DBCharset", $DBUser, $DBPassword, $DBOptions);
+	$nuDB 				= new PDO("mysql:host=$DBHost;dbname=$DBName;charset=$DBCharset", $DBUser, $DBPassword, array(PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES $DBCharset"));
 	$nuDB->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 } catch (PDOException $e) {
-	echo 'Connection to the nuBuilder database failed: ' . $e->getMessage();
-	echo '<br><br>Verify and update the settings in nuconfig.php';
-	echo '<br><br>Restart your browser after modifying nuconfig.php in order for changes to be reflected';
+	echo 'Connection failed: ' . $e->getMessage();
 	die();
 }
 
-$GLOBALS['sys_table_prefix'] = [
-	'access' => 'sal',
-	'access_form' => 'slf',
-	'access_php' => 'slp',
-	'access_report' => 'srp',
-	'browse' => 'sbr',
-	'cloner' => 'clo',
-	'code_snippet' => 'cot',
-	'config' => 'cfg',
-	'debug' => 'deb',
-	'event' => 'sev',
-	'file' => 'sfi',
-	'form' => 'sfo',
-	'format' => 'srm',
-	'info' => 'inf',
-	'note' => 'not',
-	'note_category' => 'hoc',
-	'object' => 'sob',
-	'php' => 'sph',
-	'report' => 'sre',
-	'select' => 'sse',
-	'select_clause' => 'ssc',
-	'session' => 'sss',
-	'setup' => 'set',
-	'sso_login' => 'sso',
-	'tab' => 'syt',
-	'timezone' => 'stz',
-	'translate' => 'trl',
-	'user' => 'sus'
-];
-
-function nuRunQueryNoDebug($s, $a = [], $isInsert = false){
+function nuRunQueryNoDebug($s, $a = array(), $isInsert = false){
 
 	global $nuDB;
 
@@ -75,76 +28,37 @@ function nuRunQueryNoDebug($s, $a = [], $isInsert = false){
 	}catch(PDOException $ex){
 	}
 
-	if($isInsert){
+	if($isInsert){		
 		return $nuDB->lastInsertId();
-	}else{
-		return $object;
+	}else{		
+		return $object;	
 	}
 
 }
 
-function nuRunQueryTest($s, $a = []){
-
-	global $nuDB;
-
-	$object = $nuDB->prepare($s);
-
-	try {
-		$object->execute($a);
-	}catch(PDOException $ex){
-		return $ex->getMessage();
-	}
-
-	return true;
-
-}
-
-function nuDebugMessageString($user, $message, $sql, $trace) {
-
-		$debug	= "
-		===PDO MESSAGE===
-
-		$message
-
-		===SQL===========
-
-		$sql
-
-		===BACK TRACE====
-
-		$trace
-
-		";
-
-		return  trim(preg_replace('/\t/', '', $debug));
-
-}
-
-function nuRunQuery($sql, $a = [], $isInsert = false){
+function nuRunQuery($s, $a = array(), $isInsert = false){
 
 	global $DBHost;
 	global $DBName;
 	global $DBUser;
 	global $DBPassword;
 	global $nuDB;
-	global $DBCharset;
+	global $DBCharset;	
 
-	if($sql == ''){
-		$a			= [];
+	if($s == ''){
+		$a			= array();
 		$a[0]		= $DBHost;
 		$a[1]		= $DBName;
 		$a[2]		= $DBUser;
 		$a[3]		= $DBPassword;
-		$a[4]		= $nuDB;
-		$a[4]		= $DBCharset;
 		return $a;
 	}
 
-	// nuLog($s, count($a)> 0 ? $a[0] : '');
-	$stmt = $nuDB->prepare($sql);
+	//nuLog($s, count($a)> 0 ? $a[0] : '');
+	$object = $nuDB->prepare($s);
 
 	try {
-		$stmt->execute($a);
+		$object->execute($a);
 	}catch(PDOException $ex){
 
 		$user		= 'globeadmin';
@@ -152,12 +66,28 @@ function nuRunQuery($sql, $a = [], $isInsert = false){
 		$array		= debug_backtrace();
 		$trace		= '';
 
-		$count = count($array);
-		for($i = 0 ; $i < $count; $i ++){
+		for($i = 0 ; $i < count($array) ; $i ++){
 			$trace .= $array[$i]['file'] . ' - line ' . $array[$i]['line'] . ' (' . $array[$i]['function'] . ")\n\n";
 		}
 
-		$debug = nuDebugMessageString($user, $message, $sql, $trace);
+		$debug	= "
+===USER==========
+
+$user
+
+===PDO MESSAGE=== 
+
+$message
+
+===SQL=========== 
+
+$s
+
+===BACK TRACE====
+
+$trace
+
+";
 
 		$_POST['RunQuery']		= 1;
 		nuDebug($debug);
@@ -176,7 +106,7 @@ function nuRunQuery($sql, $a = [], $isInsert = false){
 
 	}else{
 
-		return $stmt;
+		return $object;
 
 	}
 
@@ -202,8 +132,8 @@ function db_fetch_array($o){
 
 	if (is_object($o)) {
 		return $o->fetch(PDO::FETCH_ASSOC);
-	} else {
-		return [];
+	} else {		
+		return array();
 	}
 
 }
@@ -212,18 +142,8 @@ function db_fetch_all_array($o){
 
 	if (is_object($o)) {
 		return $o->fetchAll(PDO::FETCH_ASSOC);
-	} else {
-		return [];
-	}
-
-}
-
-function db_fetch_key_pair_array($o){
-
-	if (is_object($o)) {
-		return $o->fetchAll(PDO::FETCH_KEY_PAIR);
-	} else {
-		return [];
+	} else {		
+		return array();
 	}
 
 }
@@ -234,16 +154,6 @@ function db_fetch_object($o){
 		return $o->fetch(PDO::FETCH_OBJ);
 	} else {
 		return false;
-	}
-
-}
-
-function db_fetch_all_column($o){
-
-	if (is_object($o)) {
-		return $o->fetchAll(PDO::FETCH_COLUMN);
-	} else {
-		return [];
 	}
 
 }
@@ -278,34 +188,14 @@ function db_fetch_all_row($o){
 
 }
 
-function db_update_value($table, $pk, $recordId, $column, $newValue) {
-
-	$update = "UPDATE `$table` SET `$column` = ? WHERE `$pk` = ?";
-	nuRunQuery($update, [$newValue, $recordId]);
-
-}
-
-function db_fetch_value($table, $pk, $recordId, $column) {
-
-	$select = "SELECT `$column` FROM `$table` WHERE `$pk` = ?";
-	$result = nuRunQuery($select, [$recordId]);
-	if (db_num_rows($result) == 1) {
-		$arr = db_fetch_array($result);
-		return $arr[$column];
-	} else {
-		return false;
-	}
-
-}
-
 function db_field_info($n){
 
-	$fields		= [];
-	$types		= [];
-	$pk			= [];
+	$fields		= array();
+	$types		= array();
+	$pk			= array();
 
-	$s			= "DESCRIBE `$n`";
-	$t			= nuRunQueryNoDebug($s);
+	$s		 = "DESCRIBE $n";
+	$t		= nuRunQuery($s);
 
 	while($r = db_fetch_row($t)){
 
@@ -318,14 +208,14 @@ function db_field_info($n){
 
 	}
 
-	return [$fields, $types, $pk];
+	return array($fields, $types, $pk);
 
-}
+}	
 
 function db_field_names($n){
 
-	$a	= [];
-	$s	= "DESCRIBE `$n`";
+	$a	= array();
+	$s	= "DESCRIBE $n";
 	$t	= nuRunQuery($s);
 
 	while($r = db_fetch_row($t)){
@@ -339,8 +229,8 @@ function db_field_names($n){
 
 function db_field_types($n){
 
-	$a		= [];
-	$s		= "DESCRIBE `$n`";
+	$a		= array();
+	$s		= "DESCRIBE $n";
 	$t		= nuRunQuery($s);
 
 	while($r = db_fetch_row($t)){
@@ -351,25 +241,19 @@ function db_field_types($n){
 
 }
 
-function db_field_exists($tableName, $fieldName) {
-
-	$fields = db_field_names($tableName);
-	return array_search($fieldName, $fields) != false;
-
-}
 
 function db_primary_key($n){
 
-	$a		= [];
-	$s		= "DESCRIBE `$n`";
+	$a		= array();
+	$s		= "DESCRIBE $n";
 	$t		= nuRunQuery($s);
 
 	while($r = db_fetch_row($t)){
-
+		
 		if($r[3] == 'PRI'){
 			$a[] = $r[0];
 		}
-
+		
 	}
 
 	return $a;
@@ -385,100 +269,36 @@ function nuDBQuote($s) {
 
 function db_num_rows($o) {
 
-	if (!is_object($o)) {
-		return 0;
-	}
+	if(!is_object($o)){return 0;}
+
 	return $o->rowCount();
 
 }
 
 function db_num_columns($o) {
 
-	if (!is_object($o)) {
-		return 0;
-	}
+	if(!is_object($o)){return 0;}
+
 	return $o->columnCount();
 
 }
 
-function db_quote($s) {
-
-	global $nuDB;
-	return $nuDB->quote($s);
-
-}
-
-
-function nuViewExists($view) {
-
-	$sql = "SELECT table_name as TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'VIEW' AND table_schema = DATABASE() AND TABLE_NAME = ?";
-	$qry = nuRunQuery($sql, [$view]);
-
-	return db_num_rows($qry);
-
-}
-
-function nuCanCreateView() {
-
-	$dbName = $_SESSION['nubuilder_session_data']['DB_NAME'];
-
-	$qry = nuRunQuery("SHOW GRANTS FOR CURRENT_USER()");
-	while ($row = db_fetch_row($qry)) {
-
-		$grants = $row[0];
-
-		$createView	= nuStringContains("CREATE VIEW", $grants, true);
-		$grant1		= nuStringContains("ALL PRIVILEGES ON `$dbName`.*", $grants, true);
-		$grant2		= nuStringContains("ALL PRIVILEGES ON *.*", $grants, true);
-		$grant3		= nuStringContains("ALL PRIVILEGES ON %", $grants, true);
-
-		if ($createView || $grant1 || $grant2 || $grant3) {
-			return true;
-		}
-
+function nuDebugResult($t){
+	
+	if(is_object($t)){
+		$t	= print_r($t,1);
 	}
 
-	return false;
+	$i		= nuID();
+	$s		= "INSERT INTO zzzzsys_debug (zzzzsys_debug_id, deb_message, deb_added) VALUES (? , ?, ?)";
 
-}
-
-function nuDebugResult($nuDebugMsg){
-
-	if(is_object($nuDebugMsg)){
-		$nuDebugMsg = print_r($nuDebugMsg,1);
-	}
-
-	$nuDebugUserId = null;
-	if (function_exists('nuHash')) {
-		$hash = nuHash();
-		$nuDebugUserId = isset($hash) && isset($hash['USER_ID']) ? $hash['USER_ID'] : null;
-		$nuDebugUserId = $nuDebugUserId == null && isset($_POST['nuSTATE']['username']) ? $_POST['nuSTATE']['username'] : $nuDebugUserId;
-	}
-
-	$nuDebugId = nuID();
-
-	$insert = "INSERT INTO zzzzsys_debug (zzzzsys_debug_id, deb_message, deb_added, deb_user_id) VALUES (:id , :message, :added, :user_id)";
-
-	$params = [
-		"id"		=> $nuDebugId,
-		"message"	=> $nuDebugMsg,
-		"added"		=> time(),
-		"user_id"	=> $nuDebugUserId
-	];
-
-	nuRunQuery($insert, $params);
-
-	$proc	= nuProcedure('NUDEBUGRESULTADDED');
-	if($proc != '') { 
-		eval($proc); 
-	}
-
-	return $nuDebugId;
-
+	nuRunQuery($s, array($i, $t, time()));
+	
+	return $i;
 }
 
 function nuDebug($a){
-
+	
 	$date				= date("Y-m-d H:i:s");
 	$b					= debug_backtrace();
 	$f					= $b[0]['file'];
@@ -490,7 +310,7 @@ function nuDebug($a){
 		$nuSystemEval			= $_POST['nuSystemEval'];
 	}
 	$nuProcedureEval			= '';
-	if ( isset($_POST['nuProcedureEval']) ) {
+	if ( isset($_POST['nuProcedureEval']) ) { 
 		$nuProcedureEval		= $_POST['nuProcedureEval'];
 	}
 
@@ -500,7 +320,7 @@ function nuDebug($a){
 		$m				= "$date - $nuProcedureEval $nuSystemEval line $l\n\n<br>\n" ;
 	}
 
-	for($i = 0 ; $i < func_num_args() ; $i++){
+	for($i = 0 ; $i < count(func_get_args()) ; $i++){
 
 		$p				= func_get_arg($i);
 
@@ -515,25 +335,24 @@ function nuDebug($a){
 		$m				.= "\n";
 
 	}
-
+	
 	nuDebugResult($m);
 
 }
 
 function nuLog($s1, $s2 = '', $s3 = '') {
 
-	$dataToLog = [date("Y-m-d H:i:s"), $s1, $s2, $s3];
-
+	$dataToLog = array(date("Y-m-d H:i:s"), $s1, $s2, $s3);
+	
 	$data = implode(" - ", $dataToLog);
-	// $data = print_r($dataToLog, true);
+	// $data = print_r($dataToLog, true); 
 
-	$dir = dirname(__DIR__, 1) . DIRECTORY_SEPARATOR. 'temp' . DIRECTORY_SEPARATOR;
-	file_put_contents($dir . 'nulog.txt', $data.PHP_EOL , FILE_APPEND | LOCK_EX);
-
-}
+	file_put_contents('..\nulog.txt', $data.PHP_EOL , FILE_APPEND | LOCK_EX);
+	
+}	
 
 function nuID(){
-
+	
 	global $DBUser;
 	$i	= uniqid();
 	$s	= md5($i);

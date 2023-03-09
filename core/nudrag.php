@@ -2,7 +2,12 @@
 
 function nuDragSave($data){
 
-	if (nuDemo()) return;
+	if($_SESSION['nubuilder_session_data']['IS_DEMO']){
+
+		nuDisplayError('Not available in the Demo...');
+		return;
+
+	}
 
 	foreach($data['nuDragState']['tabs'] as $tab){
 
@@ -15,22 +20,22 @@ function nuDragSave($data){
 				$field = $tab['objects'][$i];
 
 				nuRunQuery("
-					UPDATE zzzzsys_object SET
+					UPDATE zzzzsys_object SET 
 					sob_all_order = ?,
 					sob_all_left = ?,
 					sob_all_top = ?,
 					sob_all_width = ?,
 					sob_all_height = ?,
 					sob_all_zzzzsys_tab_id = ?
-					WHERE zzzzsys_object_id = ?
-				", [$field['tab_order'], $field['left'], $field['top'], $field['width'], $field['height'], $tabID, $field['object_id']]);
+					WHERE zzzzsys_object_id = ? 
+				", array($field['tab_order'], $field['left'], $field['top'], $field['width'], $field['height'], $tabID, $field['object_id']));
 
 			}
 
 		}
 
 	}
-
+	
 	return new stdClass;
 
 }

@@ -15,33 +15,23 @@ function nuLoadBody($debug = false) {
 }
 
 
-function nuGetJS_login($nuBrowseFunction, $target, $loginTopRow, $welcome, $formId, $recordId, $isSession, $logonMode, $onlySsoExcept, $lastUser) {
+function nuGetJS_login($nuBrowseFunction, $target, $welcome, $formId, $recordId, $isSession) {
 
 	$h2 = "function nuLoad(){
 		nuBindCtrlEvents();
 		window.nuDefaultBrowseFunction	= '$nuBrowseFunction';
 		window.nuBrowseFunction			= '$nuBrowseFunction';
-		window.nuTARGET					= '$target';
+		window.nuTARGET					= '$target';	
 		";
 
 	$h3 = "";
 
 	if ($isSession) {
 		$h3 = "nuForm('$formId','$recordId','','','','');";
-	} else {
-		// Lines below take a PHP array and create a JS dictionary - example:
-		// Input:  PHP:	$onlySsoExcept = ["globeadmin", "fred"]
-		// Output:  JS: var onlySsoExcept = { "globeadmin": true, "fred": true };
-		$colonTrueAdded = array_map(function($item) {  // Append ": true' but also put double quotes around the keys
-			return '"'.$item.'": true';
-		}, $onlySsoExcept);
-		$dictLiteral = join(", ", $colonTrueAdded);
-		$jsDict  = 'var onlySsoExcept = { '.$dictLiteral.' }';
+	} else {	
 		$h3 = "
-			var loginTopRow				= `$loginTopRow`;
 			var welcome					= `$welcome`;
-			$jsDict;
-			nuLogin(loginTopRow, welcome, '$logonMode', onlySsoExcept, '$lastUser');
+			nuLogin(welcome);
 		";
 	}
 
@@ -62,7 +52,7 @@ function nuUseUP($nuBrowseFunction, $target, $welcome, $u, $p) {
 		var welcome						= `$welcome`;
 		nuLoginRequest('$u', '$p');
 	}";
-
+	
 	return $h2;
 }
 
@@ -89,7 +79,7 @@ function nuGetJS_action_screen($nuBrowseFunction, $target, $welcome, $opener, $s
 		} else {
 			var p			= from.nuOPENER[from.nuOPENER.length -1];
 			nuRemoveOpenerById(from.nuOPENER, from.nuOPENER[from.nuOPENER.length -1]);
-
+				
 		}
 		nuBindCtrlEvents();
 
@@ -103,11 +93,11 @@ function nuGetJS_action_screen($nuBrowseFunction, $target, $welcome, $opener, $s
 			nuForm(p.form_id, p.record_id, p.filter, '$search', 0, '$like');
 		}
 		if(p.record_id == '-2'){
-			nuBindDragEvents();
+			nuBindDragEvents();		
 		}
 	}";
-
+	
 	return $h2;
-}
+} 
 
 ?>

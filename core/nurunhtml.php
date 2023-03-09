@@ -1,13 +1,14 @@
-<?php
+<?php 
 
 require_once('nuchoosesetup.php');
-require_once('nucommon.php');
-require_once('nudata.php');
+require_once('nucommon.php'); 
+require_once('nudata.php'); 
 
 print "<meta charset='utf-8'>";
 
+$table_id			= nuTT();
 $s					= "SELECT deb_message AS json FROM zzzzsys_debug WHERE zzzzsys_debug_id = ? ";		//-- created by nuRunHTML()
-$t					= nuRunQuery($s, [$_GET['i']]);
+$t					= nuRunQuery($s, array($_GET['i']));
 
 if (db_num_rows($t) == 0) {
 	print nuTranslate("Use the Print button to refresh the table.");
@@ -17,28 +18,22 @@ if (db_num_rows($t) == 0) {
 $r					= db_fetch_object($t);
 $j					= json_decode($r->json);
 $c					= $j->columns;
-$colCount			= count($c);
 
 $_POST['nuHash']	= (array) $j->hash;
-$hash				= nuHash();
-$_POST['nuHash']['TABLE_ID'] = $hash['browse_table_id'];
-nuEval($hash['form_id'] . '_BB');
-
-$includeHiddenColumns = nuObjKey($hash, 'nuPrintincludeHiddenColumns', null) == '1' ? true : false;
-
-unset($hash);
+$__x				= nuHash();
+$_POST['nuHash']['TABLE_ID'] = $__x['browse_table_id'];
+nuEval($__x['form_id'] . '_BB');
+unset($__x);
 
 print "<style>\n";
 
-$class = [];
+$class = array();
 
-
-
-for($col = 0 ; $col < $colCount ; $col++){
+for($col = 0 ; $col < count($c) ; $col++){
 
 	$wd		= ($c[$col]->width) . 'px';
 
-	$align = 'left';
+	if($c[$col]->align == 'l'){$align = 'left';}
 	if($c[$col]->align == 'r'){$align = 'right';}
 	if($c[$col]->align == 'c'){$align = 'center';}
 
@@ -51,15 +46,13 @@ print "</style>\n";
 print "<TABLE border=1; style='border-collapse: collapse'>\n";
 print "\n<TR>";
 
-for($col = 0 ; $col < $colCount ; $col++){
-
-	if(!($c[$col]->width == 0 && $includeHiddenColumns != true)) {
-		$st	= $class[$col];
-		print "<TH $st>";
-		print nuTranslate($c[$col]->title);
-		print "</TH>\n";
-	}
-
+for($col = 0 ; $col < count($c) ; $col++){
+	
+	$st	= $class[$col];
+	print "<TH $st>";
+	print $c[$col]->title;
+	print "</TH>\n";
+	
 }
 
 $h	= "</TR>";
@@ -70,13 +63,11 @@ while($r = db_fetch_array($t)){
 
 	$h	.= "\n<TR>\n";
 
-	for($col = 0 ; $col < $colCount ; $col++){
+	for($col = 0 ; $col < count($c) ; $col++){
 
-		if(!($c[$col]->width == 0 && $includeHiddenColumns != true)) {
-			$v = $c[$col]->display == 'null' || $c[$col]->display == '""' ? '' : $r[$c[$col]->display];
-			$st	= $class[$col];
-			$h	.= "<TD $st>" . $v . "</TD>\n";
-		}
+		$v = $c[$col]->display == 'null' || $c[$col]->display == '""' ? '' : $r[$c[$col]->display];
+		$st	= $class[$col];
+		$h	.= "<TD $st>" . $v . "</TD>\n";
 
 	}
 
@@ -89,9 +80,9 @@ $h	.= "</TABLE>";
 
 print $h;
 
-nuRunQuery("DELETE FROM zzzzsys_debug WHERE zzzzsys_debug_id = ? ", [$_GET['i']]);
-$hash = nuHash();
-nuRunQuery("DROP TABLE IF EXISTS " . $hash['browse_table_id']);
-unset($hash);
+nuRunQuery("DELETE FROM zzzzsys_debug WHERE zzzzsys_debug_id = ? ", array($_GET['i']));
+$__x = nuHash();
+nuRunQuery("DROP TABLE IF EXISTS " . $__x['browse_table_id']);
+unset($__x);
 
 ?>

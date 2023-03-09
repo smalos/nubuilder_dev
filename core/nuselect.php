@@ -1,8 +1,11 @@
+<!DOCTYPE html>
+<html>
+<head>
 <?php
 
-require_once('nucommon.php');
+require_once('nucommon.php');	
 
-nuJSInclude('libs/jquery/jquery-3.6.3.min.js');
+nuJSInclude('libs/jquery/jquery.js');
 nuJSInclude('nuselectclass.js');
 nuJSInclude('nuformclass.js');
 nuJSInclude('nuform.js');
@@ -19,10 +22,6 @@ nuCSSInclude('css/nudrag.css');
 
 ?>
 
-<!DOCTYPE html>
-<html>
-<head>
-
 <style>
 
 	body{
@@ -32,7 +31,7 @@ nuCSSInclude('css/nudrag.css');
 </style>
 
 <script>
-
+	
 	window.nuSuffix				= 1000;
 	window.nuSQL				= new nuSelectObject();
 	window.nuCurrentID			= '';

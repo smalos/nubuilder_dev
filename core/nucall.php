@@ -11,7 +11,7 @@ if(!array_key_exists('p',$_REQUEST)) {
 $getPHPIDQRY = nuRunQuery("
 	SELECT zzzzsys_php_id FROM zzzzsys_php
 	WHERE sph_code = ?
-", [$_REQUEST['p']]);
+", array($_REQUEST['p']));
 if(db_num_rows($getPHPIDQRY) != 1){
 	header("Content-Type: text/html");
 	header("HTTP/1.0 400 Bad Request");
@@ -29,7 +29,7 @@ require_once('nusession.php');
 if(!array_key_exists('TEMPORARY_SESSION', $_SESSION)){
 	$getAccessQRY = nuRunQuery("
 		SELECT sss_access FROM zzzzsys_session WHERE zzzzsys_session_id = ?
-	", [$_SESSION['nubuilder_session_data']['SESSION_ID']]);
+	", array($_SESSION['nubuilder_session_data']['SESSION_ID']));
 	if (db_num_rows($getAccessQRY) != 1) {
 		header("Content-Type: text/html");
 		header("HTTP/1.0 400 Bad Request");
@@ -39,8 +39,7 @@ if(!array_key_exists('TEMPORARY_SESSION', $_SESSION)){
 	$accessArray = json_decode($getAccessOBJ->sss_access, true);
 	if ($accessArray['session']['global_access'] != 1) {
 		$hasAccess = false;
-		$count = count($accessArray['procedures']);
-		for ($i = 0; $i < $count; $i++) {
+		for ($i = 0; $i < count($accessArray['procedures']); $i++) {
 			if ($accessArray['procedures'][$i][0] == $PHPID)
 				$hasAccess = true;
 		}

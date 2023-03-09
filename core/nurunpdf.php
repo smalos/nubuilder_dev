@@ -1,87 +1,112 @@
 <?php
 
 require_once('nusession.php');
-require_once('nucommon.php'); 
-require_once('nudata.php'); 
+require_once('nucommon.php');
+require_once('nudata.php');
 require_once('libs/tcpdf/tcpdf.php');
 define('FPDF_FONTPATH','libs/tcpdf/font/');
 
-$GLOBALS['nu_report']		= array();
-$GLOBALS['nu_columns']		= array();
-$GLOBALS['nu_files']		= array();
+$GLOBALS['nu_report']		= [];
+$GLOBALS['nu_columns']		= [];
+$GLOBALS['nu_files']		= [];
+
 $get						= isset($_GET['i']);
-
-if($get){
+	if($get){
 	$jsonID					= $_GET['i'];
+	$tag					= '';
 }else{
-	$jsonID					= $_POST['ID'];
-	$tag					= $_POST['tag'];
+	$jsonID					= isset($_POST['ID']) ? $_POST['ID'] : null	;
+	$tag					= isset($_POST['tag']) ? $_POST['tag'] : null;
 }
 
-$J							= nuGetJSONData($jsonID);
-
-$TABLE_ID					= nuTT();
-$JSON						= json_decode($J);
-$LAYOUT						= json_decode($JSON->sre_layout);
-$hashData					= nuAddToHashList($JSON, 'report');
-$hashData['TABLE_ID']		= $TABLE_ID;
-$GLOBALS['TABLE_ID']		= $TABLE_ID;
-$_POST['nuHash']			= $hashData;
-$PDF						= new TCPDF($LAYOUT->orientation, 'mm', $LAYOUT->paper, true, 'UTF-8', false);
-
-$PDF->SetAutoPageBreak(true);
-// The report writer makes the header and footer so dont need a print header or footer.
-$PDF->setPrintHeader(false);
-$PDF->setPrintFooter(false);
-$REPORT						= nuSetPixelsToMM($LAYOUT);
-
-$PDF->SetMargins(1,1,1);
-
-// Font subsetting to reduce the size of the generated pdf file
-/*
-$fl							= json_decode(nuFontList());
-
-for($i = 0 ; $i < count($fl) ; $i++){
-	
-	$fnt					= $fl[$i][0];
-	$PDF->AddFont($fnt, '', '', true);
-	
-}
-*/
-
-$justID						= strstr($JSON->parentID, ':');
-
-nuBuildTempTable($JSON->parentID, $TABLE_ID);
-
-$GLOBALS['nu_columns']		= nuAddCriteriaValues($hashData, $TABLE_ID);
-
-nuRunQuery("ALTER TABLE $TABLE_ID ADD `nu__id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY FIRST");
-
-nuBuildReport($PDF, $REPORT, $TABLE_ID);
-$hashData['nu_pages']		= nuGetTotalPages();
-nuReplaceLabelHashVariables($REPORT, $hashData);
-nuPrintReport($PDF, $REPORT, $GLOBALS['nu_report'], $JSON);
-
-nuRunQuery("DROP TABLE IF EXISTS $TABLE_ID");
-nuRunQuery("DROP TABLE IF EXISTS $TABLE_ID".'_nu_summary');
-
-
-if($get){
-	ob_end_clean();
-	$PDF->Output('nureport.pdf', 'I');
-}else{
-	nuSavePDF($PDF, $JSON->code, $tag);
+if ($jsonID !== null) {
+	nuRunReportId($jsonID, $tag, $get);
 }
 
+function nuRunReportId($jsonID, $tag, $get) {
 
-nuRemoveFiles();
+	$J							= nuGetJSONData($jsonID);
 
-function nuPrintReport($PDF, $LAY, $DATA, $JSON){
+	$TABLE_ID					= nuTT();
+	$JSON						= json_decode($J);
+	$LAYOUT						= json_decode($JSON->sre_layout);
+	$hashData					= nuAddToHashList($JSON, 'report');
+	$hashData['TABLE_ID']		= $TABLE_ID;
+	$GLOBALS['TABLE_ID']		= $TABLE_ID;
+	$_POST['nuHash']			= array_merge($hashData, nuSetHashList(null));
+
+	$PDF						= new TCPDF($LAYOUT->orientation, 'mm', $LAYOUT->paper, true, 'UTF-8', false);
+
+	$PDF->SetAutoPageBreak(true);
+	// The report writer makes the header and footer so dont need a print header or footer.
+	$PDF->setPrintHeader(false);
+	$PDF->setPrintFooter(false);
+	$REPORT						= nuSetPixelsToMM($LAYOUT);
+
+	$PDF->SetMargins(1,1,1);
+
+	// Font subsetting to reduce the size of the generated pdf file
+	/*
+	$fl							= json_decode(nuFontList());
+
+	for($i = 0 ; $i < count($fl) ; $i++){
+
+		$fnt					= $fl[$i][0];
+		$PDF->AddFont($fnt, '', '', true);
+
+	}
+	*/
+
+	$justID						= strstr($JSON->parentID, ':');
+
+	nuBuildTempTable($JSON->parentID, $TABLE_ID);
+
+	$GLOBALS['nu_columns']		= nuAddCriteriaValues($hashData, $TABLE_ID);
+
+	nuRunQuery("ALTER TABLE $TABLE_ID ADD `nu__id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY FIRST");
+
+	nuBuildReport($PDF, $REPORT, $TABLE_ID);
+	$hashData['nu_pages']		= nuGetTotalPages();
+	nuReplaceLabelHashVariables($REPORT, $hashData);
+
+	if (isset($LAYOUT->ishtml)) {
+		$isHTML = $LAYOUT->ishtml == 'Y' ? true : false;
+	} else {
+		$isHTML = false;
+	}
+
+	nuPrintReport($PDF, $REPORT, $GLOBALS['nu_report'], $JSON, $isHTML);
+
+	nuRunQuery("DROP TABLE IF EXISTS $TABLE_ID");
+	nuRunQuery("DROP TABLE IF EXISTS $TABLE_ID".'_nu_summary');
+
+
+	if($get){
+		ob_end_clean();
+		$PDF->Output('nureport.pdf', 'I');
+		nuRemoveFiles();
+		return false;
+	}else{
+
+		$result = nuSavePDF($PDF, $JSON->code, $tag);
+		nuRemoveFiles();
+
+		return [
+			'id' =>  $result['id'],
+			'filename' => $result['filename'],
+		];
+
+	}
+
+}
+
+function nuPrintReport($PDF, $LAY, $DATA, $JSON, $isHTML){
 
 	$lastSectionTop			= 10000;
 	$pageNumber				= 0;
 
-	for($s = 0 ; $s < count($DATA) ; $s++){
+	$countData = count($DATA);
+	for($s = 0 ; $s < $countData ; $s++){
 
 		if($lastSectionTop > $DATA[$s]->sectionTop){
 			$pageNumber++;
@@ -89,7 +114,8 @@ function nuPrintReport($PDF, $LAY, $DATA, $JSON){
 
 		$lastSectionTop=$DATA[$s]->sectionTop;
 
-		for($o = 0 ; $o < count($DATA[$s]->objects) ; $o++){
+		$countObjects = count($DATA[$s]->objects);
+		for($o = 0 ; $o < $countObjects ; $o++){
 
 			$O				= nuGetObjectProperties($LAY, $DATA[$s]->objects[$o]->id);
 
@@ -100,9 +126,11 @@ function nuPrintReport($PDF, $LAY, $DATA, $JSON){
 
 	}
 
-	for($s = 0 ; $s < count($DATA) ; $s++){
+	$countDATA = count($DATA);
+	for($s = 0 ; $s < $countDATA ; $s++){
 
-		for($o = 0 ; $o < count($DATA[$s]->objects) ; $o++){
+		$countObjects = count($DATA[$s]->objects);
+		for($o = 0 ; $o < $countObjects ; $o++){
 
 			$O				= nuGetObjectProperties($LAY, $DATA[$s]->objects[$o]->id);
 
@@ -120,6 +148,7 @@ function nuPrintReport($PDF, $LAY, $DATA, $JSON){
 				$label		= str_replace('#month#',		date('m'), $label);
 				$label		= str_replace('#day#',			date('d'), $label);
 				$label		= str_replace('#hour#',			date('h'), $label);
+				$label		= str_replace('#hour24#',		date('H'), $label);
 				$label		= str_replace('#minute#',		date('i'), $label);
 				$label		= str_replace('#second#',		date('s'), $label);
 
@@ -131,7 +160,8 @@ function nuPrintReport($PDF, $LAY, $DATA, $JSON){
 
 	$lastSectionTop = 10000;
 
-	for($s = 0 ; $s < count($DATA) ; $s++){
+	$countDATA = count($DATA);
+	for($s = 0 ; $s < $countDATA ; $s++){
 
 		if($lastSectionTop > $DATA[$s]->sectionTop){
 
@@ -146,11 +176,12 @@ function nuPrintReport($PDF, $LAY, $DATA, $JSON){
 
 		nuPrintBackground($PDF, $DATA[$s]->sectionTop, $DATA[$s]->sectionHeight, $color);
 
-		for($o = 0 ; $o < count($DATA[$s]->objects) ; $o++){
+		$countObjects = count($DATA[$s]->objects);
+		for($o = 0 ; $o < $countObjects ; $o++){
 
 			$O				= nuGetObjectProperties($LAY, $DATA[$s]->objects[$o]->id);
 			if($O->objectType == 'field' or $O->objectType == 'label'){
-				nuPrintField($PDF, $DATA[$s], $DATA[$s]->objects[$o], $O, $LAY);
+				nuPrintField($PDF, $DATA[$s], $DATA[$s]->objects[$o], $O, $LAY, $isHTML);
 			}
 			if($O->objectType == 'image'){
 				nuPrintImage($PDF, $DATA[$s], $DATA[$s]->objects[$o], $O);														//-- print graphic
@@ -162,9 +193,9 @@ function nuPrintReport($PDF, $LAY, $DATA, $JSON){
 
 function nuBuildReport($PDF, $REPORT, $TABLE_ID){
 
-	$groupBy							= array();
-	$groups								= array();
-	$sectionValue						= array();
+	$groupBy							= [];
+	$groups								= [];
+	$sectionValue						= [];
 	$print_group						= 1;
 	$order_by							= '';
 	$group_by							= '';
@@ -190,7 +221,7 @@ function nuBuildReport($PDF, $REPORT, $TABLE_ID){
 	$DATA								= nuRunQuery("CREATE TABLE $TABLE_ID SELECT * FROM a$TABLE_ID");
 	$DATA								= nuRunQuery("DROP TABLE a$TABLE_ID");
 	$DATA								= nuRunQuery("SELECT * FROM $TABLE_ID");
-	
+
 	nuMakeSummaryTable($REPORT, $TABLE_ID);
 	$sectionTop							= 0;
 	$ROW								= db_fetch_array($DATA);														//-- first row
@@ -211,10 +242,11 @@ function nuBuildReport($PDF, $REPORT, $TABLE_ID){
 //======================================================
 //	FIRST SECTION HEADERS
 //======================================================
-	for($g = 0 ; $g < count($groups) ; $g++){
-		
+	$countGroups = count($groups);
+	for($g = 0 ; $g < $countGroups ; $g++){
+
 		$S								= new nuSECTION($PDF, $ROW, $REPORT, 3 + $g, 0, $sectionTop);					//-- section headers
-		$sectionTop						= $S->buildSection();		
+		$sectionTop						= $S->buildSection();
 		$sectionValue[$groups[$g]]		= $ROW[$groups[$g]];
 
 	}
@@ -232,7 +264,9 @@ function nuBuildReport($PDF, $REPORT, $TABLE_ID){
 //======================================================
 //	FOOTERS AND HEADERS AS GROUPS CHANGE
 //======================================================
-			for($g = count($groups) - 1 ; $g >= $backUpTo ; $g--){
+
+			$countGroups = count($groups);
+			for($g = $countGroups - 1 ; $g >= $backUpTo ; $g--){
 
 				$S							= new nuSECTION($PDF, $lastROW, $REPORT, 3 + $g, 1, $sectionTop);				//-- section footers
 				$sectionTop					= $S->buildSection();
@@ -240,7 +274,7 @@ function nuBuildReport($PDF, $REPORT, $TABLE_ID){
 
 			}
 
-			for($g = $backUpTo ; $g < count($groups) ; $g++){
+			for($g = $backUpTo ; $g < $countGroups ; $g++){
 
 				$S							= new nuSECTION($PDF, $ROW, $REPORT, 3 + $g, 0, $sectionTop);					//-- section headers
 				$sectionTop					= $S->buildSection();
@@ -262,7 +296,9 @@ function nuBuildReport($PDF, $REPORT, $TABLE_ID){
 //======================================================
 //	LAST GROUP FOOTERS
 //======================================================
-	for($g = count($groups) - 1 ; $g > -1 ; $g--){
+
+	$countGroups = count($groups);
+	for($g = $countGroups - 1 ; $g > -1 ; $g--){
 
 		$S								= new nuSECTION($PDF, $lastROW, $REPORT, 3 + $g, 1, $sectionTop);					//-- section footers
 		// last group doesn't need a page break
@@ -279,7 +315,7 @@ function nuBuildReport($PDF, $REPORT, $TABLE_ID){
 	$S									= new nuSECTION($PDF, $lastROW, $REPORT, 1, 1, $sectionTop);
 	$sectionTop							= $S->buildSection();
 
-}	
+}
 
 
 
@@ -289,7 +325,8 @@ function nuLowestGroupChange($lastROW, $thisROW, $groups){   //-- lowest = group
 	$lastString			= '';
 	$thisString			= '';
 
-	for($g = 0 ; $g < count($groups) ; $g ++){
+	$count = count($groups);
+	for($g = 0 ; $g < $count ; $g ++){
 
 		if($lastROW[$groups[$g]] != $thisROW[$groups[$g]]){
 
@@ -314,17 +351,18 @@ class nuSECTION{
 
 	public $group			= 0;
 	public $section			= 0;
+	public $pageHeight		= 0;
 	public $sectionHeight	= 0;
 	public $sectionTop		= 0;
-	public $O				= array();
-	public $PDF				= array();
-	public $ROW				= array();
-	public $LAY				= array();
-	public $SECTIONS		= array();											//-- this Section split over pages
-	public $OBJECTS			= array();
+	public $O				= [];
+	public $PDF				= [];
+	public $ROW				= [];
+	public $LAY				= [];
+	public $SECTIONS		= [];											//-- this Section split over pages
+	public $OBJECTS			= [];
 	public $TABLE_ID		= '';
-	
-	function __construct($PDF, $ROW, $LAY, $group, $section, $sectionTop){
+
+	public function __construct($PDF, $ROW, $LAY, $group, $section, $sectionTop){
 
 		$this->PDF			= $PDF;
 		$this->ROW			= $ROW;
@@ -340,7 +378,7 @@ class nuSECTION{
 	}
 
 	public function buildSection(){
-		
+
 		$this->O			= $this->setObjectLines($this->O);
 		$nextTop			= $this->chopSectionOverPages();
 		$GLOBALS['nu_report'] = array_merge($GLOBALS['nu_report'], $this->SECTIONS);
@@ -352,7 +390,7 @@ class nuSECTION{
 
 	private function nuGetFormatting($O){
 
-		$f					 = array();
+		$f					 = [];
 		$f['B']				= '';
 		$f['F']				= '';
 		$f['S']				= '';
@@ -370,14 +408,15 @@ class nuSECTION{
 
 	private function setObjectLines($O, $stopGrow = false){
 
-		for($i = 0 ; $i < count($O) ; $i++){
+		$countO = count($O);
+		for($i = 0 ; $i < $countO ; $i++){
 
 			$O[$i]->path						= '';
 
 			if($O[$i]->objectType == 'field' or $O[$i]->objectType == 'label'){
-				
+
 				$fieldName = isset($this->ROW[$O[$i]->fieldName]) ? $this->ROW[$O[$i]->fieldName] : '';
-				
+
 				if($O[$i]->objectType == 'field' and substr($fieldName,0,1) == '#' and substr($fieldName,2,1) == '#' and substr($fieldName,9,1) == '|'){		//-- conditional formatting used
 
 					$format					 = $this->nuGetFormatting($O[$i]);
@@ -396,13 +435,13 @@ class nuSECTION{
 
 			}else if($O[$i]->objectType == 'image'){									//-- image
 
-				$O[$i]->LINES				= array('');
+				$O[$i]->LINES				= [''];
 				$path						= '';
 				$fld						= $O[$i]->fieldName;
-				$img						= $this->ROW[$fld];
 
 				if(nuIsField($fld)){													//-- FIELD NAME
 
+					$img					= $this->ROW[$fld];
 					$path					= nuCreateFile($img);
 					$GLOBALS['nu_files'][]	= $path;
 
@@ -431,9 +470,9 @@ class nuSECTION{
 
 	private function chopSectionOverPages(){
 
-		$sectionObjects						= array();
+		$sectionObjects						= [];
 		$sectionTop							= $this->sectionTop;
-		$objectParts						= array();
+		$objectParts						= [];
 		$pages								= 0;
 		$expandedSectionHeight				= $this->sectionHeight + $this->extendedHeight() - .25;
 		$pageBreak							= 0;
@@ -442,11 +481,12 @@ class nuSECTION{
 			$pageBreak						= $this->LAY->groups[$this->group]->sections[$this->section]->page_break;
 		}
 
-		for($i = 0 ; $i < count($this->O) ; $i++){
+		$countO = count($this->O);
+		for($i = 0 ; $i < $countO ; $i++){
 			$sectionObjects[]				 = $this->O[$i]->id;
 		}
 
-		for($i = 0 ; $i < count($this->O) ; $i++){
+		for($i = 0 ; $i < $countO ; $i++){
 
 			$OID							= $this->O[$i]->id;
 			$availableHeight				= $this->paperBottom() - $sectionTop - $this->O[$i]->top;
@@ -491,7 +531,7 @@ class nuSECTION{
 
 			}
 
-			$pages							= Max($pages, count($objectParts[$OID]));
+			$pages							= max($pages, count($objectParts[$OID]));
 
 		}
 
@@ -504,9 +544,10 @@ class nuSECTION{
 
 			$s								= pdfSection($this->group, $this->section, $sectionTop, $sectionHeight);
 			$sectionTop						= $sectionTop + $sectionHeight;
-			$os								= array();
+			$os								= [];
 
-			for($obj = 0 ; $obj < count($sectionObjects) ; $obj++){
+			$countSectionObjects = count($sectionObjects);
+			for($obj = 0 ; $obj < $countSectionObjects ; $obj++){
 
 				if(count($objectParts[$sectionObjects[$obj]]) <= $pages){
 					$os[]					 = $objectParts[$sectionObjects[$obj]][$i];
@@ -515,15 +556,15 @@ class nuSECTION{
 			}
 
 			$s->objects						= $os;																		//-- add objects to section
-			$this->SECTIONS[]				 = $s;
+			$this->SECTIONS[]				= $s;
 
 			if($expandedSectionHeight > 0){
 
 				$s							= pdfSection($this->group, $this->section, $sectionTop, $expandedSectionHeight);
 				$sectionTop					= $sectionTop + $expandedSectionHeight;
-				$os							= array();
+				$os							= [];
 				$s->objects					= $os;																		//-- add objects to section
-				$this->SECTIONS[]			 = $s;
+				$this->SECTIONS[]			= $s;
 
 			}
 
@@ -552,11 +593,12 @@ class nuSECTION{
 
 	private function pageHeaderFooter($section){								//-- 0 = header 1 = footer
 
-		$S				 = $this->LAY->groups[2]->sections[$section];
-		$O				 = $this->setObjectLines($S->objects, true);
-		$newOs			 = array();
+		$S				= $this->LAY->groups[2]->sections[$section];
+		$O				= $this->setObjectLines($S->objects, true);
+		$newOs			= [];
 
-		for($i = 0 ; $i < count($O) ; $i ++){
+		$count			= count($O);
+		for($i = 0 ; $i < $count ; $i ++){
 
 			$newO			= pdfObject($O[$i]->id, $O[$i]->top);				//-- create Object
 			$newO->lines	= $O[$i]->LINES;
@@ -564,7 +606,7 @@ class nuSECTION{
 
 		}
 
-		$newsec			= pdfSection(2, $section, $section == 0 ? 0 : $this->pageHeight - $S->height, $S->height);
+		$newsec				= pdfSection(2, $section, $section == 0 ? 0 : $this->pageHeight - $S->height, $S->height);
 		$newsec->objects	= $newOs;										//-- add objects to section
 		$this->SECTIONS[]	= $newsec;
 
@@ -577,7 +619,8 @@ class nuSECTION{
 		$bottomMostObject	= 0;
 		$bottomID			= 0;
 
-		for($i = 0 ; $i < count($this->O) ; $i++){
+		$count = count($this->O);
+		for($i = 0 ; $i < $count ; $i++){
 
 			$thisBottom			= $this->O[$i]->top + (count($this->O[$i]->LINES) * $this->O[$i]->height);
 
@@ -618,7 +661,7 @@ class nuSECTION{
 
 //-- break one Object's paragraph into lines
 
-		$rows				= array();
+		$rows				= [];
 
 		if($O->objectType == 'field'){
 
@@ -631,11 +674,12 @@ class nuSECTION{
 
 		}else{
 
-			$lines			= array($O->fieldName);
+			$lines			= [$O->fieldName];
 
 		}
 
-		for($i = 0 ; $i < count($lines) ; $i ++){								//-- loop through current lines
+		$countLines = count($lines);
+		for($i = 0 ; $i < $countLines ; $i ++){								//-- loop through current lines
 
 			$thisLine		= $lines[$i];
 			$forceRow		= true;
@@ -658,7 +702,7 @@ class nuSECTION{
 
 		if($stopGrow){															//-- return just 1 row
 
-			return array($rows[0]);
+			return [$rows[0]];
 
 		}
 
@@ -674,8 +718,8 @@ class nuSECTION{
 			$rows	= array_splice($rows, 0, $O->maxRows);
 		}
 
-		if($O->minRows == -1 and $rows[0] == '' ){								//-- reduce height to zero 
-			$rows = array();
+		if($O->minRows == -1 and $rows[0] == '' ){								//-- reduce height to zero
+			$rows = [];
 		}
 
 		return $rows;
@@ -684,14 +728,14 @@ class nuSECTION{
 
 	private function getOneRow($text, $O){
 
-//-- return an array 
-//-- 0 = a line that fits within the width of the Object		
+//-- return an array
+//-- 0 = a line that fits within the width of the Object
 //-- 1 = remaining part of the paragraph
 
 		$this->PDF->SetFont($O->fontFamily, $O->fontWeight, $O->fontSize);
 
 		if($O->width - 2 > $this->PDF->GetStringWidth((utf8_encode($text)))){						//-- all paragraph fits in 1 line
-			return array($text, '');
+			return [$text, ''];
 		}
 
 		$to			 = 1;
@@ -711,12 +755,12 @@ class nuSECTION{
 			}
 			$break = strpos(", ;-", $widestLine[$i]);	//-- look for breakable points
 
-			if($break === false){
-			}else{
+			if($break !== false){
 				$to			 = $i;
 				$foundSeperator = true;
 				break;
 			}
+
 		}
 
 		if (!$foundSeperator)
@@ -725,7 +769,7 @@ class nuSECTION{
 		$remaining		= substr($text, $to);
 		$line			= substr($text, 0, $to);	//-- add empty array elements for carriage returns
 
-		return array($line, $remaining);
+		return [$line, $remaining];
 
 	}
 
@@ -733,6 +777,8 @@ class nuSECTION{
 
 		$type			= '';
 		$value			= '';
+		$field			= '';
+		$fields			= [];
 
 		if(strtoupper(substr($O->fieldName,0,4)) == 'SUM('){
 			$type		= 's';
@@ -744,18 +790,18 @@ class nuSECTION{
 		}
 		if($type == ''){																//-- normal value
 
-		//Add the 'is_array' check by SG 8th May 2015	
-		if ( is_array($this->ROW) ) {		
+		//Add the 'is_array' check by SG 8th May 2015
+		if ( is_array($this->ROW) ) {
 
 			if(array_key_exists($O->fieldName, $this->ROW)) {
-				
+
 				$v = $this->nuGetFormatting($O);
 				$value = $v['V'];
 			}
 		}
 
 		}else{																			//-- summed value
-			$groups		= array();
+			$groups		= [];
 			$where		= '';
 
 			if($type == 'p'){
@@ -792,7 +838,7 @@ class nuSECTION{
 						$value	= $r[0];
 					}
 
-				} 
+				}
 			} else {
 				$value	= 0;
 			}
@@ -813,7 +859,7 @@ class nuSECTION{
 function pdfSection($g, $s, $t, $h){		//-- section
 
 	$c					= new stdClass;
-	$c->objects			= array();
+	$c->objects			= [];
 	$c->group			= $g;
 	$c->section			= $s;
 	$c->sectionTop		= $t;
@@ -826,7 +872,7 @@ function pdfSection($g, $s, $t, $h){		//-- section
 function pdfObject($id, $t){
 
 	$c					= new stdClass;
-	$c->lines			= array();
+	$c->lines			= [];
 	$c->id				= $id;
 	$c->top				= $t;
 	$c->path			= '';
@@ -839,13 +885,16 @@ function nuSetPixelsToMM($pxREPORT){
 
 	$ratio = .25;
 
-	for($g = 0 ; $g < count($pxREPORT->groups) ; $g++){
+	$countGroups = count($pxREPORT->groups);
+	for($g = 0 ; $g < $countGroups; $g++){
 
-		for($s = 0 ; $s < count($pxREPORT->groups[$g]->sections) ; $s++){
+		$countSections = count($pxREPORT->groups[$g]->sections);
+		for($s = 0 ; $s < $countSections ; $s++){
 
 			$pxREPORT->groups[$g]->sections[$s]->height							= $pxREPORT->groups[$g]->sections[$s]->height				* $ratio;
 
-			for($o = 0 ; $o < count($pxREPORT->groups[$g]->sections[$s]->objects) ; $o++){
+			$countObjects = count($pxREPORT->groups[$g]->sections[$s]->objects);
+			for($o = 0 ; $o < $countObjects ; $o++){
 
 				$pxREPORT->groups[$g]->sections[$s]->objects[$o]->fontSize		= $pxREPORT->groups[$g]->sections[$s]->objects[$o]->fontSize;
 				$pxREPORT->groups[$g]->sections[$s]->objects[$o]->height		= $pxREPORT->groups[$g]->sections[$s]->objects[$o]->height	* $ratio;
@@ -871,21 +920,28 @@ function nuPrintBackground($PDF, $sectionTop, $sectionHeight, $color){
 
 function nuGetObjectProperties($REPORT, $id){
 
-	for($g = 0 ; $g < count($REPORT->groups) ; $g++){
-		for($s = 0 ; $s < count($REPORT->groups[$g]->sections) ; $s++){
-			for($o = 0 ; $o < count($REPORT->groups[$g]->sections[$s]->objects) ; $o++){
+	$countGroups = count($REPORT->groups);
+	for($g = 0 ; $g < $countGroups ; $g++){
+
+		$countSections = count($REPORT->groups[$g]->sections);
+		for($s = 0 ; $s <  $countSections; $s++){
+
+			$countSectionObjects = count($REPORT->groups[$g]->sections[$s]->objects);
+			for($o = 0 ; $o <  $countSectionObjects ; $o++){
 				if($REPORT->groups[$g]->sections[$s]->objects[$o]->id == $id)
 					return $REPORT->groups[$g]->sections[$s]->objects[$o];
 			}
 		}
+
 	}
 
 	return '';
 }
 
-function nuPrintField($PDF, $S, $contents, $O, $LAY){
+function nuPrintField($PDF, $S, $contents, $O, $LAY, $isHTML){
 
 	$PROP			= nuGetObjectProperties($LAY, $O->id);
+
 	$fontFamily		= $PROP->fontFamily;
 	$fontWeight		= $PROP->fontWeight;
 	$fontSize		= $PROP->fontSize;
@@ -913,13 +969,13 @@ function nuPrintField($PDF, $S, $contents, $O, $LAY){
 	$PDF->SetFont($fontFamily, $fontWeight, $fontSize, '', false);
 	$PDF->SetLineWidth($borderWidth / 5);
 	$PDF->SetXY($left, $top);
-	
+
 	$t = implode("\n", $contents->lines);
 
-	if (str_replace(array("\r\n", "\r", "\n", "\t"), ' ', $t) == 'KEEP EXACT HEIGHT'){
+	if (str_replace(["\r\n", "\r", "\n", "\t"], ' ', $t) == 'KEEP EXACT HEIGHT'){
 		$PDF->Rect($left, $top, $width, $height, 'DF');
 	}else{
-		$PDF->MultiCell($width, $height, $t, $hasBorder, $textAlign, 1, 0, '', '', true, 0, false, false); 
+		$PDF->MultiCell($width, $height, $t, $hasBorder, $textAlign, 1, 0, '', '', true, 0, $isHTML, false);
 	}
 
 }
@@ -941,7 +997,9 @@ function nuPrintImage($PDF, $S, $contents, $O){
 function nuGetTotalPages(){
 
 	$pages					 = 0;
-	for($i = 0 ; $i < count($GLOBALS['nu_report']) ; $i++){
+
+	$count = count($GLOBALS['nu_report']);
+	for($i = 0 ; $i < $count ; $i++){
 		if($GLOBALS['nu_report'][$i]->sectionTop == 0){
 			$pages++;
 		}
@@ -952,15 +1010,18 @@ function nuGetTotalPages(){
 
 function nuReplaceLabelHashVariables($LAY, $hashData){
 
-	for($i = 0 ; $i < count($GLOBALS['nu_report']) ; $i++){
+	$countNuReport = count($GLOBALS['nu_report']);
+	for($i = 0 ; $i <  $countNuReport; $i++){
 
-		for($o = 0 ; $o < count($GLOBALS['nu_report'][$i]->objects) ; $o++){
-			
+		$countObj = count($GLOBALS['nu_report'][$i]->objects);
+		for($o = 0 ; $o <  $countObj ; $o++){
+
 			$O = nuGetObjectProperties($LAY, $GLOBALS['nu_report'][$i]->objects[$o]->id);
 
 			if($O->objectType == 'label'){
 
-				for($l = 0 ; $l < count($GLOBALS['nu_report'][$i]->objects[$o]->lines) ; $l++){
+				$countLines = count($GLOBALS['nu_report'][$i]->objects[$o]->lines);
+				for($l = 0 ; $l < $countLines ; $l++){
 					$GLOBALS['nu_report'][$i]->objects[$o]->lines[$l] = nuReplaceHashVariables($GLOBALS['nu_report'][$i]->objects[$o]->lines[$l]);
 				}
 			}
@@ -971,8 +1032,9 @@ function nuReplaceLabelHashVariables($LAY, $hashData){
 
 function nuMakeSummaryTable($REPORT, $TABLE_ID){
 
-	$sum		= array();
-	$field		= array();
+	$sum		= [];
+	$field		= [];
+	$groups		= [];
 
 	for($i = 3 ; $i < 8 ; $i++){
 
@@ -984,14 +1046,16 @@ function nuMakeSummaryTable($REPORT, $TABLE_ID){
 
 	}
 
-	for($g = 0 ; $g < count($REPORT->groups) ; $g++){
+	$countGroups = count($REPORT->groups);
+	for($g = 0 ; $g < $countGroups; $g++){
 
-		for($s = 0 ; $s < count($REPORT->groups[$g]->sections) ; $s++){
+		$countGroupSections = count($REPORT->groups[$g]->sections);
+		for($s = 0 ; $s < $countGroupSections; $s++){
 
-			for($o = 0 ; $o < count($REPORT->groups[$g]->sections[$s]->objects) ; $o++){
+			$countGroupSectionObjects = count($REPORT->groups[$g]->sections[$s]->objects);
+			for($o = 0 ; $o < $countGroupSectionObjects; $o++){
 
 				$obj = $REPORT->groups[$g]->sections[$s]->objects[$o];
-
 				if($obj->objectType == 'field'){
 					if(strtoupper(substr($obj->fieldName,0,4)) == 'SUM('){
 						$sum[substr($obj->fieldName,4, -1)] = substr($obj->fieldName,4, -1);
@@ -1018,7 +1082,8 @@ function nuMakeSummaryTable($REPORT, $TABLE_ID){
 
 		nuRunQuery("CREATE TABLE $TABLE_ID"."_nu_summary SELECT count(*) as nu_count, " . implode(',',$field) . ", " . implode(',',$groups) . " FROM $TABLE_ID group by " . implode(',',$groups));
 
-		for($i = 0 ; $i < count($groups) ; $i++){
+		$countGroups = count($groups);
+		for($i = 0 ; $i < $countGroups ; $i++){
 
 			nuRunQuery("ALTER TABLE $TABLE_ID"."_nu_summary ADD INDEX `".$groups[$i]."` (`".$groups[$i]."`)");
 
@@ -1032,13 +1097,14 @@ function nuAddCriteriaValues($hashData, $T){
 
 	$c = db_field_names($T);
 
-	$a = array();
+	$a = [];
 
 	foreach($hashData AS $key => $value){
 
 		if( !in_array(strtolower($key), $c) and !is_array($value) and !is_object($value)){
 
-				$v = substr(addslashes($value),0,199);
+				$v = $value == null ? '' : addslashes($value);
+				$v = substr($v, 0, 199);
 
 				if(substr($v,(strlen($v)-1),1) == '\\')
 
@@ -1059,7 +1125,7 @@ function nuAddCriteriaValues($hashData, $T){
 
 		if(count($a) > 0){
 
-			nuRunQuery("ALTER TABLE $T " . implode(',', $a)); 
+			nuRunQuery("ALTER TABLE $T " . implode(',', $a));
 
 		}
 
@@ -1075,10 +1141,10 @@ function nuIsField($i){
 
 function nuIsImage($i){
 
-	if(substr($i, 0, 6) == 'Image:'){
+	if((nuStringStartsWith('Image:', $i, true))){
 
 		$c = substr($i, 6);
-		$t = nuRunQuery("SELECT * FROM zzzzsys_file WHERE sfi_code = ? ", array($c));
+		$t = nuRunQuery("SELECT * FROM zzzzsys_file WHERE sfi_code = ? ", [$c]);
 		$r = db_fetch_object($t);
 
 		return $r->sfi_json;
@@ -1100,12 +1166,13 @@ function nuIsFile($i){
 		return false;
 	} else {
 		return true;
-	}	
+	}
 }
 
 function nuRemoveFiles(){
 
-	for($i = 0 ; $i < count($GLOBALS['nu_files']) ; $i++){
+	$count = count($GLOBALS['nu_files']);
+	for($i = 0 ; $i < $count ; $i++){
 		unlink($GLOBALS['nu_files'][$i]);
 	}
 
@@ -1120,23 +1187,20 @@ function nuRemovePageBreak($S){
 
 function nuSavePDF($PDF, $code = '', $tag = '') {
 
-	if($_SESSION['nubuilder_session_data']['IS_DEMO']){
+	if (nuDemo()) return;
 
-		nuDisplayError('Not available in the Demo...');
-		return;
-
-	}
-	
 	// save PDF file on the server in the ./temp directory
 	$filename1 = 'nupdf_' . nuID() . '.pdf';
-	$dir = dirname(getcwd()) . '/temp/';
+	$dir = dirname(getcwd()) . DIRECTORY_SEPARATOR. 'temp' . DIRECTORY_SEPARATOR;
 	$filename = $dir . $filename1;
 	$path = realpath($dir);
+
+	$rid = null;
 
 	if (is_writable($path)) {
 		$PDF->Output($filename, 'F');
 		$s = nuHash();
-		$usr = $s["USER_ID"];
+		$usr = isset($s["USER_ID"]) ? $s["USER_ID"] : null;
 		$rid = nuID();
 
 		// creation of temporary table to store the names of generated files
@@ -1154,13 +1218,19 @@ function nuSavePDF($PDF, $code = '', $tag = '') {
 					VALUES ('$rid','$usr','$code','$tag','$filename');";
 		nuRunQuery($q1);
 
-		echo json_encode( array( 'filename' => $filename, 'id' => $rid ) );
-  
+		echo json_encode(['filename' => $filename, 'id' => $rid]);
+
+
 	}
 	else {
 		nuDebug('There was an error saving the report','The directory to save PDF files: '. $dir .' does not exist or you do not have permission to write to this folder!');
-		echo json_encode( array( 'filename' => null, 'id' => null ) );
+		echo json_encode(['filename' => null, 'id' => null]);
 	}
+
+	return [
+		'id' => $rid,
+		'filename' => $filename
+	];
 
 }
 

@@ -6,7 +6,8 @@
 	if ( !session_id() ) {
 
 		nuCheckGarbageCollector();
-		session_start();
+		session_start(['cookie_lifetime' => 0,'cookie_secure' => nuIsHTTPS(),'cookie_httponly' => true]);
+
 	}
 
 	if ( !isset($_SESSION['nubuilder_session_data']) ) {
@@ -14,18 +15,41 @@
 		nuLoadNewSession();
 	}
 
-	// nudatabase will not work without $_SESSION['nubuilder_session_data'] loaded
 	require_once('nudatabase.php');
+
+function nuIsHTTPS() {
+
+	$isHttps =
+		$_SERVER['HTTPS']
+		?? $_SERVER['REQUEST_SCHEME']
+		?? $_SERVER['HTTP_X_FORWARDED_PROTO']
+		?? null
+	;
+
+	return
+		$isHttps && (
+			strcasecmp('on', $isHttps) == 0
+			|| strcasecmp('https', $isHttps) == 0
+		)
+	;
+
+}
 
 function nuLoadNewSession() {
 
-	global $nuConfigDBDriver, $nuConfigDBPort, $nuConfigDBHost, $nuConfigDBName, $nuConfigDBUser, $nuConfigDBPassword, $nuConfigDBGlobeadminUsername, $nuConfigDBGlobeadminPassword, $nuConfigDemoDBGlobeadminUsername, $nuConfigDemoDBGlobeadminPassword, $nuConfigDemoSavingAllowedIds, $nuConfig2FAAdmin, $nuConfig2FAUser, $nuConfig2FAFormID, $nuConfig2FATokenValidityTime, $nuConfig2FAShowRememberMe, $nuConfigIsDemo;
+	global
+		$nuConfigDBDriver, $nuConfigDBPort, $nuConfigDBHost, $nuConfigDBName, $nuConfigDBUser, $nuConfigDBPassword,
+		$nuConfigDBGlobeadminUsername, $nuConfigDBGlobeadminPassword, $nuConfigDBGlobeadminUsers,
+		$nuConfigDemoDBGlobeadminUsername, $nuConfigDemoDBGlobeadminPassword, $nuConfigGlobeadminHome, $nuConfigDemoSavingAllowedIds,
+		$nuConfig2FAAdmin, $nuConfig2FAUser, $nuConfig2FAFormID, $nuConfig2FATokenValidityTime, $nuConfig2FAShowRememberMe,
+		$nuConfigUserAdditional1Label, $nuConfigUserAdditional2Label, $nuConfigUserCodeLabel,
+		$nuConfigIsDemo, $nuConfigDBOptions, $nuUseMd5PasswordHash;
 
-	$nubuilder_session_data = new nubuilder_session_data();
+	$sessionData = new nuBuilderSessionData();
 
-	$nubuilder_session_data->construct_standalone($nuConfigDBDriver,$nuConfigDBPort,$nuConfigDBHost,$nuConfigDBName,$nuConfigDBUser,$nuConfigDBPassword,$nuConfigDBGlobeadminUsername,$nuConfigDBGlobeadminPassword, $nuConfigDemoDBGlobeadminUsername, $nuConfigDemoDBGlobeadminPassword, $nuConfigDemoSavingAllowedIds, $nuConfig2FAAdmin, $nuConfig2FAUser, $nuConfig2FAFormID, $nuConfig2FATokenValidityTime, $nuConfig2FAShowRememberMe, $nuConfigIsDemo);
+	$sessionData->constructSession($nuConfigDBDriver,$nuConfigDBPort,$nuConfigDBHost,$nuConfigDBName,$nuConfigDBUser,$nuConfigDBPassword,$nuConfigDBGlobeadminUsername,$nuConfigDBGlobeadminPassword, $nuConfigDBGlobeadminUsers, $nuConfigDemoDBGlobeadminUsername, $nuConfigDemoDBGlobeadminPassword, $nuConfigGlobeadminHome, $nuConfigDemoSavingAllowedIds, $nuConfig2FAAdmin, $nuConfig2FAUser,$nuConfig2FAFormID, $nuConfig2FATokenValidityTime, $nuConfig2FAShowRememberMe, $nuConfigUserAdditional1Label, $nuConfigUserAdditional2Label, $nuConfigUserCodeLabel, $nuUseMd5PasswordHash, $nuConfigDBOptions, $nuConfigIsDemo);
 
-	$_SESSION['nubuilder_session_data'] = $nubuilder_session_data->get_nubuilder_session_data();
+	$_SESSION['nubuilder_session_data'] = $sessionData->getNubuilderSessionData();
 
 }
 

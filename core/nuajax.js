@@ -31,15 +31,22 @@ function nuAjax(w, successCallback, errorCallback) {
 function nuAjaxShowError(jqXHR, errorThrown) {
 
 	const err = nuFormatAjaxErrorMessage(jqXHR, errorThrown);
+	
+	if (typeof err === 'object') {
+		errMsg = [err.message, err.response];
+	} else {
+		errMsg = err;
+	}
+
 	let msgDiv;
 	if (nuHasHiddenModalDragDialog()) {
-		msgDiv = parent.nuMessage(err);
+		msgDiv = parent.nuMessage(errMsg);
 		nuClosePopup(); 
 	} else {
-		msgDiv = nuMessage(err);
+		msgDiv = nuMessage(errMsg);
 	}
 	if (window.nuOnMessage) {
-		nuOnMessage(msgDiv, err);
+		nuOnMessage(msgDiv, errMsg);
 	}
 
 }
@@ -328,7 +335,7 @@ function nuRunPHP(code, iFrame, runBeforeSave) {
 
 		if (!nuDisplayError(data)) {
 
-			const pdfUrl = `core/nurunphp.php?i=${fm.id}`;
+			const pdfUrl = `core/nurunphp.php?i=${data.id}`;
 
 			if (!iFrame) {
 				window.open(pdfUrl);
@@ -766,7 +773,7 @@ function nuUpdateData(action, instruction, close) {
 
 function nuSaveAfterDrag() {
 
-	const contentWin = getNuDragDialogIframes[0].contentWindow;
+	const contentWin = getNuDragDialogIframes()[0].contentWindow;
 	let last = contentWin.nuFORM.getCurrent();
 
 	last.call_type = 'nudragsave';

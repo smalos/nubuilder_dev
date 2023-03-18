@@ -40,7 +40,6 @@ window.nuBROWSERESIZE = {
 	last_moved_element: ''
 };
 
-
 String.prototype.nuEndsWith = function(substr, ignoreCase) {
 
 	if (ignoreCase === undefined || ignoreCase === false) return this.endsWith(substr);
@@ -151,6 +150,11 @@ $.fn.enterKey = function (fnc) {
 $.fn.nuFocusWithoutScrolling = function () {
 
 	let t = $(this)[0];
+
+	if (t === undefined) {
+		return;
+	}
+
 	let x = t.scrollX, y = t.scrollY;
 
 	this.focus();
@@ -238,7 +242,7 @@ jQuery.fn.extend({
 			}
 			$input.attr('type', type);
 		});
-  }	
+  }
 
 });
 
@@ -364,7 +368,7 @@ function nuOpenPreviousBreadcrumb(b) {
 	}
 
 	b = b ? b + 1 : 2;
-	
+
 	const l = breadcrumbs.length;
 	if (l > 1) {
 		nuGetBreadcrumb(l - b);
@@ -409,7 +413,7 @@ function nuFormatAjaxErrorMessage(jqXHR, exception) {
 	};
 
 	return errorMessage;
- 
+
 }
 
 function nuLogin(loginTopRow, nuconfigNuWelcomeBodyInnerHTML, logonMode='normal', onlySsoExcept={}, lastUser="") {
@@ -587,7 +591,7 @@ function nuPopup(f, r, filter) {
 		.css('visibility', 'hidden')
 		.append('<iframe style="border-style:none;right:5px;top:35px;width:400px;height:400px;position:absolute" id="nuWindow" src="index.php?opener=' + id + '&browsefunction=browse&iframe=1"></iframe>')
 		.prepend('<div id="nuDraggingBox" style="position:absolute; bottom:0px; right:0px; width:20px; height:20px; z-index:200"></div>');
-		
+
 
 	if (window.nuOnPopupOpenedGlobal) {
 		nuOnPopupOpenedGlobal(f, r, filter);
@@ -1138,7 +1142,7 @@ function nuObjectComponents(i) {
 }
 
 function nuEnable(i, enable) {
-  
+
 	if (enable === false) {
 		nuDisable(i);
 		return;
@@ -1171,11 +1175,11 @@ function nuEnable(i, enable) {
 		}
 
 	});
- 
+
 }
 
 function nuDisable(i) { //-- Disable Edit Form Object
-  
+
 	const ids = Array.isArray(i) ? i : [i];
 
 	$.each(ids, function(index) {
@@ -1360,9 +1364,9 @@ function nuResizeWindow(e) {
 	const dialogLeft = parseInt(dialog.css('left'), 10);
 	const win = $('#nuWindow');
 	const dragOptionsBox = $('.nuDragOptionsBox');
-	
+
 	if (dialogLeft === 2) {
-		const contentWin = getNuDragDialogIframes[0].contentWindow;
+		const contentWin = getNuDragDialogIframes()[0].contentWindow;
 		dialog.css(contentWin.nuDialogSize);
 		win.css(contentWin.nuWindowSize);
 	} else {
@@ -1431,7 +1435,7 @@ function nuSetSuffix(a) {
 }
 
 function nuWhen(timestamp) {
-	
+
 	if (!timestamp) return;
 
 	const secondsElapsed = Math.ceil((Date.now() / 1000) - timestamp);

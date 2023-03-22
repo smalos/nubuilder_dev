@@ -388,39 +388,39 @@ function nuRunPHPHidden($nuCode){
 
 function nuRunPHP($nuCode, $hidden = false) {
 
-	if ($nuCode === 'nukeepalive') {
-		return;
-	}
+	if ($nuCode !== 'nukeepalive') {
 
-	$sql = "SELECT sph_code, sph_description, zzzzsys_php_id, sph_php, sph_global
-				FROM zzzzsys_php
-				WHERE sph_code = ?
-		";
+		$sql = "SELECT sph_code, sph_description, zzzzsys_php_id, sph_php, sph_global
+					FROM zzzzsys_php
+					WHERE sph_code = ?
+			";
 
-	$stmt = nuRunQuery($sql, [$nuCode]);
-	$exists = db_num_rows($stmt) == 1;
+		$stmt = nuRunQuery($sql, [$nuCode]);
+		$exists = db_num_rows($stmt) == 1;
 
-	if (!$exists) {
-		if (substr($nuCode, 0, 2) !== 'nu') {
-			nuDisplayError(nuTranslate("The Procedure does not exist...") . " ($nuCode)");
-		}
-	}
-	else {
-
-		$row = db_fetch_object($stmt);
-		$hasAccess = $row->sph_global == '1';
-
-		if (!$hasAccess) {
-			$procList = nuProcedureAccessList(nuAllowedActivities());
-			$hasAccess = in_array($row->zzzzsys_php_id, $procList);
-		}
-
-		if ($hasAccess || $_SESSION['nubuilder_session_data']['isGlobeadmin']) {
-			if ($hidden) nuEval($row->zzzzsys_php_id);
+		if (!$exists) {
+			if (substr($nuCode, 0, 2) !== 'nu') {
+				nuDisplayError(nuTranslate("The Procedure does not exist...") . " ($nuCode)");
+			}
 		}
 		else {
-			nuDisplayError(nuTranslate("Access To Procedure Denied...") . " ($nuCode)");
+
+			$row = db_fetch_object($stmt);
+			$hasAccess = $row->sph_global == '1';
+
+			if (!$hasAccess) {
+				$procList = nuProcedureAccessList(nuAllowedActivities());
+				$hasAccess = in_array($row->zzzzsys_php_id, $procList);
+			}
+
+			if ($hasAccess || $_SESSION['nubuilder_session_data']['isGlobeadmin']) {
+				if ($hidden) nuEval($row->zzzzsys_php_id);
+			}
+			else {
+				nuDisplayError(nuTranslate("Access To Procedure Denied...") . " ($nuCode)");
+			}
 		}
+	
 	}
 
 	if ($hidden) {
@@ -1638,7 +1638,7 @@ function nuUserLanguage($e = ''){
 
 }
 
-function nuTranslate($str, /*optional arguments*/) {
+function nuTranslate($str /*optional arguments*/) {
 
 	$language = nuUserLanguage();
 
@@ -1661,10 +1661,39 @@ function nuTranslate($str, /*optional arguments*/) {
 	if (func_num_args() > 1 && nuStringContains('%', $str)) {
 		$args = func_get_args();
 		array_shift($args);
-		$str = vsprintf($str, $args);
+		$str = nuFormatVarArgs($str, $args);
 	}
 
 	return $str;
+
+}
+
+function nuFormatVarArgs($format, $values) {
+
+	// Check if there are custom placeholders in the format string
+	if (!preg_match('/%s(\d+)/', $format)) {
+		return vsprintf($format, $values);
+	}
+
+	// Extract placeholder names from the format string
+	preg_match_all('/%s(\d+)/', $format, $matches);
+
+	// Create an array for the ordered values
+	$ordered_values = [];
+
+	// Loop through the placeholder names and fill the ordered values array
+	foreach ($matches[1] as $placeholder_number) {
+		$index = (int)$placeholder_number - 1; // Convert to zero-based index
+		if (isset($values[$index])) {
+			$ordered_values[] = $values[$index];
+		}
+	}
+
+	// Replace the custom placeholders with standard %s placeholders
+	$new_format = preg_replace('/%s(\d+)/', '%s', $format);
+
+	// Use vsprintf with the new format string and ordered values array
+	return vsprintf($new_format, $ordered_values);
 
 }
 

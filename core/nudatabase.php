@@ -4,18 +4,15 @@ mb_internal_encoding('UTF-8');
 
 $_POST['RunQuery']		= 0;
 
-if (isset($_SESSION['nubuilder_session_data'])) {
-	$sessionData		= $_SESSION['nubuilder_session_data'];
-}
+$sessionData = $_SESSION['nubuilder_session_data'] ?? null;
 
-$DBHost					= isset($sessionData['DB_HOST'])		? $sessionData['DB_HOST']		: $nuConfigDBHost;
-$DBName					= isset($sessionData['DB_NAME'])		? $sessionData['DB_NAME']		: $nuConfigDBName;
-$DBUser					= isset($sessionData['DB_USER'])		? $sessionData['DB_USER']		: $nuConfigDBUser;
-$DBPassword				= isset($sessionData['DB_PASSWORD'])	? $sessionData['DB_PASSWORD']	: $nuConfigDBPassword;
-$DBCharset				= isset($sessionData['DB_CHARSET'])		? $sessionData['DB_CHARSET']	: 'utf8';
-$DBOptions				= isset($sessionData['DB_OPTIONS'])		? $sessionData['DB_OPTIONS']	: (isset($nuConfigDBOptions) ? $nuConfigDBOptions : null);
-
-$charSet				= [PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES $DBCharset"];
+$DBHost			= $sessionData['DB_HOST'] ?? $nuConfigDBHost;
+$DBName			= $sessionData['DB_NAME'] ?? $nuConfigDBName;
+$DBUser			= $sessionData['DB_USER'] ?? $nuConfigDBUser;
+$DBPassword		= $sessionData['DB_PASSWORD'] ?? $nuConfigDBPassword;
+$DBCharset		= $sessionData['DB_CHARSET'] ?? 'utf8';
+$DBOptions		= $sessionData['DB_OPTIONS'] ?? $nuConfigDBOptions ?? null;
+$charSet		= [PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES $DBCharset"];
 
 if (is_array($DBOptions)) {
 	array_merge($charSet, $DBOptions);
@@ -64,33 +61,29 @@ $GLOBALS['sys_table_prefix'] = [
 	'user' => 'sus'
 ];
 
-function nuRunQueryNoDebug($s, $a = [], $isInsert = false){
+function nuRunQueryNoDebug($query, $params = [], $isInsert = false){
 
 	global $nuDB;
 
-	$object = $nuDB->prepare($s);
+	$stmt = $nuDB->prepare($query);
 
 	try {
-		$object->execute($a);
+		$stmt->execute($params);
 	}catch(PDOException $ex){
 	}
 
-	if($isInsert){
-		return $nuDB->lastInsertId();
-	}else{
-		return $object;
-	}
+	return $isInsert ? $nuDB->lastInsertId() : $stmt;
 
 }
 
-function nuRunQueryTest($s, $a = []){
+function nuRunQueryTest($query, $params = []){
 
 	global $nuDB;
 
-	$object = $nuDB->prepare($s);
+	$stmt = $nuDB->prepare($query);
 
 	try {
-		$object->execute($a);
+		$stmt->execute($params);
 	}catch(PDOException $ex){
 		return $ex->getMessage();
 	}
@@ -116,11 +109,11 @@ function nuDebugMessageString($user, $message, $sql, $trace) {
 
 		";
 
-		return  trim(preg_replace('/\t/', '', $debug));
+		return trim(preg_replace('/\t/', '', $debug));
 
 }
 
-function nuRunQuery($sql, $a = [], $isInsert = false){
+function nuRunQuery($sql, $params = [], $isInsert = false){
 
 	global $DBHost;
 	global $DBName;
@@ -130,27 +123,27 @@ function nuRunQuery($sql, $a = [], $isInsert = false){
 	global $DBCharset;
 
 	if($sql == ''){
-		$a			= [];
-		$a[0]		= $DBHost;
-		$a[1]		= $DBName;
-		$a[2]		= $DBUser;
-		$a[3]		= $DBPassword;
-		$a[4]		= $nuDB;
-		$a[4]		= $DBCharset;
-		return $a;
+		$params 		= [];
+		$params[0] 	= $DBHost;
+		$params[1] 	= $DBName;
+		$params[2] 	= $DBUser;
+		$params[3] 	= $DBPassword;
+		$params[4] 	= $nuDB;
+		$params[4] 	= $DBCharset;
+		return $params;
 	}
 
-	// nuLog($s, count($a)> 0 ? $a[0] : '');
+	// nuLog($s, count($params)> 0 ? $params[0] : '');
 	$stmt = $nuDB->prepare($sql);
 
 	try {
-		$stmt->execute($a);
+		$stmt->execute($params);
 	}catch(PDOException $ex){
 
-		$user		= 'globeadmin';
+		$user 		= 'globeadmin';
 		$message	= $ex->getMessage();
-		$array		= debug_backtrace();
-		$trace		= '';
+		$array 		= debug_backtrace();
+		$trace 		= '';
 
 		$count = count($array);
 		for($i = 0 ; $i < $count; $i ++){
@@ -163,119 +156,119 @@ function nuRunQuery($sql, $a = [], $isInsert = false){
 		nuDebug($debug);
 		$_POST['RunQuery']		= 0;
 
-		$id						= $nuDB->lastInsertId();
 		$GLOBALS['ERRORS'][]	= $debug;
+
+		$error = new stdClass();
+		$error->user = $user;
+		$error->message = $message;
+		$error->sql = $sql;
+		$error->trace = $trace;
+		$GLOBALS['LAST_ERROR'] = $error;
 
 		return -1;
 
 	}
 
-	if($isInsert){
+	return $isInsert ? $nuDB->lastInsertId() : $stmt;
 
-		return $nuDB->lastInsertId();
+}
 
-	}else{
+function nuGetLastError() {
+	return $GLOBALS['LAST_ERROR'] ?? null;
+}
 
-		return $stmt;
+function nuRunQueryString($sql, $sqlWithHK) {
 
+	global $nuDevSelectQueryRunParameterised;
+
+	if ($nuDevSelectQueryRunParameterised) {
+		$args = [];
+		$sqlWithHK = preg_replace_callback('/#(\'?)(.*?)(\'?)#/', function($match) use(&$count, &$args) {
+			$args[] = $match[2];
+			return '?';
+		}, $sqlWithHK);
+		$sqlWithHK = str_replace("'?'", "?", $sqlWithHK);
+		
+		foreach ($args as &$value) {
+			$value = nuReplaceHashVariables('#' . $value. '#');
+		}
+
+		return nuRunQuery($sqlWithHK, $args);
+
+	} else {
+		return nuRunQuery($sql);
 	}
 
 }
 
+function db_is_auto_id($table, $primaryKey) {
 
-function db_is_auto_id($table, $pk){
+	$query = "SHOW COLUMNS FROM `$table` WHERE `Field` = ?";
+	$stmt = nuRunQuery($query, [$primaryKey]);
 
-	$s		= "SHOW COLUMNS FROM `$table` WHERE `Field` = '$pk'";
-	$t		= nuRunQuery($s);									//-- mysql's way of checking if its an auto-incrementing id primary key
-
-	if (db_num_rows($t) == 0) {
-		nuDisplayError(nuTranslate("The Primary Key is invalid"). ": ". $pk);
+	if (db_num_rows($stmt) == 0) {
+		nuDisplayError(nuTranslate("The primary key is invalid"). ": ". $primaryKey);
 		return false;
 	}
 
-	$r		= db_fetch_object($t);
-	return $r->Extra == 'auto_increment';
+	$row = db_fetch_object($stmt);
+	return $row->Extra == 'auto_increment';
 
 }
 
-function db_fetch_array($o){
+function db_fetch($obj, $style = 'object', $fetchAll = false) {
 
-	if (is_object($o)) {
-		return $o->fetch(PDO::FETCH_ASSOC);
-	} else {
-		return [];
-	}
+	$fetchStyles = [
+		'array' => [PDO::FETCH_ASSOC, 'array'],
+		'keypairarray' => [PDO::FETCH_KEY_PAIR, 'array'],
+		'object' => [PDO::FETCH_OBJ, 'boolean'],
+		'row' => [PDO::FETCH_NUM, 'boolean']
+	];
 
-}
-
-function db_fetch_all_array($o){
-
-	if (is_object($o)) {
-		return $o->fetchAll(PDO::FETCH_ASSOC);
-	} else {
-		return [];
-	}
-
-}
-
-function db_fetch_key_pair_array($o){
-
-	if (is_object($o)) {
-		return $o->fetchAll(PDO::FETCH_KEY_PAIR);
-	} else {
-		return [];
-	}
-
-}
-
-function db_fetch_object($o){
-
-	if (is_object($o)) {
-		return $o->fetch(PDO::FETCH_OBJ);
-	} else {
+	if (!isset($fetchStyles[$style])) {
 		return false;
 	}
 
-}
+	[$fetchStyle, $returnType] = $fetchStyles[$style];
 
-function db_fetch_all_column($o){
-
-	if (is_object($o)) {
-		return $o->fetchAll(PDO::FETCH_COLUMN);
-	} else {
-		return [];
+	if (!is_object($obj)) {
+		if ($returnType === 'array') {
+			return [];
+		} elseif ($returnType === 'boolean') {
+			return false;
+		}
 	}
 
-}
-
-function db_fetch_all_object($o){
-
-	if (is_object($o)) {
-		return $o->fetchAll(PDO::FETCH_OBJ);
-	} else {
-		return false;
-	}
+	return $fetchAll ? $obj->fetchAll($fetchStyle) : $obj->fetch($fetchStyle);
 
 }
 
-function db_fetch_row($o){
-
-	if (is_object($o)) {
-		return $o->fetch(PDO::FETCH_NUM);
-	} else {
-		return false;
-	}
-
+function db_fetch_array($obj){
+	return db_fetch($obj, 'array');
 }
 
-function db_fetch_all_row($o){
+function db_fetch_all_array($obj){
+	return db_fetch($obj, 'array', true);
+}
 
-	if (is_object($o)) {
-		return $o->fetchAll(PDO::FETCH_NUM);
-	} else {
-		return false;
-	}
+function db_fetch_key_pair_array($obj){
+	return db_fetch($obj, 'keypairarray');
+}
 
+function db_fetch_object($obj){
+	return db_fetch($obj, 'object');
+}
+
+function db_fetch_all_column($obj){
+	return db_fetch($obj, 'column', true);
+}
+
+function db_fetch_all_object($obj){
+	return db_fetch($obj, 'object', true);
+}
+
+function db_fetch_row($obj){
+	return db_fetch($obj, 'row');
 }
 
 function db_update_value($table, $pk, $recordId, $column, $newValue) {
@@ -298,27 +291,25 @@ function db_fetch_value($table, $pk, $recordId, $column) {
 
 }
 
-function db_field_info($n){
+function db_field_info($tableName) {
 
-	$fields		= [];
-	$types		= [];
-	$pk			= [];
+    $fields = [];
+    $types = [];
+    $primaryKeys = [];
 
-	$s			= "DESCRIBE `$n`";
-	$t			= nuRunQueryNoDebug($s);
+    $query = "DESCRIBE `$tableName`";
+    $result = nuRunQueryNoDebug($query);
 
-	while($r = db_fetch_row($t)){
+	while ($row = db_fetch_row($result)) {
+		$fields[] = $row[0];
+		$types[] = $row[1];
 
-		$fields[] = $r[0];
-		$types[] = $r[1];
-
-		if($r[3] == 'PRI'){
-			$pk[] = $r[0];
+		if ($row[3] === 'PRI') {
+			$primaryKeys[] = $row[0];
 		}
-
 	}
 
-	return [$fields, $types, $pk];
+	return [$fields, $types, $primaryKeys];
 
 }
 

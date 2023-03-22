@@ -394,25 +394,21 @@ function nuDisplayError(e) {
 
 function nuFormatAjaxErrorMessage(jqXHR, exception) {
 
-	const errorMessages = {
-		0: nuTranslate('Not connected. Please verify your network connection.'),
-		403: {
-			message: `<h3>${nuTranslate('Access Forbidden.')}</h3>`,
-			response: jqXHR.responseText,
-		},
-		404: nuTranslate('The requested page was not found.') + ' [404]',
-		500: nuTranslate('Internal Server Error.') + ' [500]',
-		parsererror: nuTranslate('Requested JSON parse failed.'),
-		timeout: nuTranslate('Time out error.'),
-		abort: nuTranslate('Ajax request aborted.'),
-	};
+    const errorMessages = {
+        0: nuTranslate('Not connected. Please verify your network connection.'),
+        403: [`<h3>${nuTranslate('Access Forbidden.')}</h3>`, jqXHR.responseText],
+        404: nuTranslate('The requested page was not found.') + ' [404]',
+        500: nuTranslate('Internal Server Error.') + ' [500]',
+        parsererror: nuTranslate('Requested JSON parse failed.'),
+        timeout: nuTranslate('Time out error.'),
+        abort: nuTranslate('Ajax request aborted.'),
+    };
 
-	const errorMessage = errorMessages[jqXHR.status] || errorMessages[exception] || {
-		message: `<h3>${nuTranslate('Uncaught Error.')}</h3>`,
-		response: jqXHR.responseText,
-	};
+    const errorMessage = errorMessages[jqXHR.status] || errorMessages[exception] ||
+        [`<h3>${nuTranslate('Uncaught Error.')}</h3>`, jqXHR.responseText]
 
-	return errorMessage;
+
+    return errorMessage;
 
 }
 
@@ -567,12 +563,16 @@ function nuBuildLookup(t, s, like) {
 
 }
 
+function nuCanArrangeObjects() {
+	return nuGlobalAccess() && nuSERVERRESPONSE.objects.length > 0;
+}
+
 function nuPopup(f, r, filter) {
 
 	nuCursor('progress');
 
 	if (!nuGlobalAccess() && f == 'nuobject') { return; }
-	if (nuSERVERRESPONSE.objects.length == 0 && r == '-2') { return; }
+	if (r == '-2' && !nuCanArrangeObjects()) { return; }
 
 	$('#nuCalendar').remove();
 
@@ -942,7 +942,7 @@ function nuBindCtrlEvents() {
 
 			if (nuFormType() == 'edit') {
 
-				if (e.code == 'KeyA' && g) {						//-- a		Arrange
+				if (e.code == 'KeyA' && nuCanArrangeObjects()) {	//-- a		Arrange Objects
 					nuPopup(formId, "-2");
 				} else if (e.code == 'KeyQ' && !g) {				//-- q		Change Password
 					nuPopup("nupassword", "5b6bb7108a75efc", "");
@@ -1647,12 +1647,12 @@ function nuAttachFile(j, c) {
 
 function nuButtonIcon(j) {
 
-    $(j).css({
-        'text-align': 'left',
-        'padding': '0px 0px 0px 35px',
-        'background-size': '30px',
-        'background-repeat': 'no-repeat'
-    });
+	$(j).css({
+		'text-align': 'left',
+		'padding': '0px 0px 0px 35px',
+		'background-size': '30px',
+		'background-repeat': 'no-repeat'
+	});
 
 }
 
@@ -1715,15 +1715,17 @@ function nuDecode(s) {
 	return decodeURIComponent(escape(window.atob(s)))
 }
 
-function nuAddRow(s) {
+function nuAddRow(id, setFocus = true) {
 
-	const o = nuSubformObject(s);
-	let i = s + nuPad3(o.rows.length - 1) + o.fields[1];
-	$('#' + i).change();
+	const o = nuSubformObject(id);
+	const index = nuPad3(o.rows.length - 1) + o.fields[1];
+	$(`#${id}${index}`).change();
 
-	i = s + nuPad3(o.rows.length) + o.fields[1];
-
-	$('#' + i).focus();
+	if (setFocus) {
+		const newIndex = nuPad3(o.rows.length) + o.fields[1];
+		const $newInput = $(`#${id}${newIndex}`);
+		$newInput.focus();
+	}
 
 }
 

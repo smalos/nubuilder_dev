@@ -1,7 +1,17 @@
-if('#check_password#' != ''){
-    if('#new_password#' != '#check_password#'){
-        nuDisplayError('<b>Enter New Password</b> and <b>Reenter New Password</b> must match');
-    }
-    
+$newPassword = '#new_password#';
+$checkPassword = '#check_password#';
+$passwordsMatch = $newPassword === $checkPassword;
+
+$err = "";
+if (empty($newPassword) || empty($checkPassword)) {
+    $err = "Both password fields must be filled in.";
 }
 
+
+if (!$passwordsMatch) {
+    $err = "The passwords do not match.";
+}
+
+if (!empty($err)) {
+    nuDisplayError(nuTranslate($err));
+}

@@ -1,24 +1,21 @@
-$addCode = isset($_SESSION['nubuilder_session_data']['USER_CODE_LABEL']) ? $_SESSION['nubuilder_session_data']['USER_CODE_LABEL'] : '';
-$j = " if ('$addCode' !== '') { $('#nusort_5').html('$addCode') };";
-
-$sqlPosition = function() {
-    $sql = " SELECT DISTINCT `sus_position` FROM `zzzzsys_user` WHERE IFNULL(`sus_position`,'') <> '' ORDER BY `sus_position` ";
-    return $sql;
+$getDistinctUserColumnQuery = function($column) {
+    return "SELECT DISTINCT `$column` FROM `zzzzsys_user` WHERE IFNULL(`$column`,'') <> '' ORDER BY `$column`";
 };
 
-$sqlTeam = function() {
-    $sql = " SELECT DISTINCT `sus_team` FROM `zzzzsys_user` WHERE IFNULL(`sus_team`,'') <> '' ORDER BY `sus_team` ";
-    return $sql;
+$sqlPosition = function() use ($getDistinctUserColumnQuery) {
+    return $getDistinctUserColumnQuery('sus_position');
 };
 
-$sqlDepartment = function() {
-    $sql = " SELECT DISTINCT `sus_department` FROM `zzzzsys_user` WHERE IFNULL(`sus_department`,'') <> '' ORDER BY `sus_department` ";
-    return $sql;
+$sqlTeam = function() use ($getDistinctUserColumnQuery) {
+    return $getDistinctUserColumnQuery('sus_team');
 };
 
-$sqlLanguage = function() {
-    $sql = " SELECT DISTINCT `sus_language` FROM `zzzzsys_user` WHERE IFNULL(`sus_language`,'') <> '' ORDER BY `sus_language` ";
-    return $sql;
+$sqlDepartment = function() use ($getDistinctUserColumnQuery) {
+    return $getDistinctUserColumnQuery('sus_department');
+};
+
+$sqlLanguage = function() use ($getDistinctUserColumnQuery) {
+    return $getDistinctUserColumnQuery('sus_language');
 };
 
 $sqlAccessLevel = function() {
@@ -27,44 +24,59 @@ $sqlAccessLevel = function() {
     return $sql;
 };
 
-$getBase64JsonDTString = function($sql) {
-    $result = nuRunQuery($sql);
-    $a = [];
-    $a[] = '';
-    while ($row = db_fetch_row($result)) {
-        $a[] = $row;
+
+$getEncodedJsonFromQuery = function($sql) {
+    $stmt = nuRunQuery($sql);
+    $data = [''];
+    while ($row = db_fetch_row($stmt)) {
+        $data[] = $row;
     }
-    return base64_encode(json_encode($a));
+    return base64_encode(json_encode($data));
 };
 
-$position = $getBase64JsonDTString($sqlPosition());
-$team = $getBase64JsonDTString($sqlTeam());
-$department = $getBase64JsonDTString($sqlDepartment());
-$language = $getBase64JsonDTString($sqlLanguage());
-$accessLevel = $getBase64JsonDTString($sqlAccessLevel());
 
-$js = "
+$position = $getEncodedJsonFromQuery($sqlPosition());
+$team = $getEncodedJsonFromQuery($sqlTeam());
+$department = $getEncodedJsonFromQuery($sqlDepartment());
+$language = $getEncodedJsonFromQuery($sqlLanguage());
+$accessLevel = $getEncodedJsonFromQuery($sqlAccessLevel());
 
- function getPosition() {
-    return JSON.parse(atob('$position'));
- }
- 
- function getTeam() {
-    return JSON.parse(atob('$team'));
- }
-
- function getDepartment() {
-    return JSON.parse(atob('$department'));
- }
- 
- function getLanguage() {
-    return JSON.parse(atob('$language'));
- }
-
- function getAccessLevel() {
-    return JSON.parse(atob('$accessLevel'));
- }
+$filterJS = " 
+    function getData(data) {
+        return JSON.parse(atob(data));
+    }
    
+    function getPosition() {
+        return getData('$position');
+    }
+ 
+    function getTeam() {
+        return getData('$team');
+    }
+
+    function getDepartment() {
+        return getData('$department');
+    }
+ 
+    function getLanguage() {
+        return getData('$language');
+    }
+
+    function getAccessLevel() {
+        return getData('$accessLevel');
+    }
 ";
 
-nuAddJavaScript($js . $j);
+
+$addCode = $_SESSION['nubuilder_session_data']['USER_CODE_LABEL'] ?? '';
+
+$addCodeJS = " 
+
+    if ('$addCode' !== '') {
+        $('#nusort_5').html('$addCode')
+    };
+
+";
+
+
+nuAddJavaScript($filterJS . $addCodeJS);

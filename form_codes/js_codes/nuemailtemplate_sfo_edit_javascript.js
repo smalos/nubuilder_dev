@@ -5,7 +5,7 @@ $('#emt_avail_fields').nuLabelOnTop();
 selectSingle('emt_avail_fields');
 
 setPreviewText();
-    
+
 function selectSingle(f) {
     $('#' + f).removeAttr('multiple');
     $('#' + f).attr('size', '5');
@@ -18,21 +18,10 @@ function addSelectedField() {
         const activeObjectId = getActiveObjectId();
         const isBody = activeObjectId == 'emt_body';
         const label = isBody ? '<b>' + selObjectLabel + ': </b>': '';
-        insertAtCursor(activeObjectId, label + "#" + selObjectId + "#" + (isBody ? '\n' : ''));
+        nuInsertAtCaret(activeObjectId, label + "#" + selObjectId + "#" + (isBody ? '\n': ''));
     }
 }
 
-function insertAtCursor(myField, myValue) {
-    const txt = $('#' + myField);
-    const caretPos = txt[0].selectionStart;
-    const textAreaTxt = txt.val();
-    const txtToAdd = myValue;
-    txt.val(textAreaTxt.substring(0, caretPos) + txtToAdd + textAreaTxt.substring(caretPos));
-    txt.focus();
-    const endOfText = caretPos + txtToAdd.length;
-    txt.prop('selectionStart', endOfText);
-    txt.prop('selectionEnd', endOfText);
-}
 
 function wrapText(elementID, openTag, closeTag) {
     const textArea = $('#' + elementID);

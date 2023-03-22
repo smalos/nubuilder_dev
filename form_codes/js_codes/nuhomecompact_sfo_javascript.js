@@ -32,6 +32,25 @@ function menuProcedureClick(element, event) {
 
 }
 
+function menuNotesClick(element, event) {
+
+    const menu = [{
+        text: nuTranslate("Notes")
+    },
+
+        {
+            text: nuContextMenuItemText("Add", "fa fas fa-plus"),
+            action: () => openForm('nunotes', '-1', event)
+        },
+        {
+            text: nuContextMenuItemText("Categories", "fa-solid fa-list"),
+            action: () => openForm('nunotescategroy', '', event)
+        }]
+
+    openMenu(event, menu, element);
+
+}
+
 function menuReportClick(element, event) {
 
     const menu = [{

@@ -330,27 +330,6 @@ function nuObjectColor(){
     
 } 
 
-function nuAddToFormula(e) {
-
-    var fld = e.target.innerHTML;
-    var frm = $('#sob_calc_formula').val();
-
-    if (fld == 'Clear') {
-
-        $('#sob_calc_formula')
-            .val('')
-            .addClass('nuEdited');
-        return;
-
-    }
-
-    $('#sob_calc_formula')
-        .addClass('nuEdited')
-        .val(frm + fld);
-
-    nuHasBeenEdited();
-
-}
 
 function nuDisplayAllTypeInput() {
 
@@ -458,26 +437,60 @@ function nuHideCalcObjects() {
 
 }
 
+function nuInsertOrAppendToCalcFormula(oldValue, newValue) {
+    
+     const manualMode = nuGetValue('sob_calc_formula_edit_mode_checkbox');
+    if (manualMode) {
+        nuInsertAtCaret('sob_calc_formula', newValue);
+    } else {
+        nuSetValue('sob_calc_formula', oldValue + newValue);
+    }    
+    
+}
 
 function nuAddCalcObject(t) {
 
-    var f = $('#sob_calc_formula').val();
-    var i = $(t).attr('data-nu-ids');
-    var s = f + "nuTotal('" + i + "')";
+    const i = $(t).attr('data-nu-ids');
+    const oldValue = $('#sob_calc_formula').val();
+    const newValue = "nuTotal('" + i + "')";
 
     if (i == '') {
         return;
     }
 
-    $('#sob_calc_formula')
-        .addClass('nuEdited')
-        .val(s);
+    $('#sob_calc_formula').addClass('nuEdited')
+
+    nuInsertOrAppendToCalcFormula(oldValue, newValue);   
 
     $('#add_total').val('');
 
     nuHasBeenEdited();
 
 }
+
+
+function nuAddToFormula(e) {
+
+    const newValue = e.target.innerHTML;
+    const oldValue = $('#sob_calc_formula').val();
+
+    if (newValue == 'Clear') {
+
+        $('#sob_calc_formula')
+            .val('')
+            .addClass('nuEdited');
+        return;
+
+    }
+
+    $('#sob_calc_formula').addClass('nuEdited')
+
+    nuInsertOrAppendToCalcFormula(oldValue, newValue);
+
+    nuHasBeenEdited();
+
+}
+
 
 
 function nuPopulateHTML() {
@@ -694,8 +707,13 @@ function addFileUploadScript() {
                 endpoint: 'core/nuapi.php'
             })
     
-        uppy.setMeta({ procedure: 'NUUPLOADFILE_TEMPLATE', session_id: window.nuSESSION })
-    
+    	uppy.on('upload', (file) => {
+    		uppy.setMeta({
+    			procedure: 'NUUPLOADFILE_TEMPLATE',
+    			session_id: window.nuSESSION
+    		})
+    	});
+
         uppy.on('complete', (result) => {
     
             if (window.nuOnFileUploadComplete) {
@@ -708,7 +726,6 @@ function addFileUploadScript() {
 
 </script>
 `;
-    
     
         nuSetValue('sob_html_code', htmlCode.val() + uppyScript);
 
@@ -766,8 +783,12 @@ function menuPickTabsClick(element, event) {
         items.push(item);
     });
 
-    const menu = [items]
-
     openMenu(event, items, element);
 
 }
+
+
+$('#sob_all_zzzzsys_tab_idbutton').on('contextmenu', function(e) {
+    e.preventDefault();
+   menuPickTabsClick(this, event);
+});

@@ -1,22 +1,17 @@
+
 function nuBeforeSave() {
-
-    const dupF = nuSubformColumnUnique('accform', 'slf_zzzzsys_form_id', 'Forms');
-    const dupP = nuSubformColumnUnique('accphp', 'slp_zzzzsys_php_id', 'Procedures');
-    const dupR = nuSubformColumnUnique('accreport', 'sre_zzzzsys_report_id', 'Reports');
-
-    if (dupF !== true || dupP !== true || dupR !== true) {
-        
-        let a = [];
-        if (!dupF) a.push(dupF);
-        if (!dupP) a.push(dupP);
-        if (!dupR) a.push(dupR);
-        
-        nuMessage(a);
-        return false;
-    }
-
-    return true;
-
+    const subforms = [
+        {name: 'accform', column: 'slf_zzzzsys_form_id', title: 'Forms'},
+        {name: 'accphp', column: 'slp_zzzzsys_php_id', title: 'Procedures'},
+        {name: 'accreport', column: 'sre_zzzzsys_report_id', title: 'Reports'}
+    ];
+    const duplicates = subforms.filter(subform => !nuSubformColumnUnique(subform.name, subform.column, subform.title));
+    if (duplicates.length) {
+        const duplicateTitles = duplicates.map(subform => subform.title);
+        nuMessage(`Duplicate ${duplicateTitles.join(', ')} found`);
+        return false;
+    }
+    return true;
 }
 
 function addSfFilter() {

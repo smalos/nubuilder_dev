@@ -1,6 +1,5 @@
-$("#sev_javascript").addClass('js');
+$('#sev_javascript').addClass('js')
 
-
-$('.js').dblclick(function() {
-    nuOpenAce('JavaScript', this.id);
-});
+$('.js').dblclick(function () {
+  nuOpenAce('JavaScript', this.id)
+})

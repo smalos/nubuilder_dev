@@ -1429,8 +1429,8 @@ class ExportSql extends ExportPlugin
         array $aliases = []
     ) {
         global $sql_drop_table, $sql_backquotes, $sql_constraints,
-               $sql_constraints_query, $sql_indexes, $sql_indexes_query,
-               $sql_auto_increments, $sql_drop_foreign_keys, $dbi, $cfg;
+        $sql_constraints_query, $sql_indexes, $sql_indexes_query,
+        $sql_auto_increments, $sql_drop_foreign_keys, $dbi, $cfg;
 
         $dbAlias = $db;
         $tableAlias = $table;
@@ -1664,7 +1664,6 @@ class ExportSql extends ExportPlugin
                 (! empty($statement->fields) && is_array($statement->fields))
                 && (empty($engine) || strtoupper($engine) !== 'ARCHIVE')
             ) {
-
                 /**
                  * Fragments containing definition of each constraint.
                  *
@@ -2468,7 +2467,7 @@ class ExportSql extends ExportPlugin
                     }
 
                     $querySize += mb_strlen($insertLine);
-                    // Other inserts case
+                // Other inserts case
                 } else {
                     $insertLine = $schemaInsert
                         . '(' . implode(', ', $values) . ')';
@@ -2757,7 +2756,6 @@ class ExportSql extends ExportPlugin
         ) {
             // Replacing the body.
             for ($i = 0, $count = count((array) $statement->body); $i < $count; ++$i) {
-
                 /**
                  * Token parsed at this moment.
                  *

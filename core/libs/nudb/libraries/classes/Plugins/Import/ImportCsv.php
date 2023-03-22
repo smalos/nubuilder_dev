@@ -160,7 +160,7 @@ class ImportCsv extends AbstractImportCsv
     {
         global $error, $message, $dbi;
         global $db, $table, $csv_terminated, $csv_enclosed, $csv_escaped,
-               $csv_new_line, $csv_columns, $errorUrl;
+        $csv_new_line, $csv_columns, $errorUrl;
         // $csv_replace and $csv_ignore should have been here,
         // but we use directly from $_POST
         global $timeout_passed, $finished;
@@ -651,14 +651,14 @@ class ImportCsv extends AbstractImportCsv
             $message->addParam(__('Columns terminated with'));
             $error = true;
             $param_error = true;
-            // The default dialog of MS Excel when generating a CSV produces a
-            // semi-colon-separated file with no chance of specifying the
-            // enclosing character. Thus, users who want to import this file
-            // tend to remove the enclosing character on the Import dialog.
-            // I could not find a test case where having no enclosing characters
-            // confuses this script.
-            // But the parser won't work correctly with strings so we allow just
-            // one character.
+        // The default dialog of MS Excel when generating a CSV produces a
+        // semi-colon-separated file with no chance of specifying the
+        // enclosing character. Thus, users who want to import this file
+        // tend to remove the enclosing character on the Import dialog.
+        // I could not find a test case where having no enclosing characters
+        // confuses this script.
+        // But the parser won't work correctly with strings so we allow just
+        // one character.
         } elseif (mb_strlen($csvEnclosed) > 1) {
             $message = Message::error(
                 __('Invalid parameter for CSV import: %s')
@@ -666,10 +666,10 @@ class ImportCsv extends AbstractImportCsv
             $message->addParam(__('Columns enclosed with'));
             $error = true;
             $param_error = true;
-            // I could not find a test case where having no escaping characters
-            // confuses this script.
-            // But the parser won't work correctly with strings so we allow just
-            // one character.
+        // I could not find a test case where having no escaping characters
+        // confuses this script.
+        // But the parser won't work correctly with strings so we allow just
+        // one character.
         } elseif (mb_strlen($csvEscaped) > 1) {
             $message = Message::error(
                 __('Invalid parameter for CSV import: %s')

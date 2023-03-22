@@ -3333,12 +3333,13 @@ class Results
         $isTypeBlob = $meta->isType(FieldMetadata::TYPE_BLOB);
         $cfgProtectBinary = $GLOBALS['cfg']['ProtectBinary'];
         if (
-            ($meta->isBinary()
+            (
+                $meta->isBinary()
             && (
                 $cfgProtectBinary === 'all'
                 || ($cfgProtectBinary === 'noblob' && ! $isTypeBlob)
                 || ($cfgProtectBinary === 'blob' && $isTypeBlob)
-                )
+            )
             ) || $bIsText
         ) {
             $class = str_replace('grid_edit', '', $class);
@@ -3372,9 +3373,9 @@ class Results
         if ($meta->isMappedTypeBit) {
             $displayedColumn = Util::printableBitValue((int) $displayedColumn, (int) $meta->length);
 
-            // some results of PROCEDURE ANALYSE() are reported as
-            // being BINARY but they are quite readable,
-            // so don't treat them as BINARY
+        // some results of PROCEDURE ANALYSE() are reported as
+        // being BINARY but they are quite readable,
+        // so don't treat them as BINARY
         } elseif ($meta->isBinary() && $isAnalyse !== true) {
             // we show the BINARY or BLOB message and field's size
             // (or maybe use a transformation)

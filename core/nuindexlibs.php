@@ -1,60 +1,59 @@
 <?php
 
-function nuLoadBody($debug = false) {
-
-		if ( !$debug ) {
-				echo "<body id='nubody' onload='nuLoad()' onresize='nuResize()'>";
-		} else {
-				echo "<body>";
-				echo "<pre>";
-				print_r($_SESSION);
-				print_r($_SERVER);
-				print('<br>' . session_id());
-				echo "</pre>";
-		}
+function nuLoadBody($debug = false)
+{
+    if (!$debug) {
+        echo "<body id='nubody' onload='nuLoad()' onresize='nuResize()'>";
+    } else {
+        echo "<body>";
+        echo "<pre>";
+        print_r($_SESSION);
+        print_r($_SERVER);
+        print('<br>' . session_id());
+        echo "</pre>";
+    }
 }
 
 
-function nuGetJS_login($nuBrowseFunction, $target, $loginTopRow, $welcome, $formId, $recordId, $isSession, $logonMode, $onlySsoExcept, $lastUser) {
-
-	$h2 = "function nuLoad(){
+function nuGetJS_login($nuBrowseFunction, $target, $loginTopRow, $welcome, $formId, $recordId, $isSession, $logonMode, $onlySsoExcept, $lastUser)
+{
+    $h2 = "function nuLoad(){
 		nuBindCtrlEvents();
 		window.nuDefaultBrowseFunction	= '$nuBrowseFunction';
 		window.nuBrowseFunction			= '$nuBrowseFunction';
 		window.nuTARGET					= '$target';
 		";
 
-	$h3 = "";
+    $h3 = "";
 
-	if ($isSession) {
-		$h3 = "nuForm('$formId','$recordId','','','','');";
-	} else {
-		// Lines below take a PHP array and create a JS dictionary - example:
-		// Input:  PHP:	$onlySsoExcept = ["globeadmin", "fred"]
-		// Output:  JS: var onlySsoExcept = { "globeadmin": true, "fred": true };
-		$colonTrueAdded = array_map(function($item) {  // Append ": true' but also put double quotes around the keys
-			return '"'.$item.'": true';
-		}, $onlySsoExcept);
-		$dictLiteral = join(", ", $colonTrueAdded);
-		$jsDict  = 'var onlySsoExcept = { '.$dictLiteral.' }';
-		$h3 = "
+    if ($isSession) {
+        $h3 = "nuForm('$formId','$recordId','','','','');";
+    } else {
+        // Lines below take a PHP array and create a JS dictionary - example:
+        // Input:  PHP:	$onlySsoExcept = ["globeadmin", "fred"]
+        // Output:  JS: var onlySsoExcept = { "globeadmin": true, "fred": true };
+        $colonTrueAdded = array_map(function ($item) {  // Append ": true' but also put double quotes around the keys
+            return '"'.$item.'": true';
+        }, $onlySsoExcept);
+        $dictLiteral = join(", ", $colonTrueAdded);
+        $jsDict  = 'var onlySsoExcept = { '.$dictLiteral.' }';
+        $h3 = "
 			var loginTopRow				= `$loginTopRow`;
 			var welcome					= `$welcome`;
 			$jsDict;
 			nuLogin(loginTopRow, welcome, '$logonMode', onlySsoExcept, '$lastUser');
 		";
-	}
+    }
 
-	$h4 = "}";
+    $h4 = "}";
 
-	return $h2.$h3.$h4;
-
+    return $h2.$h3.$h4;
 }
 
 
-function nuUseUP($nuBrowseFunction, $target, $welcome, $u, $p) {
-
-	$h2 = "function nuLoad(){
+function nuUseUP($nuBrowseFunction, $target, $welcome, $u, $p)
+{
+    $h2 = "function nuLoad(){
 		nuBindCtrlEvents();
 		window.nuDefaultBrowseFunction	= '$nuBrowseFunction';
 		window.nuBrowseFunction			= '$nuBrowseFunction';
@@ -63,12 +62,12 @@ function nuUseUP($nuBrowseFunction, $target, $welcome, $u, $p) {
 		nuLoginRequest('$u', '$p');
 	}";
 
-	return $h2;
+    return $h2;
 }
 
-function nuGetJS_action_screen($nuBrowseFunction, $target, $welcome, $opener, $search, $like) {
-
-	$h2 = "function nuLoad(){
+function nuGetJS_action_screen($nuBrowseFunction, $target, $welcome, $opener, $search, $like)
+{
+    $h2 = "function nuLoad(){
 		if(nuIsOpener(window)){
 			var from		= window.opener;
 		}else{
@@ -107,7 +106,5 @@ function nuGetJS_action_screen($nuBrowseFunction, $target, $welcome, $opener, $s
 		}
 	}";
 
-	return $h2;
+    return $h2;
 }
-
-?>

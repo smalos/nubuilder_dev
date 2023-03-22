@@ -1,36 +1,36 @@
 <?php
-	require_once('nuchoosesetup.php');
-?>
+    require_once('nuchoosesetup.php');
+    ?>
 <!DOCTYPE html>
 <html>
 <head>
 <?php
 
-require_once('nucommon.php');
+    require_once('nucommon.php');
 
-$jquery = "libs/jquery/jquery-3.6.4.min.js";
+    $jquery = "libs/jquery/jquery-3.6.4.min.js";
 
-nuJSInclude($jquery);
-nuJSInclude('nuformclass.js');
-nuJSInclude('nuform.js');
-nuJSInclude('nuformdrag.js');
-nuJSInclude('nudrag.js');
-nuJSInclude('nureportdrag.js');
-nuJSInclude('nucalendar.js');
-nuJSInclude('nucommon.js');
-nuJSInclude('nuajax.js');			//-- calls to server
-nuJSInclude('nureportjson.js');
+    nuJSInclude($jquery);
+    nuJSInclude('nuformclass.js');
+    nuJSInclude('nuform.js');
+    nuJSInclude('nuformdrag.js');
+    nuJSInclude('nudrag.js');
+    nuJSInclude('nureportdrag.js');
+    nuJSInclude('nucalendar.js');
+    nuJSInclude('nucommon.js');
+    nuJSInclude('nuajax.js');			//-- calls to server
+    nuJSInclude('nureportjson.js');
 
-nuCSSInclude('css/nubuilder4.css');
-nuCSSInclude('css/nudrag.css');
+    nuCSSInclude('css/nubuilder4.css');
+    nuCSSInclude('css/nudrag.css');
 
 
-$f		= nuFormatList();
-$ft 	= nuFontList();
-$tt		= nuTTList($_GET['tt'], $_GET['launch']);				//-- Field list from Temp table
-$i		= nuImageList(json_decode($tt));
+    $f		= nuFormatList();
+    $ft 	= nuFontList();
+    $tt		= nuTTList($_GET['tt'], $_GET['launch']);				//-- Field list from Temp table
+    $i		= nuImageList(json_decode($tt));
 
-$h		= "
+    $h		= "
 <script>
 	window.nuFormats	= $f;
 	window.nuFonts		= $ft;
@@ -42,10 +42,10 @@ $h		= "
 ";
 
 
-print $h;
+    print $h;
 
 
-?>
+    ?>
 
 
 <script>

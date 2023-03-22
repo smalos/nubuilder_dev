@@ -1,14 +1,12 @@
-nuSetTitle(nuFORM.getCurrent().run_description);
+nuSetTitle(nuFORM.getCurrent().run_description)
 
-$('#nuAddButton').remove();
-$('#nuPrintButton').remove();
+$('#nuAddButton').remove()
+$('#nuPrintButton').remove()
 
-function nuSelectBrowse(e) {
+function nuSelectBrowse (e) {
+  const r = $('#' + e.target.id).attr('data-nu-row')
+  const f = $('#nucell_' + r + '_0').html()
+  const p = $('#' + e.target.id).attr('data-nu-primary-key')
 
-    var r = $('#' + e.target.id).attr('data-nu-row');
-    var f = $('#nucell_' + r + '_0').html();
-    var p = $('#' + e.target.id).attr('data-nu-primary-key');
-
-    nuGetReport(f, p);
-
+  nuGetReport(f, p)
 }

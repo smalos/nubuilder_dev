@@ -1207,7 +1207,7 @@ class Qbe
 
         if (count($veryGood) > 0) {
             $candidateColumns = $veryGood;
-            // Candidates restricted in index+where
+        // Candidates restricted in index+where
         } else {
             $candidateColumns = $stillGood;
             // None of the candidates where in a where-clause
@@ -1686,9 +1686,9 @@ class Qbe
         foreach ($this->savedSearchList as $id => $name) {
             $htmlOutput .= '<option value="' . htmlspecialchars((string) $id)
                 . '" ' . (
-                $id == $currentSearchId
-                    ? 'selected="selected" '
-                    : ''
+                    $id == $currentSearchId
+                        ? 'selected="selected" '
+                        : ''
                 )
                 . '>'
                 . htmlspecialchars($name)

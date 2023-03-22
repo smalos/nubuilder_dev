@@ -1,2 +1,1 @@
-nuHide('nuAddButton');
-
+nuHide('nuAddButton')

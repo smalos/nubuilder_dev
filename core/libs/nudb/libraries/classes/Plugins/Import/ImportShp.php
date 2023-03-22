@@ -171,19 +171,19 @@ class ImportShp extends ImportPlugin
             // ESRI Null Shape
             case 0:
                 break;
-            // ESRI Point
+                // ESRI Point
             case 1:
                 $gis_type = 'point';
                 break;
-            // ESRI PolyLine
+                // ESRI PolyLine
             case 3:
                 $gis_type = 'multilinestring';
                 break;
-            // ESRI Polygon
+                // ESRI Polygon
             case 5:
                 $gis_type = 'multipolygon';
                 break;
-            // ESRI MultiPoint
+                // ESRI MultiPoint
             case 8:
                 $gis_type = 'multipoint';
                 break;

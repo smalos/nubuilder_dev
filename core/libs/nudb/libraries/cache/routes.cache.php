@@ -1,8 +1,10 @@
-<?php return array (
-  0 => 
-  array (
-    'GET' => 
-    array (
+<?php
+
+return array(
+  0 =>
+  array(
+    'GET' =>
+    array(
       '' => 'PhpMyAdmin\\Controllers\\HomeController',
       '/' => 'PhpMyAdmin\\Controllers\\HomeController',
       '/browse-foreigners' => 'PhpMyAdmin\\Controllers\\BrowseForeignersController',
@@ -99,8 +101,8 @@
       '/view/create' => 'PhpMyAdmin\\Controllers\\View\\CreateController',
       '/view/operations' => 'PhpMyAdmin\\Controllers\\View\\OperationsController',
     ),
-    'POST' => 
-    array (
+    'POST' =>
+    array(
       '' => 'PhpMyAdmin\\Controllers\\HomeController',
       '/' => 'PhpMyAdmin\\Controllers\\HomeController',
       '/browse-foreigners' => 'PhpMyAdmin\\Controllers\\BrowseForeignersController',
@@ -259,63 +261,63 @@
       '/view/operations' => 'PhpMyAdmin\\Controllers\\View\\OperationsController',
     ),
   ),
-  1 => 
-  array (
-    'GET' => 
-    array (
-      0 => 
-      array (
+  1 =>
+  array(
+    'GET' =>
+    array(
+      0 =>
+      array(
         'regex' => '~^(?|/server/engines/([^/]+)|/server/engines/([^/]+)/([^/]+)|/server/variables/get/([^/]+)()())$~',
-        'routeMap' => 
-        array (
-          2 => 
-          array (
+        'routeMap' =>
+        array(
+          2 =>
+          array(
             0 => 'PhpMyAdmin\\Controllers\\Server\\ShowEngineController',
-            1 => 
-            array (
+            1 =>
+            array(
               'engine' => 'engine',
             ),
           ),
-          3 => 
-          array (
+          3 =>
+          array(
             0 => 'PhpMyAdmin\\Controllers\\Server\\ShowEngineController',
-            1 => 
-            array (
+            1 =>
+            array(
               'engine' => 'engine',
               'page' => 'page',
             ),
           ),
-          4 => 
-          array (
+          4 =>
+          array(
             0 => 'PhpMyAdmin\\Controllers\\Server\\Variables\\GetVariableController',
-            1 => 
-            array (
+            1 =>
+            array(
               'name' => 'name',
             ),
           ),
         ),
       ),
     ),
-    'POST' => 
-    array (
-      0 => 
-      array (
+    'POST' =>
+    array(
+      0 =>
+      array(
         'regex' => '~^(?|/server/status/processes/kill/(\\d+)|/server/variables/set/([^/]+)())$~',
-        'routeMap' => 
-        array (
-          2 => 
-          array (
+        'routeMap' =>
+        array(
+          2 =>
+          array(
             0 => 'PhpMyAdmin\\Controllers\\Server\\Status\\Processes\\KillController',
-            1 => 
-            array (
+            1 =>
+            array(
               'id' => 'id',
             ),
           ),
-          3 => 
-          array (
+          3 =>
+          array(
             0 => 'PhpMyAdmin\\Controllers\\Server\\Variables\\SetVariableController',
-            1 => 
-            array (
+            1 =>
+            array(
               'name' => 'name',
             ),
           ),

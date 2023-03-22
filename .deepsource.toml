@@ -10,3 +10,6 @@ name = "javascript"
 
 [[transformers]]
 name = "standardjs"
+
+[[transformers]]
+name = "php-cs-fixer"

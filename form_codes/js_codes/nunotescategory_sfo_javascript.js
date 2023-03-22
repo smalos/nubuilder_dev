@@ -1,1 +1,1 @@
-nuHide('nuPrintButton');
+nuHide('nuPrintButton')

@@ -1,2 +1,2 @@
 
-nuSetTitle(nuFORM.getCurrent().run_description);
+nuSetTitle(nuFORM.getCurrent().run_description)

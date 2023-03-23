@@ -1,282 +1,308 @@
+
 .nuContainer {
-     display: flex;
-     width: 95vw;
-     border-radius: 5px;
-     background-color: inherit;
-     padding: 10px;
-     height: 100%;
-     justify-content: center;
-     align-items: flex-start;
-     flex-wrap: wrap;
-     box-sizing: border-box;
-     row-gap: 10px;
-     column-gap: 10px;
+
+    display: flex;
+    width: 95vw;
+    border-radius: 5px;
+    background-color: inherit;
+    padding: 10px;
+    height: 100%;
+    justify-content: center;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    box-sizing: border-box;
+    row-gap: 10px;
+    column-gap: 10px;
 }
- label {
-     order: 1;
-     flex-shrink: 0;
+
+label {
+    order: 1;
+    flex-shrink: 0;
+
 }
- input, select, textarea, .nuSubform , iframe, .nuImage, .nuHtml {
-     order: 2;
+input, select, textarea, .nuSubform , iframe, .nuImage, .nuHtml {
+    order: 2;
+
 }
- .nuObjectWrapper>* {
-     position: relative;
+
+.nuObjectWrapper>* {
+    position: relative;
 }
- .nuObjectWrapper {
-     width: 45%;
-     display: flex;
-     flex-flow: row wrap;
+
+.nuObjectWrapper {
+    width: 45%;
+    display: flex;
+    flex-flow: row wrap;
 }
- .nuObjectWrapper input , select, textarea, .nuSubform , iframe, .nuImage, .nuHtml, .select2 {
-     flex: 3;
+.nuObjectWrapper input , select, textarea, .nuSubform , iframe, .nuImage, .nuHtml, .select2 {
+    flex: 3;
 }
- .nuWord {
-     flex: 3;
-     text-align: center!important;
+.nuWord {
+    flex: 3;
+    text-align: center!important;
 }
- .nuHtml {
-     flex: 3!important;
+.nuHtml {
+    flex: 3!important;
 }
- .input_checkbox {
-     flex: 0.5;
+.input_checkbox {
+    flex: 0.5;
+
 }
- .nuObjectWrapper .select2 {
-     order: 2;
+.nuObjectWrapper .select2 {
+    order: 2;
 }
- .nuSubformWrapper {
-     display: flex;
-     width: 90%;
-     height: 200px!important;
-     flex-direction: column!important;
-     padding: 0 10px;
-     flex-flow: row wrap;
-     overflow: auto;
+.nuSubformWrapper {
+    display: flex;
+    width: 90%;
+    height: 200px!important;
+    flex-direction: column!important;
+    padding: 0 10px;
+    flex-flow: row wrap;
+    overflow: auto;
 }
- .nuSubformWrapper label {
-     display: flex;
-     flex: 1;
-     flex-direction: column;
-     text-align: left;
-     height: 20px!important;
+.nuSubformWrapper label {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    text-align: left;
+    height: 20px!important;
+
 }
- .nuObjectWrapper label {
-     flex: 1;
-     align-items: flex-start;
-     justify-content: flex-start;
-     flex-basis: 0;
-     margin-right: 10px;
+.nuObjectWrapper label {
+    flex: 1;
+    align-items: flex-start;
+    justify-content: flex-start;
+    flex-basis: 0;
+
+    margin-right: 10px;
 }
- .nuRespButton {
-     color: red;
+
+.nuObjectWrapper #sal_zzzzsys_form_id_open_button{
+    align-self: center;
+    width:100%;
+    
 }
- .nuLookupWrapper {
-     display: flex;
-     width: 45%;
-     flex-flow: row nowrap;
-     flex-shrink: 5;
+.nuRespButton {
+    color: red;
 }
- .nuLookupWrapper label {
-     flex: 1;
-     align-items: flex-start;
-     justify-content: flex-start;
-     flex-flow: nowrap;
-     flex-shrink: 0;
-     order: 1;
+.nuLookupWrapper {
+    display: flex;
+    width: 45%;
+    flex-flow: row nowrap;
+    flex-shrink: 5;
+
 }
- .nuLookupWrapper>.nuLuWrapper {
-     display: flex;
-     flex: 3;
-     height: 30px;
-     order: 2;
-     flex-shrink: 4;
+
+.nuLookupWrapper label {
+    flex: 1;
+    align-items: flex-start;
+    justify-content: flex-start;
+    flex-flow: nowrap;
+    flex-shrink: 0;
+    order: 1;
 }
- .nuLuWrapper> * {
-     display: flex;
-     position: relative;
-     flex: 1;
-     flex-shrink: 4;
-     flex: 0 1 auto;
+
+.nuLookupWrapper>.nuLuWrapper {
+    display: flex;
+    flex: 3;
+    height: 30px;
+    order: 2;
+    flex-shrink: 4;
 }
- .nuLookupWrapper>.nuLuWrapper :nth-child(1) {
-     order: 1;
-     min-width: 10%;
-     max-width: 20%;
+
+.nuLuWrapper> * {
+    display: flex;
+    position: relative;
+    flex: 1;
+    flex-shrink: 4;
+    flex: 0 1 auto;
 }
- .nuLookupWrapper> .nuLuWrapper :nth-child(2) {
-     order: 2;
-     flex: 0.1;
+
+
+.nuLookupWrapper>.nuLuWrapper :nth-child(1) {
+    order: 1;
+    min-width: 10%;
+    max-width: 20%;
 }
- .nuLookupWrapper>.nuLuWrapper :nth-child(3) {
-     order: 3;
-     width: 50%;
+.nuLookupWrapper> .nuLuWrapper :nth-child(2) {
+    order: 2;
+    flex: 0.1;
+
 }
- .nuFileWrapper> :nth-child(1) {
-     order: 3;
-     flex: 0.0001;
+
+.nuLookupWrapper>.nuLuWrapper :nth-child(3) {
+    order: 3;
+    width: 50%;
 }
- .nuFileWrapper> :nth-child(2) {
-     order: 1;
+
+.nuFileWrapper> :nth-child(1) {
+    order: 3;
+    flex: 0.0001;
+
 }
- .nuFileWrapper> :nth-child(3) {
-     order: 2;
+.nuFileWrapper> :nth-child(2) {
+    order: 1;
+
+
 }
- .nuObjectWrapper .input_button {
-     min-width: 30%;
-     max-width: 50%;
-     align-items: center;
-     justify-content: center;
+.nuFileWrapper> :nth-child(3) {
+    order: 2;
+
+
 }
- .nuHomeRespButton {
-     position: relative;
+
+.nuObjectWrapper .input_button {
+
+    min-width: 30%;
+    max-width: 50%;
+    align-items: center;
+    justify-content: center;
+
 }
- .nuHomeRespButton > :nth-child(1) {
-     width: 90%;
-    /*min-width:50%;
-    */
-    /*max-width: 90%;
-    */
+.nuHomeRespButton {
+    position: relative;
+
+
 }
- .nuHomeRespButton > :nth-child(2) {
-     width: 10%;
+.nuHomeRespButton > :nth-child(1) {
+    width: 90%;
+
+    /*min-width:50%;*/
+    /*max-width: 90%;*/
+
 }
- .nuHomeRespButton .nuUserHomeButton,#run_filemanager {
-     width: 100%;
+.nuHomeRespButton > :nth-child(2) {
+    min-width: 10%;
+    max-width: 10%;
+
+
+
 }
- .nuHomeButtonWrapper>* {
-     position: relative;
+.nuHomeRespButton .nuUserHomeButton,#run_filemanager {
+    width: 100%;
+
+
 }
- .nuHomeButtonWrapper {
-     display: grid;
-     grid-template-columns: minmax(auto,300px) minmax(auto,300px) minmax(auto,300px);
-     flex-flow: row wrap;
-     row-gap: 15px;
-     column-gap: 15px;
-     align-items: stretch;
+
+.nuHomeButtonWrapper>* {
+    position: relative;
 }
- .nuHomeButtonWrapper.nuHomeRespButton .input_button_left {
-     width: 80%;
+
+.nuHomeButtonWrapper {
+
+    display: grid;
+    grid-template-columns: minmax(auto,300px) minmax(auto,300px) minmax(auto,300px);
+
+    flex-flow: row wrap;
+    row-gap: 15px;
+    column-gap: 15px;
+
+    align-items: stretch;
 }
- .nuObjectWrapper .nuButton {
-     width: 60%;
+
+.nuHomeButtonWrapper.nuHomeRespButton .input_button_left {
+
+    width: 80%;
+
 }
- .nuSubform {
-     overflow-x: none;
+.input_button_right {
+
+
+    border-left: 1px solid white;
+
 }
- FIELDSET {
-     margin: 8px;
-    /*border: 1px solid silver;
-    */
-     padding: 8px;
-    /*border-radius: 4px;
-    */
-     border-bottom-left-radius:7px;
-     border-bottom-right-radius:7px;
-     border:1px solid var(--nu-border);
-     background-color:#fff 
+.nuObjectWrapper .nuButton {
+    width: 60%;
 }
- LEGEND{
-     padding: 2px;
+
+
+
+.nuSubform {
+
+    overflow-x: none;
+
 }
-/*.nuContentBoxContent {
-    */
-    /* height:inherit;
-    */
-    /* font-size:15px;
-    */
-    /* border-bottom-left-radius:7px;
-    */
-    /* border-bottom-right-radius:7px;
-    */
-    /* border:1px solid var(--nu-border);
-    */
-    /* background-color:#fff */
-    /*
+FIELDSET {
+    display: grid;
+    grid-auto-columns: auto;
+    gap: 10px;
+    margin: 8px;
+       padding: 8px;
+   
+    border-bottom-left-radius: 7px;
+    border-bottom-right-radius: 7px;
+    border: 1px solid var(--nu-border);
+    background-color: #fff;
+    width:100%;
 }
-*/
-/* .nuContentBoxTitle {
-    */
-    /* height:4px;
-    */
-    /* line-height:4px;
-    */
-    /* border-top-left-radius:7px;
-    */
-    /* border-top-right-radius:7px;
-    */
-    /* color:var(--nu-label);
-    */
-    /* font-size:14px;
-    */
-    /* font-weight:700;
-    */
-    /* font-family:var(--nu-font-sans-serif);
-    */
-    /* display:block;
-    */
-    /* padding:9px;
-    */
-    /* letter-spacing:1px */
-    /*
+LEGEND {
+    padding: 2px;
 }
-*/
-/* .nuContentBox {
-    */
-    /* z-index:-1;
-    */
-    /* position:absolute;
-    */
-    /* height:90px */
-    /*
-}
-*/
- @media (max-width: 700px) {
-     .nuContainer {
-         width: 95vw;
-         padding: 5px;
+
+
+@media (max-width: 700px) {
+
+
+    .nuContainer {
+        width: 95vw;
+        padding: 5px;
+
     }
-     .nuObjectWrapper {
-         display: flex;
-         width: 100%;
-         flex-direction: column;
+
+    .nuObjectWrapper {
+        display: flex;
+        width: 100%;
+        flex-direction: column;
+
     }
-     .nuHomeButtonWrapper {
-         display: flex;
-         min-width: 50vw;
-         max-width:80vw;
-         flex-direction: column;
+    .nuHomeButtonWrapper {
+        display: flex;
+        min-width: 50vw;
+        max-width: 80vw;
+        flex-direction: column;
+
     }
-     .nuHomeRespButton {
-         position: relative;
-         display: flex;
-         width: 100%;
+    .nuHomeRespButton {
+        position: relative;
+        display: flex;
+        width: 100%;
+
     }
-     .nuObjectWrapper .nuButton {
-         width: 100%;
+    .nuHomeRespButton > :nth-child(2) {
+        min-width: 10%;
     }
-     .nuObjectWrapper label {
-         text-align: left;
+    .nuObjectWrapper .nuButton {
+        width: 100%;
     }
-     .nuLookupWrapper {
-         display: flex;
-         width: 100%;
-         flex-direction: column;
+
+    .nuObjectWrapper label {
+        text-align: left;
+
     }
-     .nuLookupWrapper label {
-         text-align: left;
+
+    .nuLookupWrapper {
+        display: flex;
+        width: 100%;
+        flex-direction: column;
     }
-     .nuLookupWrapper .nuLuWrapper {
-         flex-shrink: 4;
+    .nuLookupWrapper label {
+        text-align: left;
+
     }
-     .nuSubformWrapper {
-         display: flex;
-         width: 100%;
-         height: 200px!important;
-         flex-direction: column!important;
-         padding: 0;
-         flex-flow: row wrap;
+    .nuLookupWrapper .nuLuWrapper {
+        flex-shrink: 4;
+
     }
-     .nuSubform {
-         left: 0!important;
+    .nuSubformWrapper {
+        display: flex;
+        width: 100%;
+        height: 200px!important;
+        flex-direction: column!important;
+        padding: 0;
+        flex-flow: row wrap;
+    }
+    .nuSubform {
+
+        left: 0!important;
     }
 }
- 

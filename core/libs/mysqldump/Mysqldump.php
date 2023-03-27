@@ -30,20 +30,19 @@ use PDOException;
  */
 class Mysqldump
 {
-
     // Same as mysqldump.
-    const MAXLINESIZE = 1000000;
+    public const MAXLINESIZE = 1000000;
 
     // List of available compression methods as constants.
-    const GZIP  = 'Gzip';
-    const BZIP2 = 'Bzip2';
-    const NONE  = 'None';
-    const GZIPSTREAM = 'Gzipstream';
+    public const GZIP  = 'Gzip';
+    public const BZIP2 = 'Bzip2';
+    public const NONE  = 'None';
+    public const GZIPSTREAM = 'Gzipstream';
 
     // List of available connection strings.
-    const UTF8    = 'utf8';
-    const UTF8MB4 = 'utf8mb4';
-    const BINARY = 'binary';
+    public const UTF8    = 'utf8';
+    public const UTF8MB4 = 'utf8mb4';
+    public const BINARY = 'binary';
 
     /**
      * Database username.
@@ -175,7 +174,6 @@ class Mysqldump
         $dumpSettings = array(),
         $pdoSettings = array()
     ) {
-
         $this->user = $user;
         $this->pass = $pass;
         $this->parseDsn($dsn);
@@ -283,22 +281,22 @@ class Mysqldump
     */
     public function restore($path)
     {
-        if(!$path || !is_file($path)){
+        if (!$path || !is_file($path)) {
             throw new Exception("File {$path} does not exist.");
         }
 
-        $handle = fopen($path , 'rb');
+        $handle = fopen($path, 'rb');
 
-        if(!$handle){
+        if (!$handle) {
             throw new Exception("Failed reading file {$path}. Check access permissions.");
         }
 
-        if(!$this->dbHandler){
+        if (!$this->dbHandler) {
             $this->connect();
         }
 
         $buffer = '';
-        while ( !feof($handle) ) {
+        while (!feof($handle)) {
             $line = trim(fgets($handle));
 
             if (substr($line, 0, 2) == '--' || !$line) {
@@ -747,7 +745,6 @@ class Mysqldump
         foreach ($this->triggers as $trigger) {
             $this->getTriggerStructure($trigger);
         }
-
     }
 
     /**
@@ -1384,7 +1381,7 @@ abstract class CompressManagerFactory
 
         $method = __NAMESPACE__."\\"."Compress".$c;
 
-        return new $method;
+        return new $method();
     }
 }
 
@@ -1509,29 +1506,28 @@ class CompressGzipstream extends CompressManagerFactory
      */
     public function open($filename)
     {
-    $this->fileHandler = fopen($filename, "wb");
-    if (false === $this->fileHandler) {
-        throw new Exception("Output file is not writable");
-    }
+        $this->fileHandler = fopen($filename, "wb");
+        if (false === $this->fileHandler) {
+            throw new Exception("Output file is not writable");
+        }
 
-    $this->compressContext = deflate_init(ZLIB_ENCODING_GZIP, array('level' => 9));
-    return true;
+        $this->compressContext = deflate_init(ZLIB_ENCODING_GZIP, array('level' => 9));
+        return true;
     }
 
     public function write($str)
     {
-
-    $bytesWritten = fwrite($this->fileHandler, deflate_add($this->compressContext, $str, ZLIB_NO_FLUSH));
-    if (false === $bytesWritten) {
-        throw new Exception("Writting to file failed! Probably, there is no more free space left?");
-    }
-    return $bytesWritten;
+        $bytesWritten = fwrite($this->fileHandler, deflate_add($this->compressContext, $str, ZLIB_NO_FLUSH));
+        if (false === $bytesWritten) {
+            throw new Exception("Writting to file failed! Probably, there is no more free space left?");
+        }
+        return $bytesWritten;
     }
 
     public function close()
     {
-    fwrite($this->fileHandler, deflate_add($this->compressContext, '', ZLIB_FINISH));
-    return fclose($this->fileHandler);
+        fwrite($this->fileHandler, deflate_add($this->compressContext, '', ZLIB_FINISH));
+        return fclose($this->fileHandler);
     }
 }
 
@@ -1815,7 +1811,7 @@ class TypeAdapterSqlite extends TypeAdapterFactory
 
 class TypeAdapterMysql extends TypeAdapterFactory
 {
-    const DEFINER_RE = 'DEFINER=`(?:[^`]|``)*`@`(?:[^`]|``)*`';
+    public const DEFINER_RE = 'DEFINER=`(?:[^`]|``)*`@`(?:[^`]|``)*`';
 
 
     // Numerical Mysql types
@@ -1856,7 +1852,7 @@ class TypeAdapterMysql extends TypeAdapterFactory
     public function databases()
     {
         if ($this->dumpSettings['no-create-db']) {
-           return "";
+            return "";
         }
 
         $this->check_parameters(func_num_args(), $expected_num_args = 1, __METHOD__);
@@ -1923,8 +1919,8 @@ class TypeAdapterMysql extends TypeAdapterFactory
             $createTable = preg_replace($match, $replace, $createTable);
         }
 
-		if ($this->dumpSettings['if-not-exists'] ) {
-			$createTable = preg_replace('/^CREATE TABLE/', 'CREATE TABLE IF NOT EXISTS', $createTable);
+        if ($this->dumpSettings['if-not-exists']) {
+            $createTable = preg_replace('/^CREATE TABLE/', 'CREATE TABLE IF NOT EXISTS', $createTable);
         }
 
         $ret = "/*!40101 SET @saved_cs_client     = @@character_set_client */;".PHP_EOL.
@@ -2026,7 +2022,7 @@ class TypeAdapterMysql extends TypeAdapterFactory
         $characterSetClient = $row['character_set_client'];
         $collationConnection = $row['collation_connection'];
         $sqlMode = $row['sql_mode'];
-        if ( $this->dumpSettings['skip-definer'] ) {
+        if ($this->dumpSettings['skip-definer']) {
             if ($functionStmtReplaced = preg_replace(
                 '/^(CREATE)\s+('.self::DEFINER_RE.')?\s+(FUNCTION\s.*)$/s',
                 '\1 \3',
@@ -2104,8 +2100,8 @@ class TypeAdapterMysql extends TypeAdapterFactory
             "/*!50003 SET collation_connection  = @saved_col_connection */ ;;".PHP_EOL.
             "DELIMITER ;".PHP_EOL.
             "/*!50106 SET TIME_ZONE= @save_time_zone */ ;".PHP_EOL.PHP_EOL;
-            // Commented because we are doing this in restore_parameters()
-            // "/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;" . PHP_EOL . PHP_EOL;
+        // Commented because we are doing this in restore_parameters()
+        // "/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;" . PHP_EOL . PHP_EOL;
 
         return $ret;
     }
@@ -2325,7 +2321,7 @@ class TypeAdapterMysql extends TypeAdapterFactory
         }
 
         if ($this->dumpSettings['no-autocommit']) {
-                $ret .= "/*!40101 SET @OLD_AUTOCOMMIT=@@AUTOCOMMIT */;".PHP_EOL;
+            $ret .= "/*!40101 SET @OLD_AUTOCOMMIT=@@AUTOCOMMIT */;".PHP_EOL;
         }
 
         $ret .= "/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;".PHP_EOL.
@@ -2345,7 +2341,7 @@ class TypeAdapterMysql extends TypeAdapterFactory
         }
 
         if ($this->dumpSettings['no-autocommit']) {
-                $ret .= "/*!40101 SET AUTOCOMMIT=@OLD_AUTOCOMMIT */;".PHP_EOL;
+            $ret .= "/*!40101 SET AUTOCOMMIT=@OLD_AUTOCOMMIT */;".PHP_EOL;
         }
 
         $ret .= "/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;".PHP_EOL.

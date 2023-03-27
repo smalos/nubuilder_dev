@@ -45,8 +45,8 @@ var promot;
 
 function nuBuildForm(f) {
 
-	window.nuOnSetSelect2Options = null;
-	window.nuSERVERRESPONSE = f;						// can be overwritten by nuAddJavaScript()
+	window.nuOnSetSelect2Options = null;		// can be overwritten by nuAddJavaScript()
+	window.nuSERVERRESPONSE = f;						
 
 	if (f.record_id != '-2') {
 		nuAddJavaScript(f.javascript_bc);
@@ -58,83 +58,22 @@ function nuBuildForm(f) {
 	nuSetProperty('CLONED_RECORD', 0);
 	nuSetProperty('NEW_RECORD', 0);
 
+	if (nuNeedToLoginAgain(f)) return;
+
 	const formType = nuFormType();
+	nuSetDefaultWindowProperties(f, formType);
 
-	if (f.tableSchema === null) {									//-- need to login again
 
-		$('body').addClass('nuBrowseBody').removeClass('nuEditBody');
-
-		sessionStorage.logout = 'true';
-		parent.parent.parent.parent.parent.location.reload();
-
-		nuCursor('default');
-		return;
-
-	}
-
-	if (formType == 'edit' && nuCurrentProperties().form_type !== 'launch') {
-
-		window.nuTimesSaved = window.nuTimesSaved + 1;
-
-		if (window.nuLastForm != f.form_id || (nuLastRecordId != f.record_id && nuLastRecordId !== "-1")) {
-			window.nuTimesSaved = 0;
-		}
-
-	} else {
-		window.nuTimesSaved = -1;
-	}
-
-	window.nuLastForm = f.form_id;
-	window.nuLastRecordId = f.record_id;
-	window.nuSubformRow = -1;
-	window.nuBrowseNoData = false;
-	window.nuBrowseNoSearchResults = false;
-	window.nuBeforeSave = null;
-	window.nuAfterSave = null;
-	window.nuBeforeDelete = null;
-	window.nuAfterDelete = null;
-	window.nuOnSearchAction = null;
-	window.nuOnClone = null;
-	window.nuOnEditorLoad = null;
-	window.nuOnBeforeGetBreadcrumb = null;
-	window.nuOnSetSaved = null;
-	window.nuOnTabSelected = null;
-	window.nuOnSelectTab = null;
-	window.nuOnAddAction = false;
-	window.onSubformTitleClick = null;
-	window.nuOnMessage = null;
-	window.nuFormatValueCleared = null;
-	window.nuDisplayObjectRefreshed = null;
-	window.nuOnSetCalendarOptions = null;
-	window.nuOnLookupPopulated = null;
-	window.nuCalculated = null;
-	window.nuOnPropertySet = null;
-	window.nuEnableCalculation = null;
-	window.nuPortraitScreenShowTabTitles = true;
-	window.nuBrowseFunction = window.nuDefaultBrowseFunction;
-	window.nuCLONE = false;
-	window.nuSERVERRESPONSELU = [];
-	window.nuSESSION = f.session_id;
-	window.nuSUBFORMROW = [];
-	window.nuHASH = [];					//-- remove any hash variables previously set.
-	window.nuTABHELP = [];
-	window.nuFORMHELP = [];
-	window.nuLOOKUPSTATE = [];
-	window.nuBROWSEROW = -1;
-	window.nuBROWSECLICKED = false;
-	window.nuUniqueID = 'c' + String(Date.now());
-	window.global_access = f.global_access == '1';
 	nuFORM.edited = false;
-	window.nuVerticalTabs = false;
-
+	
 	if (nuHasBeenSaved() >= 1 && nuGetProperty('nuEditCloseAfterSave') != '0') {
 
 		const closeAfterSave = nuUXOptions.nuEditCloseAfterSave;
 		let doClose = false;
 		if (closeAfterSave || nuGetProperty('nuEditCloseAfterSave') == '1') {
 			if (closeAfterSave == 'AllForms') doClose = nuCloseAfterSave();
-			if (closeAfterSave == 'UserForms' && !f.form_id.startsWith('nu')) nuCloseAfterSave();
-			if (closeAfterSave == 'SystemForms' && !f.form_id.startsWith('nu')) nuCloseAfterSave();
+			if (closeAfterSave == 'UserForms' && !f.form_id.startsWith('nu')) doClose = nuCloseAfterSave();
+			if (closeAfterSave == 'SystemForms' && !f.form_id.startsWith('nu')) doClose = nuCloseAfterSave();
 		}
 
 		if (doClose) return;
@@ -144,7 +83,7 @@ function nuBuildForm(f) {
 	nuFORM.scroll = [];
 	nuSetSuffix(1000);
 	nuSetBody(f);
-
+	
 	nuRedefine_nuSelectBrowse();
 
 	nuFORM.tableSchema = f.tableSchema;
@@ -157,30 +96,36 @@ function nuBuildForm(f) {
 
 	nuAddedByLookup(f);
 
-	b.form_id = f.form_id;
-	b.record_id = f.record_id;
-	b.session_id = f.session_id;
-	b.user_id = f.user_id;
-	b.redirect_form_id = f.redirect_form_id;
-	b.redirect_other_form_id = f.redirect_other_form_id;
-	b.title = f.title;
-	b.row_height = f.row_height;
-	b.rows = f.rows;
-	b.browse_columns = f.browse_columns;
-	b.browse_sql = f.browse_sql;
-	b.browse_rows = f.browse_rows;
-	b.browse_table_id = f.browse_table_id;
-	b.browse_filtered_rows = f.browse_height;
-	b.browse_title_multiline = f.browse_title_multiline;
-	b.browse_autoresize_columns = f.browse_autoresize_columns;
-	b.mobile_view = f.mobile_view;
-	b.pages = f.pages;
-	b.form_code = f.form_code;
-	b.form_description = f.form_description;
-	b.form_type = f.form_type;
-	b.run_code = f.run_code;
-	b.run_description = f.run_description;
-	b.data_mode = f.data_mode;
+	const {
+		browse_autoresize_columns
+		,browse_columns
+		,browse_filtered_rows
+		,browse_rows
+		,browse_sql
+		,browse_table_id
+		,browse_title_multiline
+		,data_mode
+		,form_code
+		,form_description
+		,form_id
+		,form_type
+		,mobile_view
+		,pages
+		,record_id
+		,redirect_form_id
+		,redirect_other_form_id
+		,row_height
+		,rows
+		,run_code
+		,run_description
+		,session_id
+		,title
+		,user_id
+	} = f;
+
+	for (const prop in f) {
+	    b[prop] = f[prop];
+	}
 
 	nuAddHolder('nuBreadcrumbHolder');
 	nuAddHomeLogout();
@@ -190,8 +135,7 @@ function nuBuildForm(f) {
 		nuAddHolder('nuTabHolder');
 	}
 
-	nuAddHolder('nuRECORD');
-	$('#nuRECORD')
+	nuAddHolder('nuRECORD')
 		.attr('data-nu-table', f.table)
 		.attr('data-nu-primary-key-name', f.primary_key);
 
@@ -232,20 +176,10 @@ function nuBuildForm(f) {
 	}
 
 	nuDragTitleEvents();
+	
+	nuAddHome();
 
-	if (window.nuLoginH != '') {
-
-		let bc = $('#nuBreadcrumb0').length > 0 ? $('#nuBreadcrumb0') : $('#nuHomeGap');
-		bc
-			.html('<i class="fa fa-home" style="font-size:17px;padding:0px 5px 0px 0px"></i>')
-			.attr('title', nuTranslate('Home'))
-			.attr('onclick', '')
-			.attr('onclick', 'nuForm("' + window.nuLoginH + '", -1, "", "", 1);')
-			.css('cursor', 'pointer');
-
-		window.nuLoginH = '';
-
-	}
+	nuShowLastUpdatedMessage();
 
 	if (window.nuOnEditorLoad) {
 		nuOnEditorLoad();
@@ -369,6 +303,96 @@ function nuBuildForm(f) {
 
 }
 
+function nuAddHome() {
+
+	if (window.nuLoginH != '') {
+
+		let breadCrumb = $('#nuBreadcrumb0').length > 0 ? $('#nuBreadcrumb0') : $('#nuHomeGap');
+		breadCrumb
+			.html('<i class="fa fa-home" style="font-size:17px;padding:0px 5px 0px 0px"></i>')
+			.attr('title', nuTranslate('Home'))
+			.attr('onclick', '')
+			.attr('onclick', 'nuForm("' + window.nuLoginH + '", -1, "", "", 1);')
+			.css('cursor', 'pointer');
+
+		window.nuLoginH = '';
+
+	}
+
+}	
+
+function nuNeedToLoginAgain(f) {
+	
+	let result = f.tableSchema === null;
+	if (result) {
+		$('body').addClass('nuBrowseBody').removeClass('nuEditBody');
+		sessionStorage.logout = 'true';
+		window.top.location.reload();
+		nuCursor('default');
+	}
+	
+	return result;
+
+}
+
+function nuSetDefaultWindowProperties(f, formType) {
+
+	if (formType == 'edit' && nuCurrentProperties().form_type !== 'launch') {
+
+		window.nuTimesSaved ++;
+
+		if (window.nuLastForm != f.form_id || (window.nuLastRecordId != f.record_id && window.nuLastRecordId !== "-1")) {
+			window.nuTimesSaved = 0;
+		}
+
+	} else {
+		window.nuTimesSaved = -1;
+	}
+
+	window.nuLastForm = f.form_id;
+	window.nuLastRecordId = f.record_id;
+	window.nuSubformRow = -1;
+	window.nuBrowseNoData = false;
+	window.nuBrowseNoSearchResults = false;
+	window.nuBeforeSave = null;
+	window.nuAfterSave = null;
+	window.nuBeforeDelete = null;
+	window.nuAfterDelete = null;
+	window.nuOnSearchAction = null;
+	window.nuOnClone = null;
+	window.nuOnEditorLoad = null;
+	window.nuOnBeforeGetBreadcrumb = null;
+	window.nuOnSetSaved = null;
+	window.nuOnTabSelected = null;
+	window.nuOnSelectTab = null;
+	window.nuOnAddAction = false;
+	window.onSubformTitleClick = null;
+	window.nuOnMessage = null;
+	window.nuFormatValueCleared = null;
+	window.nuDisplayObjectRefreshed = null;
+	window.nuOnSetCalendarOptions = null;
+	window.nuOnLookupPopulated = null;
+	window.nuCalculated = null;
+	window.nuOnPropertySet = null;
+	window.nuEnableCalculation = null;
+	window.nuPortraitScreenShowTabTitles = true;
+	window.nuBrowseFunction = window.nuDefaultBrowseFunction;
+	window.nuCLONE = false;
+	window.nuSERVERRESPONSELU = [];
+	window.nuSESSION = f.session_id;
+	window.nuSUBFORMROW = [];
+	window.nuHASH = [];					//-- remove any hash variables previously set.
+	window.nuTABHELP = [];
+	window.nuFORMHELP = [];
+	window.nuLOOKUPSTATE = [];
+	window.nuBROWSEROW = -1;
+	window.nuBROWSECLICKED = false;
+	window.nuUniqueID = 'c' + String(Date.now());
+	window.global_access = f.global_access == '1';
+	window.nuVerticalTabs = false;
+
+}
+
 function nuFormModification() {
 
 	if (nuFormType() == 'browse') {
@@ -413,7 +437,9 @@ function nuCloseAfterSave() {
 		if (nuIsIframe()) {
 			nuClosePopup();
 		} else {
-			nuOpenPreviousBreadcrumb();
+			if (! nuOpenPreviousBreadcrumb()) {
+				window.close();
+			}
 		}
 
 	})
@@ -919,7 +945,7 @@ function nuDRAG(w, i, l, p, prop) {
 	const drgDiv =  nuCreateElementWithId(tagType, id, p + 'nuRECORD');
 	let $id = $(drgDiv);
 
-	nuSetObjectBounds($id, obj.top, obj.left, obj.width, obj.height)
+	nuSetObjectBounds(drgDiv, obj.top, obj.left, obj.width, obj.height)
 	.css({
 		'text-align': obj.align,
 		'overflow': 'hidden',
@@ -1153,8 +1179,7 @@ function nuINPUTLookup(id, objId, wi, obj, $fromId, p, vis) {
 
 	var luClass = obj.label === 'Insert-Snippet' ? 'fa fa-code' : 'fa fa-search';
 
-	$id = $('#' + id);
-	nuSetObjectBounds($id, obj.top, Number(obj.left) + Number(obj.width) + 6, 15, Number(obj.height - 2))
+	nuSetObjectBounds(div, obj.top, Number(obj.left) + Number(obj.width) + 6, 15, Number(obj.height - 2))
 		.attr('type', 'button')
 		.attr("data-nu-prefix", p)
 		.attr('data-nu-form-id', wi.form_id)
@@ -1408,7 +1433,7 @@ function nuAddAttributes(id, attr) {
 
 		attr.trim().replace(/\"/g, "").split(",").forEach(attr => {
 
-			let arr = attr.split('=');
+			const arr = attr.split('=');
 			let key;
 			let value;
 
@@ -1420,7 +1445,13 @@ function nuAddAttributes(id, attr) {
 			}
 
 			if (arr.length == 1 || arr.length == 2) {
-				$('#' + id)[0].setAttribute(key.trim(), value);
+				
+				if (key.trim() === 'nu-label-position' && value === 'top') {
+					$('#' + id).nuLabelOnTop();
+				} else {
+					$('#' + id)[0].setAttribute(key.trim(), value);
+				}
+				
 			}
 
 		});
@@ -1489,6 +1520,8 @@ function nuAddStyleFromArray(id, obj) {
 
 function nuAddStyle(id, obj) {
 
+	const $id = $('#' + id);
+
 	if (obj.style_type !== '' && obj.style !== '') {
 
 		if (obj.style_type == 'CSS') {
@@ -1498,14 +1531,14 @@ function nuAddStyle(id, obj) {
 			} else {
 				let css = $('#' + id)[0].getAttribute("style");
 				css = css === null ? obj.style : css += obj.style;
-				$('#' + id)[0].setAttribute("style", css);
+				$id[0].setAttribute("style", css);
 			}
 		} else if (obj.style_type == 'Class') {
 
 			if (obj.style.startsWith('{')) {
 				nuAddStyleFromArray(id, obj);
 			} else {
-				$('#' + id).addClass(obj.style);
+				$id.addClass(obj.style);
 			}
 
 		}
@@ -1578,21 +1611,22 @@ function nuLabelOrPosition(obj, w, i, l, p, prop) {
 
 }
 
-
 function nuSetObjectBounds(obj, top = null, left = null, width = null, height = null, absolute = null) {
 
-	if (top !== null)
-		obj.css('top', Number(top));
-	if (left !== null)
-		obj.css('left', Number(left));
-	if (height !== null)
-		obj.css('height', Number(height));
-	if (width !== null)
-		obj.css('width', Number(width));
-	if (!absolute)
-		obj.css('position', 'absolute');
+	obj = obj.jquery ? obj[0]: obj;
 
-	return obj;
+    if (top !== null)
+        obj.style.top = top + 'px';
+    if (left !== null)
+        obj.style.left = left + 'px';
+    if (height !== null)
+        obj.style.height = height + 'px';
+    if (width !== null)
+        obj.style.width = width + 'px';
+    if (!absolute)
+        obj.style.position = 'absolute';
+
+    return $(obj);
 
 }
 
@@ -1608,8 +1642,8 @@ function nuHTML(w, i, l, p, prop, id) {
 
 	nuAddDataTab(id, obj.tab, p);
 
-	nuSetObjectBounds($div, obj.top, obj.left, obj.width, obj.height);
-	$div.addClass('nuHtml').html(w.objects[i].html);
+	nuSetObjectBounds(div, obj.top, obj.left, obj.width, obj.height)
+	.addClass('nuHtml').html(w.objects[i].html);
 
 	nuSetAccess(id, obj.read);
 	nuAddStyle(id, obj);
@@ -1645,10 +1679,8 @@ function nuCONTENTBOX(w, i, l, p, prop) {
 
 	nuAddDataTab(id, obj.tab, p);
 
-	const $div = $(div);
-	nuSetObjectBounds($div, obj.top, obj.left, obj.width, obj.height).css('z-index', '-1');
-
-	$div.attr('data-nu-object-id', w.objects[i].object_id)
+	nuSetObjectBounds(div, obj.top, obj.left, obj.width, obj.height).css('z-index', '-1')
+		.attr('data-nu-object-id', w.objects[i].object_id)
 		.attr('data-nu-prefix', p)
 		.addClass('nuContentBoxContainer').html(w.objects[i].html);
 
@@ -1659,7 +1691,7 @@ function nuCONTENTBOX(w, i, l, p, prop) {
 	nuSetAccess(id, obj.read);
 	nuAddStyle(id, obj);
 
-	return Number($div.width());
+	return Number($(div).width());
 
 }
 
@@ -1675,7 +1707,7 @@ function nuIMAGE(w, i, l, p, prop) {
 	nuAddDataTab(id, obj.tab, p);
 
 	let $img = $(img);
-	nuSetObjectBounds($img, obj.top, obj.left, obj.width).addClass('nuImage');
+	nuSetObjectBounds(img, obj.top, obj.left, obj.width).addClass('nuImage');
 	if (obj.height !== "-1" && obj.width !== "-1") {
 		nuSetObjectBounds($img, null, null, obj.width, obj.height)
 	}
@@ -1704,7 +1736,7 @@ function nuWORD(w, i, l, p, prop) {
 	t = r === null ? t : r[1];
 
 	let $div = $(div);
-	nuSetObjectBounds($div, obj.top, obj.left, obj.width, obj.height)
+	nuSetObjectBounds(div, obj.top, obj.left, obj.width, obj.height)
 		.css('text-align', obj.align)
 		.addClass('nuWord')
 		.html(nuTranslate(t));
@@ -1777,7 +1809,7 @@ function nuRUN(w, i, l, p, prop) {
 
 	nuAddDataTab(id, obj.tab, p);
 
-	nuSetObjectBounds($div, obj.top, obj.left, obj.width, obj.height).css('text-align', obj.align)
+	nuSetObjectBounds(div, obj.top, obj.left, obj.width, obj.height).css('text-align', obj.align)
 		.attr('data-nu-object-id', w.objects[i].object_id)
 		.attr('data-nu-prefix', p);
 
@@ -3183,6 +3215,8 @@ function nuAddHolder(t) {
 
 	$('body').append(d);
 	$('#' + t).addClass(t);
+	
+	return $('#' + t);
 
 }
 
@@ -4227,19 +4261,23 @@ function nuGetColumWidths() {
 
 }
 
-function nuDownBrowseResize(e, p) {
+function nuDownBrowseResize(e, source) {
+
+	let id = e.target.id;
+	if (id == 'nuSortIcon') {
+		return;
+	}	
 
 	e.preventDefault();
 
+	id = e.target.id.replace('nusort_', 'nuBrowseTitle');
+	
 	window.nuBROWSERESIZE.mouse_down = true;
-	window.nuBROWSERESIZE.pointer = p;
-
-	const target = e.target.id.replace('nusort_', 'nuBrowseTitle');
-
-	window.nuBROWSERESIZE.moving_element = target;
+	window.nuBROWSERESIZE.pointer = source;
+	window.nuBROWSERESIZE.moving_element = id;
 	window.nuBROWSERESIZE.x_position = e.clientX;
 
-	$('#' + target).addClass('nuBrowseResize');
+	$('#' + id).addClass('nuBrowseResize');
 
 }
 
@@ -5054,6 +5092,20 @@ function nuDeleteAction() {
 
 }
 
+function nuDeleteAction() {
+
+	const formCode = nuCurrentProperties().form_code;
+	const confirmMessage = formCode === 'nuform' ?
+		nuTranslate("Are you sure you want to delete this form and all its associated objects, events and codes?") :
+		nuTranslate("Delete This Record?");
+
+	if (confirm(confirmMessage)) {
+		$('#nuDelete').prop('checked', true);
+		nuUpdateData('delete');
+	}
+ 
+}
+
 function nuDeleteAllAction() {
 
 	if (confirm(nuTranslate("Delete All Records?"))) {
@@ -5192,36 +5244,53 @@ function nuSaveAction(close) {
 
 function nuSavingProgressMessage() {
 
-	var e = document.createElement('div');
+	let div = nuCreateElementWithId('div', 'nuProgressUpdate','nuActionHolder');
+	$div = $(div);
+	$div.html('<img src="core/graphics/ajax-loader.gif">').addClass('nuUpdateMessageProgress');
 
-	e.setAttribute('id', 'nuProgressUpdate');
-
-	$('#nuActionHolder').append(e);
-	$('#' + e.id).html('<img src=\'core/ajax-loader.gif\'/>');
-	$('#' + e.id).addClass('nuUpdateMessageProgress');
-	$('#' + e.id).css('position', 'absolute');
-	$('#' + e.id).css('left', (($('#nuActionHolder').width() / 2) - ($('#nuProgressUpdate').width() / 2)) + 'px');
-	$('#' + e.id).show();
+	const left = ($('#nuActionHolder').width() / 2) - ($div.width() / 2);
+	const top = ($('#nuBreadcrumbHolder').outerHeight() - $div.outerHeight()) / 2;
+	nuSetObjectBounds(div, top, left, null, null, true);
 
 	$('.nuActionButton').hide();
 
 }
 
-function nuUpdateMessage(msg) {
+function nuShowLastUpdatedMessage() {
+
+	if (window.last_action) {
+		nuUpdateMessage(window.last_action);
+		window.last_action = "";
+	}
+
+}
+
+function nuUpdateMessage(actionMessage) {
+
+	let msgClass = '';
+	let msg = actionMessage;
+	
+	if (actionMessage === 'delete') {
+		msg = 'Record Deleted';
+		msgClass = 'nuUpdateMessageDelete';
+	} else if (actionMessage === 'save') {
+		msg = 'Record Saved';
+		msgClass = 'nuUpdateMessageSave';
+	}
 
 	$("#nuProgressUpdate").hide();
 
-	var e = document.createElement('div');
+	let div = nuCreateElementWithId('div', 'nuNowUpdated','nuActionHolder');
+	$div = $(div);
+	$div.html(nuTranslate(msg));
+	$div.addClass('nuUpdateMessage').addClass(msgClass);
 
-	e.setAttribute('id', 'nuNowUpdated');
+	const left = ($('#nuActionHolder').width() / 2) - ($div.width() / 2);
+	const top = ($('#nuBreadcrumbHolder').outerHeight() - $div.outerHeight()) / 2;
 
-	$('#nuActionHolder').append(e);
-	$('#' + e.id).html(nuTranslate(msg));
-	$('#' + e.id).addClass('nuUpdateMessage');
-	$('#' + e.id).css('position', 'absolute');
-	$('#' + e.id).css('left', (($('#nuActionHolder').width() / 2) - ($('#nuNowUpdated').width() / 2)) + 'px');
+	nuSetObjectBounds(div, top, left, null, null, true);
+
 	$("#nuNowUpdated").fadeToggle(3000);
-
 	$('.nuActionButton').show();
 
 }
@@ -6627,6 +6696,21 @@ function nuSetSelect2(id, obj) {
 
 
 	return select2Id;
+
+}
+
+function nuSelectAddEnglishOption(id) {
+
+	var lang = $('#' + id);
+	if (lang.val() === '') {
+		lang.append($('<option>', {
+			value: 1,
+			text: nuTranslate("English"),
+			disabled: true,
+			selected: true,
+			hidden: true
+		}));
+	}
 
 }
 

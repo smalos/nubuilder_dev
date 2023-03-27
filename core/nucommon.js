@@ -364,7 +364,7 @@ function nuOpenPreviousBreadcrumb(b) {
 
 	if (modal.length) {
 		nuClosePopup();
-		return;
+		return true;
 	}
 
 	b = b ? b + 1 : 2;
@@ -372,7 +372,10 @@ function nuOpenPreviousBreadcrumb(b) {
 	const l = breadcrumbs.length;
 	if (l > 1) {
 		nuGetBreadcrumb(l - b);
+		return true;
 	}
+	
+	return false;
 
 }
 
@@ -2004,19 +2007,19 @@ function nuSetBrowserTabTitle(prefix) {
 
 }
 
-function nuSetPlaceholder(i, placeholder, translate) {
+function nuSetPlaceholder(i, placeholder = null, translate = true) {
 
-	var $i = $('#' + i);
-
-	translate = nuDefine(translate, true);
+	const $i = $('#' + i);
 
 	if (!placeholder) {
 		placeholder = $i.attr('data-nu-format').substring(2);
-	} else {
-		placeholder = translate ? nuTranslate(placeholder) : placeholder;
 	}
 
-	$i.attr("placeholder", placeholder);
+	if (translate) {
+		placeholder = nuTranslate(placeholder);
+	}
+
+	$i.attr('placeholder', placeholder);
 
 }
 
@@ -2068,26 +2071,20 @@ function nuAddDatalist(i, arr, showAllOnArrowClick) {
 
 function nuLabelOnTop(include, exclude, offsetTop = -18, offsetLeft = 0) {
 
-	if (include === undefined) {
-		include = [];
-		for (var i = 0; i < nuSERVERRESPONSE.objects.length; i++) {
-			include.push(nuSERVERRESPONSE.objects[i].id);
-		}
-	}
+	include = include || nuSERVERRESPONSE.objects.map(obj => obj.id);
+	exclude = exclude || [];
 
-	if (exclude === undefined) var exclude = [];
-
-	for (var i = 0; i < include.length; i++) {
+	for (let i = 0; i < include.length; i++) {
 
 		if (jQuery.inArray(include[i], exclude) == -1) {
-
+			$element = $('#' + include[i]);
 			$('#' + 'label_' + include[i]).css({
-				'top': $('#' + include[i]).cssNumber('top') + offsetTop
-				, 'left': $('#' + include[i]).cssNumber('left') + offsetLeft
+				'top': $element.cssNumber('top') + offsetTop
+				, 'left': $element.cssNumber('left') + offsetLeft
 				, 'text-align': 'left'
 			});
 
-			$('#' + include[i]).attr('data-nu-label-position', 'top');
+		$element.attr('data-nu-label-position', 'top');
 
 		}
 	}
@@ -2098,13 +2095,14 @@ jQuery.fn.nuLabelOnTop = function (offsetTop = -18, offsetLeft = 0) {
 
 	return this.each(function () {
 
+		$element = $(this);
 		$('#' + 'label_' + this.id).css({
-			'top': $(this).cssNumber("top") + offsetTop
-			, 'left': $(this).cssNumber("left") + offsetLeft
+			'top': $element.cssNumber("top") + offsetTop
+			, 'left': $element.cssNumber("left") + offsetLeft
 			, 'text-align': 'left'
 		});
 
-		$(this).attr('data-nu-label-position', 'top');
+		$element.attr('data-nu-label-position', 'top');
 
 	});
 
@@ -2228,29 +2226,28 @@ function nuSelectMultiWithoutCtrl(i, active) {
 
 }
 
-function nuSelectRemoveEmpty(i, setIndex) {
+function nuSelectRemoveEmpty(i = 'select', setIndex) {
 
-	let id = i === undefined ? 'select' : '#' + i;
+	const $select = $(`#${i}`);
 
-	$(id + ' option').filter(function () {
-		return ($(this).val().trim() === "" && $(this).text().trim() === "");
+	$select.find('option').filter(function() {
+		const $option = $(this);
+		return $option.val().trim() === "" || $option.text().trim() === "";
 	}).remove();
 
-	if (setIndex !== undefined) $('#' + i).prop('selectedIndex', setIndex);
+	if (setIndex) {
+		$select.prop('selectedIndex', setIndex);
+	}
 
 }
 
-function nuSelectRemoveOption(i, value) {
+function nuSelectRemoveOption(id, value) {
 
-	var o;
-	if (typeof i !== 'object') {
-		o = $('#' + i) || i;
-	} else {
-		o = i;
-	}
+	const $select = typeof id === 'object' ? id : $('#' + id);
+	const $option = $select.find(`[value="${value}"]`);
+	$option.remove();
 
-	o.find('[value="' + value + '"]').remove();
-	return o;
+	return $select;
 
 }
 
@@ -2346,7 +2343,7 @@ jQuery.fn.nuHighlight = function (pat) {
 				const middleclone = middlebit.cloneNode(true);
 				spannode.appendChild(middleclone);
 				middlebit.parentNode.replaceChild(spannode, middlebit);
-				spannode.setAttribute("onclick", "nuSelectBrowse(event, this.parentElement)");
+			//	spannode.setAttribute("onclick", "nuSelectBrowse(event, this.parentElement)");
 				skip = 1;
 			}
 		} else if (node.nodeType == 1 && node.childNodes && !/(script|style)/i.test(node.tagName)) {

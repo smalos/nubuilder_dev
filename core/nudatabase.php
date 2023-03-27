@@ -193,11 +193,29 @@ function nuRunQueryString($sql, $sqlWithHK) {
 			$value = nuReplaceHashVariables('#' . $value. '#');
 		}
 
-		return nuRunQuery($sqlWithHK, $args);
+		return nuRunQuery(nuSanitizeSqlQuery($sqlWithHK), $args);
 
 	} else {
-		return nuRunQuery($sql);
+		return nuRunQuery(nuSanitizeSqlQuery($sql));
 	}
+
+}
+
+function nuSanitizeSqlQuery($query) {
+
+	// List of SQL commands to remove
+	$patterns = array(
+		'/DROP\s+TABLE/i',
+		'/CREATE\s+TABLE/i',
+		'/ALTER\s+TABLE/i',
+		'/TRUNCATE\s+TABLE/i',
+		'/INSERT\s+INTO\s+.*\s+SELECT/i',
+		'/DELETE\s+FROM/i',
+		'/UPDATE/i'
+	);
+
+	// Sanitize the query by removing the specified SQL commands
+	return preg_replace($patterns, '', $query);
 
 }
 
@@ -399,6 +417,16 @@ function db_quote($s) {
 
 }
 
+function nuEncodeQueryRowResults($sql, $args = [], $prefixedData = []) {
+
+	$stmt = nuRunQuery($sql, $args);
+	$results = $prefixedData;
+	while ($row = db_fetch_row($stmt)) {
+		$results[] = $row;
+	}
+	return base64_encode(json_encode($results));
+
+};
 
 function nuViewExists($view) {
 

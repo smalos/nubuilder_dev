@@ -188,16 +188,19 @@ function nuAddNewSystemTables(){
 
 function nuCreateJSONColumns() {
 
+	$ts = nuBuildTableSchema();
 	foreach ($GLOBALS['sys_table_prefix'] as $tbl => $prefix) {
-		$exists = (db_field_exists("zzzzsys_".$tbl, $prefix."_json") === true);
+		
+		if (nuObjKey($ts, "zzzzsys_$tbl", false)) {
+			$exists = db_field_exists("zzzzsys_".$tbl, $prefix."_json");
 
-		if ($exists !== true) {
-			nuRunQuery("ALTER TABLE zzzzsys_$tbl ADD {$prefix}_json MEDIUMTEXT NULL DEFAULT NULL;");
+			if (!$exists) {
+				nuRunQueryNoDebug("ALTER TABLE zzzzsys_$tbl ADD {$prefix}_json MEDIUMTEXT NULL DEFAULT NULL;");
+			}
 		}
 	}
 
 }
-
 
 function nuAlterSystemTables(){
 

@@ -305,14 +305,14 @@ function nuGetDBTypesSetNullWhenEmpty() {
 }
 
 
-function nuUpdateDatabaseHasDataModePermission($formId, $recordID, $nuDelAll) {
+function nuUpdateDatabaseHasDataModePermission($formId, $recordID, $deleteAction) {
 
 	if (nuGlobalAccess(true)) {
 		return true;
 	}
 
 	$dataMode = nuGetFormPermission($formId, 'slf_data_mode');
-	if ($nuDelAll == 'No' && $dataMode == "0" && $recordID != '-1') { // No Edits
+	if (!$deleteAction && $dataMode == "0" && $recordID != '-1') { // No Edits
 		nuDisplayError(nuTranslate('Changes to existing records are not allowed'));
 		return false;
 	}
@@ -327,10 +327,10 @@ function nuUpdateDatabase() {
 
 	$nuHash = $_POST['nuHash'];
 	$formId = $nuHash['form_id'];
-	$nuDelAll = $nuHash['deleteAll'];
+	$deleteAction = $nuHash['delete_action'];
 
 	if (nuDemo(false)) {
-		if ($nuDelAll == 'Yes' || ($nuDelAll == 'No' && strpos($_SESSION['nubuilder_session_data']['DEMO_SAVING_ALLOWED_IDS'], $formId) === false)) {
+		if ($deleteAction || (!$deleteAction && strpos($_SESSION['nubuilder_session_data']['DEMO_SAVING_ALLOWED_IDS'], $formId) === false)) {
 			nuDisplayError(nuTranslate('Not available in the Demo') . "..");
 			return;
 		}
@@ -348,7 +348,7 @@ function nuUpdateDatabase() {
 	$formType = $formProp->sfo_type;
 	$recordID = $nuHash['RECORD_ID'];
 
-	if (!nuUpdateDatabaseHasDataModePermission($formId, $recordID, $nuDelAll)) {
+	if (!nuUpdateDatabaseHasDataModePermission($formId, $recordID, $deleteAction)) {
 		return;
 	}
 
@@ -360,8 +360,10 @@ function nuUpdateDatabase() {
 	$clientTableSchema = nuGetJSONData('clientTableSchema');
 	$userId = $nuHash['USER_ID'];
 
-	if (!nuUpdateDatabaseRunBeforeSaveEvents($nudata, $nuDelAll, $nuDataFormId)) {
-		return;
+	if (!$deleteAction) {
+		if (!nuUpdateDatabaseRunBeforeSaveEvents($nudata, $nuDataFormId)) {
+			return;
+		}
 	}
 
 	$sql = [];
@@ -440,7 +442,7 @@ function nuUpdateDatabase() {
 
 	}
 
-	if ($nuDelAll == 'Yes') {
+	if ($deleteAction) {
 
 		nuUpdateDatabaseRunBeforeDeleteEvent($nudata);
 
@@ -458,7 +460,11 @@ function nuUpdateDatabase() {
 
 	nuChangeHashVariable('RECORD_ID', $mainRecordId);
 
-	nuUpdateDatabaseRunAfterEvents($nuDelAll, $nuDataFormId);
+	if ($formProp->sfo_code === 'nuform' && $deleteAction) {
+		nuDeleteForm($recordID);
+	} else {
+		nuUpdateDatabaseRunAfterEvents($deleteAction, $nuDataFormId);
+	}
 
 	$_POST['nuAfterEvent'] = true;
 
@@ -601,11 +607,7 @@ function nuUpdateDatabaseRunBeforeDeleteEvent(&$nudata) {
 
 }
 
-function nuUpdateDatabaseRunBeforeSaveEvents(&$nudata, $nuDelAll, $nuDataFormId) {
-
-	if ($nuDelAll === 'Yes') {
-		return true;
-	}
+function nuUpdateDatabaseRunBeforeSaveEvents(&$nudata, $nuDataFormId) {
 
 	// Global Before Save event
 	$proc = nuProcedure('nuBeforeSave');
@@ -629,9 +631,9 @@ function nuUpdateDatabaseRunBeforeSaveEvents(&$nudata, $nuDelAll, $nuDataFormId)
 
 }
 
-function nuUpdateDatabaseRunAfterEvents($deleteAll, $dataFormId) {
+function nuUpdateDatabaseRunAfterEvents($deleteAction, $dataFormId) {
 
-	$procName = $deleteAll === 'Yes' ? 'nuAfterDelete' : 'nuAfterSave';
+	$procName = $deleteAction ? 'nuAfterDelete' : 'nuAfterSave';
 	$proc = nuProcedure($procName);
 
 	if ($proc) {
@@ -642,7 +644,7 @@ function nuUpdateDatabaseRunAfterEvents($deleteAll, $dataFormId) {
 		return;
 	}
 
-	$event = $deleteAll === 'Yes' ? '_AD' : '_AS';
+	$event = $deleteAction ? '_AD' : '_AS';
 	nuEval($dataFormId . $event);
 
 }
@@ -878,10 +880,13 @@ function nuCheckAccess($f, $r = '') {
 
 }
 
-function nuSubformObject($id = 'nuBuilder4EditForm') {
+function nuSubformObject($id = '') {
+
+	if (empty($id)) {
+		$id = 'nuBuilder4EditForm';
+	}
 
 	$formData = $_POST['nuHash']['nuFORMdata'];
-
 	foreach ($formData as $subform) {
 		if ($subform->id === $id) {
 			return $subform;
@@ -890,60 +895,45 @@ function nuSubformObject($id = 'nuBuilder4EditForm') {
 
 	return false;
 
- 
-
-							   
-
-																  
-						   
-															   
-						   
-																		  
-						   
-																															  
-						   
-																		
-					 
-
-								   
-
-						  
-																	
-							
-																		  
-							
-
-  
-
-																															  
-						   
-
 }
 
-function nuDeleteForm($formId) {
+function nuDeleteForm($formId){
 
-	// delete records from zzzzsys_browse and zzzzsys_tab tables
-	$query = "DELETE FROM zzzzsys_browse WHERE sbr_zzzzsys_form_id = ?; 
-			  DELETE FROM zzzzsys_tab WHERE syt_zzzzsys_form_id = ?";
-	nuRunQuery($query, [$formId, $formId]);
+	$query		= "DELETE FROM zzzzsys_browse WHERE sbr_zzzzsys_form_id = ?";
+	$stmt		= nuRunQuery($query, [$formId]);
+	$query		= "DELETE FROM zzzzsys_tab WHERE syt_zzzzsys_form_id = ?";
+	$stmt		= nuRunQuery($query, [$formId]);
+	$query		= "DELETE FROM zzzzsys_php WHERE zzzzsys_php_id LIKE ?";
+	$stmt		= nuRunQuery($query, [$formId.'_'.'%']);
+	$query		= "DELETE FROM zzzzsys_browse WHERE sbr_zzzzsys_form_id LIKE ?";
+	$stmt		= nuRunQuery($query, [$formId]);
+	$query		= "DELETE FROM zzzzsys_select WHERE zzzzsys_select_id LIKE ?";
+	$stmt		= nuRunQuery($query, [$formId]);
+	$query		= "DELETE FROM zzzzsys_select_clause WHERE ssc_zzzzsys_select_id LIKE ?";
+	$stmt		= nuRunQuery($query, [$formId.'%']);
+	$query		= "DELETE FROM zzzzsys_object WHERE sob_all_type = ? AND sob_run_zzzzsys_form_id = ? ";
+	$stmt		= nuRunQuery($query, ['run', $formId]);
+	$query		= "SELECT * FROM zzzzsys_object WHERE sob_all_zzzzsys_form_id = ?";
+	$stmt		= nuRunQuery($query, [$formId]);
 
-	// delete records from zzzzsys_php and zzzzsys_event tables for each object
-	$query = "SELECT zzzzsys_object FROM zzzzsys_object WHERE sob_all_zzzzsys_form_id = ?";
-	$result = nuRunQuery($query, [$formId]);
+	while($row = db_fetch_object($stmt)){
 
-	foreach ($result as $row) {
-		$object_id = $row->zzzzsys_object;
+		$object	= $row->zzzzsys_object_id;
+		$query	= "DELETE FROM zzzzsys_event WHERE sev_zzzzsys_object_id = ? ";
+		$stmt	= nuRunQuery($query, [$object]);
+		$query	= "DELETE FROM zzzzsys_php WHERE zzzzsys_php_id LIKE ?";
+		$stmt	= nuRunQuery($query, [$object.'_'.'%']);
 
-		$query = "DELETE FROM zzzzsys_php WHERE zzzzsys_php_id LIKE CONCAT(?, '_');
-				  DELETE FROM zzzzsys_event WHERE sev_zzzzsys_object_id = ?";
-		nuRunQuery($query, [$object_id, $object_id]);
 	}
 
-	// delete records from zzzzsys_object table
-	$query = "DELETE FROM zzzzsys_object WHERE sob_all_type = 'run' AND sob_run_zzzzsys_form_id = ?";
-	nuRunQuery($query, [$formId]);
+	$query		= "DELETE FROM zzzzsys_object WHERE sob_all_zzzzsys_form_id = ? ";
+	$stmt		= nuRunQuery($query, [$formId]);
+
+	$query		= "DELETE FROM zzzzsys_form WHERE zzzzsys_form_id LIKE ?";
+	$stmt		= nuRunQuery($query, [$formId]);
 
 }
+
 
 function nuGetFile() {
 

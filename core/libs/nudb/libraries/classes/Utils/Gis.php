@@ -236,8 +236,8 @@ final class Gis
                 'params' => 1,
                 'type' => 'point',
             ];
-            // Not yet implemented in MySQL
-            //$funcs['PointOnSurface'] = array('params' => 1, 'type' => 'point');
+        // Not yet implemented in MySQL
+        //$funcs['PointOnSurface'] = array('params' => 1, 'type' => 'point');
         } elseif ($geomType === 'geometrycollection') {
             $funcs['NumGeometries'] = [
                 'params' => 1,

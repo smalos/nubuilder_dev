@@ -43,7 +43,6 @@ class ParseAnalyze
             $previousDb = $db;
 
             if (count($analyzedSqlResults['select_tables']) > 1) {
-
                 /**
                  * @todo if there are more than one table name in the Select:
                  * - do not extract the first table name

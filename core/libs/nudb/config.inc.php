@@ -1,46 +1,45 @@
 <?php
+
 declare(strict_types=1);
 
 require_once(dirname(__FILE__). '/../../../nuconfig.php');
 
 if (! isset($nuPmaNotAuth)) {
+    $sessionId = isset($_COOKIE['nu_PMA']) ? $_COOKIE["nu_PMA"] : '';
 
-	$sessionId = isset($_COOKIE['nu_PMA']) ? $_COOKIE["nu_PMA"] : '';
-	
-	if ($sessionId == '') {
-		nuAuthFailed();
-	}
+    if ($sessionId == '') {
+        nuAuthFailed();
+    }
 
-	$DBCharset	= 'utf8';
+    $DBCharset	= 'utf8';
 
-	try {
-		$pdo 				= new PDO("mysql:host=$nuConfigDBHost;dbname=$nuConfigDBName;charset=$DBCharset", $nuConfigDBUser, $nuConfigDBPassword);
-		$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-	} catch (PDOException $e) {
-		echo 'Connection failed: ' . $e->getMessage();
-		die();
-	}
+    try {
+        $pdo 				= new PDO("mysql:host=$nuConfigDBHost;dbname=$nuConfigDBName;charset=$DBCharset", $nuConfigDBUser, $nuConfigDBPassword);
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    } catch (PDOException $e) {
+        echo 'Connection failed: ' . $e->getMessage();
+        die();
+    }
 
-	$stmt = $pdo->prepare("SELECT sss_access FROM `zzzzsys_session` WHERE zzzzsys_session_id = ?");
-	$stmt->execute([$sessionId]); 
-	$result = $stmt->fetch(PDO::FETCH_OBJ);
+    $stmt = $pdo->prepare("SELECT sss_access FROM `zzzzsys_session` WHERE zzzzsys_session_id = ?");
+    $stmt->execute([$sessionId]);
+    $result = $stmt->fetch(PDO::FETCH_OBJ);
 
-	if ($result) {
-		$json = json_decode($result->sss_access, true);
+    if ($result) {
+        $json = json_decode($result->sss_access, true);
 
-		if ($json['session']['global_access'] != 1) {
-			nuAuthFailed();
-		}
-
-	} else {
-		nuAuthFailed();
-	}
-
+        if ($json['session']['global_access'] != 1) {
+            nuAuthFailed();
+        }
+    } else {
+        nuAuthFailed();
+    }
 }
 
-function nuAuthFailed() {
-	echo "Please log into nuBuilder";
-	die();
+function nuAuthFailed()
+{
+    echo "Please log into nuBuilder";
+    die();
 }
 
 /**
@@ -69,8 +68,8 @@ $cfg['Servers'][$i]['password']							= $nuConfigDBPassword;
 
 
 
-if ( $_COOKIE["nuConfigDBPasswordBlank"] == 'BLANK' ) {
-	$cfg['Servers'][$i]['password'] = '';
+if ($_COOKIE["nuConfigDBPasswordBlank"] == 'BLANK') {
+    $cfg['Servers'][$i]['password'] = '';
 }
 
 $cfg['Servers'][$i]['compress']							= false;

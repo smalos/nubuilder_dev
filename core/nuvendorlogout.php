@@ -1,1 +1,3 @@
-<?php echo "You have been logged out."; ?>
+<?php
+
+echo "You have been logged out.";

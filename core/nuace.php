@@ -1,7 +1,7 @@
 <?php
-	require_once('nuchoosesetup.php');
-	$jquery = "libs/jquery/jquery-3.6.4.min.js";
-?>
+    require_once('nuchoosesetup.php');
+    $jquery = "libs/jquery/jquery-3.6.4.min.js";
+    ?>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 <html>
 <head>

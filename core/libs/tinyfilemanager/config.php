@@ -3,41 +3,39 @@
 require_once(dirname(__FILE__). '/../../../nuconfig.php');
 
 if (! isset($nuTfmNotAuth)) {
+    $sessionId = isset($_COOKIE['nu_TFM']) ? $_COOKIE["nu_TFM"] : '';
 
-	$sessionId = isset($_COOKIE['nu_TFM']) ? $_COOKIE["nu_TFM"] : '';
-	
-	if ($sessionId == '') {
-		nuAuthFailed();
-	}
+    if ($sessionId == '') {
+        nuAuthFailed();
+    }
 
-	$DBCharset	= 'utf8';
+    $DBCharset	= 'utf8';
 
-	try {
-		$pdo 				= new PDO("mysql:host=$nuConfigDBHost;dbname=$nuConfigDBName;charset=$DBCharset", $nuConfigDBUser, $nuConfigDBPassword);
-		$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-	} catch (PDOException $e) {
-		echo 'Connection failed: ' . $e->getMessage();
-		die();
-	}
+    try {
+        $pdo 				= new PDO("mysql:host=$nuConfigDBHost;dbname=$nuConfigDBName;charset=$DBCharset", $nuConfigDBUser, $nuConfigDBPassword);
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    } catch (PDOException $e) {
+        echo 'Connection failed: ' . $e->getMessage();
+        die();
+    }
 
-	$stmt = $pdo->prepare("SELECT sss_access FROM `zzzzsys_session` WHERE zzzzsys_session_id = ?");
-	$stmt->execute([$sessionId]); 
-	$result = $stmt->fetch(PDO::FETCH_OBJ);
+    $stmt = $pdo->prepare("SELECT sss_access FROM `zzzzsys_session` WHERE zzzzsys_session_id = ?");
+    $stmt->execute([$sessionId]);
+    $result = $stmt->fetch(PDO::FETCH_OBJ);
 
-	if ($result) {
-		$json = json_decode($result->sss_access, true);
+    if ($result) {
+        $json = json_decode($result->sss_access, true);
 
-		if ($json['session']['global_access'] != 1) {
-			nuAuthFailed();
-		}
-
-	} else {
-		nuAuthFailed();
-	}
-
+        if ($json['session']['global_access'] != 1) {
+            nuAuthFailed();
+        }
+    } else {
+        nuAuthFailed();
+    }
 }
 
-function nuAuthFailed() {
+function nuAuthFailed()
+{
     header("Content-Type: text/html");
     header("HTTP/1.0 400 Bad Request");
     die("Sorry. Invalid session id");
@@ -50,7 +48,7 @@ define('FM_SELF_URL', $_SERVER['PHP_SELF']);
 
 /*
 #################################################################################################################
-This is an OPTIONAL configuration file. rename this file into config.php to use this configuration 
+This is an OPTIONAL configuration file. rename this file into config.php to use this configuration
 The role of this file is to make updating of "tinyfilemanager.php" easier.
 So you can:
 -Feel free to remove completely this file and configure "tinyfilemanager.php" as a single file application.
@@ -167,5 +165,3 @@ $ip_blacklist = array(
     '0.0.0.0',      // non-routable meta ipv4
     '::'            // non-routable meta ipv6
 );
-
-?>

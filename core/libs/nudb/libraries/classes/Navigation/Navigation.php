@@ -173,7 +173,7 @@ class Navigation
             . "'" . $this->dbi->escapeString($itemName) . "',"
             . "'" . $this->dbi->escapeString($itemType) . "',"
             . "'" . $this->dbi->escapeString($dbName) . "',"
-            . "'" . (! empty($tableName) ? $this->dbi->escapeString($tableName) : '' )
+            . "'" . (! empty($tableName) ? $this->dbi->escapeString($tableName) : '')
             . "')";
         $this->dbi->tryQueryAsControlUser($sqlQuery);
     }
@@ -207,7 +207,8 @@ class Navigation
             . " AND `item_name`='" . $this->dbi->escapeString($itemName) . "'"
             . " AND `item_type`='" . $this->dbi->escapeString($itemType) . "'"
             . " AND `db_name`='" . $this->dbi->escapeString($dbName) . "'"
-            . (! empty($tableName)
+            . (
+                ! empty($tableName)
                 ? " AND `table_name`='" . $this->dbi->escapeString($tableName) . "'"
                 : ''
             );

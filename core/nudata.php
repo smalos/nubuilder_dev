@@ -506,7 +506,7 @@ function nuUpdateDatabaseGetUpdateValue($field, $value, $formId, $table, $tableC
 	$idx = array_search($field, $tableColumns);
 	$isNulog = $log && nuStringEndsWith("_nulog", $field);
 	
-	if ($idx && ! $isNulog) { 								//-- valid field name and not nulog column
+	if ($idx !== false && ! $isNulog) { //-- valid field name and not nulog column
 		$v = $isAutoNumber ? nuAutoNumber($formId, $field, $value) : $value;
 
 		$type = $clientTableSchema[$table]['types'][$idx];
@@ -905,35 +905,35 @@ function nuDeleteForm($formId){
 	$stmt		= nuRunQuery($query, [$formId]);
 	$query		= "DELETE FROM zzzzsys_php WHERE zzzzsys_php_id LIKE ?";
 	$stmt		= nuRunQuery($query, [$formId.'_'.'%']);
-	$query		= "DELETE FROM zzzzsys_browse WHERE sbr_zzzzsys_form_id LIKE ?";
-	$stmt		= nuRunQuery($query, [$formId]);
 	$query		= "DELETE FROM zzzzsys_select WHERE zzzzsys_select_id LIKE ?";
 	$stmt		= nuRunQuery($query, [$formId]);
 	$query		= "DELETE FROM zzzzsys_select_clause WHERE ssc_zzzzsys_select_id LIKE ?";
 	$stmt		= nuRunQuery($query, [$formId.'%']);
-	$query		= "DELETE FROM zzzzsys_object WHERE sob_all_type = ? AND sob_run_zzzzsys_form_id = ? ";
+	$query		= "DELETE FROM zzzzsys_object WHERE sob_all_type = ? AND sob_run_zzzzsys_form_id = ?";
 	$stmt		= nuRunQuery($query, ['run', $formId]);
+
 	$query		= "SELECT * FROM zzzzsys_object WHERE sob_all_zzzzsys_form_id = ?";
 	$stmt		= nuRunQuery($query, [$formId]);
 
 	while($row = db_fetch_object($stmt)){
 
 		$object	= $row->zzzzsys_object_id;
-		$query	= "DELETE FROM zzzzsys_event WHERE sev_zzzzsys_object_id = ? ";
+	
+		$query	= "DELETE FROM zzzzsys_event WHERE sev_zzzzsys_object_id = ?";
 		$stmt	= nuRunQuery($query, [$object]);
+	
 		$query	= "DELETE FROM zzzzsys_php WHERE zzzzsys_php_id LIKE ?";
 		$stmt	= nuRunQuery($query, [$object.'_'.'%']);
 
 	}
 
-	$query		= "DELETE FROM zzzzsys_object WHERE sob_all_zzzzsys_form_id = ? ";
+	$query		= "DELETE FROM zzzzsys_object WHERE sob_all_zzzzsys_form_id = ?";
 	$stmt		= nuRunQuery($query, [$formId]);
 
 	$query		= "DELETE FROM zzzzsys_form WHERE zzzzsys_form_id LIKE ?";
 	$stmt		= nuRunQuery($query, [$formId]);
 
 }
-
 
 function nuGetFile() {
 

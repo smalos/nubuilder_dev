@@ -566,7 +566,7 @@ function nuAddHomeLogout() {
 
 function nuAddIconToBreadCrumb(id, title, right, handler, iconClass) {
 
-	const div = nuCreateElementWithId('div', 'nuBreadcrumb0', 'nuBreadcrumbHolder');
+	const div = nuCreateElementWithId('div', id, 'nuBreadcrumbHolder');
 
 	$(div)
 		.addClass('nuBreadcrumbIcon')
@@ -3420,6 +3420,7 @@ function nuSetBrowseTitle(title) {
 	nuSetTitle(title, true);
 }
 
+
 function nuSetTitle(title, browse) {
 
 	if (nuFormType() == 'browse' && !browse == true) {
@@ -3430,22 +3431,14 @@ function nuSetTitle(title, browse) {
 
 	nuFORM.setProperty('title', title);
 
-	const $breadcrumb = $('.nuBreadcrumb');
-	const $notBreadcrumb = $('.nuNotBreadcrumb');
+	const b = $('.nuBreadcrumb').length;
+	let h = '<div id="nuarrow' + (b - 1) + '" class="nuBreadcrumbArrow">&nbsp;<i class="fa fa-caret-right"></i>&nbsp;</div>';
 
-	if ($breadcrumb.length === 0 && !nuIsIframe()) {
-
-		if ($notBreadcrumb.length > 0) {
-			$notBreadcrumb.html(title);
-		} else {
-			$('#nuHomeGap').append(title);
-		}
-	} else {
-		const bc = $breadcrumb.length + $notBreadcrumb.length -1;
-		const h = '<div id="nuarrow' + (bc - 1) + '" class="nuBreadcrumbArrow">&nbsp;<i class="fa fa-caret-right"></i>&nbsp;</div>';
-
-		$('#nuBreadcrumb' + bc).html(h + title);
+	if (nuFORM.breadcrumbs.length == 1) {
+		h = '';
 	}
+
+	$('#nuBreadcrumb' + b).html(h + title);
 
 }
 
@@ -4389,7 +4382,7 @@ function nuBrowseTable() {
 		l = 7;
 		t += h + 7;
 
-		if (brCount === 0 && r > 0) {
+		if (brCount.length === 0 && r > 0) {
 			const noData = nuCurrentProperties().search.length === 0 ? 'No data to display' : 'No search results found';
 			const firstCellClass = nuCurrentProperties().search.length === 0 ? 'nuBrowseNoData' : 'nuBrowseNoResults';
 			$('#nucell_0_0').html(nuTranslate(noData)).addClass(firstCellClass);
@@ -4512,7 +4505,7 @@ function nuBrowseAdditionalNavButtons() {
 		'pointer-events': 'none'
 	};
 
-	const firstBtn = `<span id="nuFirst" class="nuBrowsePage"><i class="fa fa-step-backward" style="font-size: 16px" onclick="nuGetPage(1)">&nbsp;&nbsp;&nbsp;&nbsp;</i></span>`;
+	const firstBtn = '<span id="nuFirst" class="nuBrowsePage"><i class="fa fa-step-backward" style="font-size: 16px" onclick="nuGetPage(1)">&nbsp;&nbsp;&nbsp;&nbsp;</i></span>';
 	$(firstBtn).insertBefore('#nuLast');
 
 	const endBtn = `<span id="nuEnd" class="nuBrowsePage">&nbsp;&nbsp;&nbsp;&nbsp;<i class="fa fa-step-forward nuBrowsePage" style="font-size: 16px" onclick="nuGetPage(${lastPage})"></i></span>`;

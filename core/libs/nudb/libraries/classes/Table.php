@@ -617,7 +617,7 @@ class Table implements Stringable
                         }
 
                         break;
-                    /** @noinspection PhpMissingBreakStatementInspection */
+                        /** @noinspection PhpMissingBreakStatementInspection */
                     case 'NULL':
                         // If user uncheck null checkbox and not change default value null,
                         // default value will be ignored.
@@ -625,6 +625,7 @@ class Table implements Stringable
                             break;
                         }
                         // else fall-through intended, no break here
+                        // no break
                     case 'CURRENT_TIMESTAMP':
                     case 'current_timestamp()':
                         $query .= ' DEFAULT ' . $defaultType;
@@ -1133,7 +1134,6 @@ class Table implements Stringable
             $parser = new Parser($sqlStructure);
 
             if (! empty($parser->statements[0])) {
-
                 /**
                  * The CREATE statement of this structure.
                  *
@@ -1730,8 +1730,8 @@ class Table implements Stringable
             // If contains GENERATED or VIRTUAL and does not contain DEFAULT_GENERATED
             if (
                 (
-                str_contains($column['Extra'], 'GENERATED')
-                || str_contains($column['Extra'], 'VIRTUAL')
+                    str_contains($column['Extra'], 'GENERATED')
+                    || str_contains($column['Extra'], 'VIRTUAL')
                 ) && ! str_contains($column['Extra'], 'DEFAULT_GENERATED')
             ) {
                 continue;

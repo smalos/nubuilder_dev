@@ -418,7 +418,7 @@ class Monitor
                         $insertTables[$matches[2]] += $row['#'] - 1;
                     }
 
-                    // No break here
+                    // no break here
 
                 case 'update':
                     // Cut off big inserts and updates,

@@ -93,7 +93,7 @@ class ImportLdi extends AbstractImportCsv
     {
         global $finished, $import_file, $charset_conversion, $table, $dbi;
         global $ldi_local_option, $ldi_replace, $ldi_ignore, $ldi_terminated,
-               $ldi_enclosed, $ldi_escaped, $ldi_new_line, $skip_queries, $ldi_columns;
+        $ldi_enclosed, $ldi_escaped, $ldi_new_line, $skip_queries, $ldi_columns;
 
         $compression = '';
         if ($importHandle !== null) {

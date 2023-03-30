@@ -344,9 +344,9 @@ class FindReplaceController extends AbstractController
             $sql_query .= ' WHERE ' . Util::backquote($column)
                 . " RLIKE '" . $this->dbi->escapeString($find) . "' COLLATE "
                 . $charSet . '_bin'; // here we
-            // change the collation of the 2nd operand to a case sensitive
-            // binary collation to make sure that the comparison
-            // is case sensitive
+        // change the collation of the 2nd operand to a case sensitive
+        // binary collation to make sure that the comparison
+        // is case sensitive
         } else {
             $sql_query = 'UPDATE ' . Util::backquote($this->table)
                 . ' SET ' . Util::backquote($column) . ' ='

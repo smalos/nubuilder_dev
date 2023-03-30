@@ -208,24 +208,24 @@ class Config
         } elseif (preg_match('@OmniWeb/([0-9]{1,3})@', $HTTP_USER_AGENT, $log_version)) {
             $this->set('PMA_USR_BROWSER_VER', $log_version[1]);
             $this->set('PMA_USR_BROWSER_AGENT', 'OMNIWEB');
-            // Konqueror 2.2.2 says Konqueror/2.2.2
-            // Konqueror 3.0.3 says Konqueror/3
+        // Konqueror 2.2.2 says Konqueror/2.2.2
+        // Konqueror 3.0.3 says Konqueror/3
         } elseif (preg_match('@(Konqueror/)(.*)(;)@', $HTTP_USER_AGENT, $log_version)) {
             $this->set('PMA_USR_BROWSER_VER', $log_version[2]);
             $this->set('PMA_USR_BROWSER_AGENT', 'KONQUEROR');
-            // must check Chrome before Safari
+        // must check Chrome before Safari
         } elseif ($is_mozilla && preg_match('@Chrome/([0-9.]*)@', $HTTP_USER_AGENT, $log_version)) {
             $this->set('PMA_USR_BROWSER_VER', $log_version[1]);
             $this->set('PMA_USR_BROWSER_AGENT', 'CHROME');
-            // newer Safari
+        // newer Safari
         } elseif ($is_mozilla && preg_match('@Version/(.*) Safari@', $HTTP_USER_AGENT, $log_version)) {
             $this->set('PMA_USR_BROWSER_VER', $log_version[1]);
             $this->set('PMA_USR_BROWSER_AGENT', 'SAFARI');
-            // older Safari
+        // older Safari
         } elseif ($is_mozilla && preg_match('@Safari/([0-9]*)@', $HTTP_USER_AGENT, $log_version)) {
             $this->set('PMA_USR_BROWSER_VER', $mozilla_version[1] . '.' . $log_version[1]);
             $this->set('PMA_USR_BROWSER_AGENT', 'SAFARI');
-            // Firefox
+        // Firefox
         } elseif (
             ! mb_strstr($HTTP_USER_AGENT, 'compatible')
             && preg_match('@Firefox/([\w.]+)@', $HTTP_USER_AGENT, $log_version)
@@ -1017,7 +1017,7 @@ class Config
      */
     public function getCookieName(string $cookieName): string
     {
-        return $cookieName . ( $this->isHttps() ? '_https' : '' );
+        return $cookieName . ($this->isHttps() ? '_https' : '');
     }
 
     /**

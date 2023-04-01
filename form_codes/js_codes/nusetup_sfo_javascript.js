@@ -42,19 +42,7 @@ setConfigDatalist('$nuConfigGlobeadminHome', ['nuhome','nuhomecompact']);
 setConfigDatalist('nuEditCloseAfterSave', ['None','AllForms',"UserForms","SystemForms"]);
 setConfigDatalist('nuCalendarType', ['nuBuilder','VanillaJS']);
 
-
-var lang = $("#set_language");
-if (lang.val() === '') {
-    lang.append($('<option>', {
-        value: 1,
-        text: nuTranslate("English"),
-        disabled: true,
-        selected: true,
-        hidden: true
-    }));
-}
-
-nuSelectMultiWithoutCtrl('set_languages_included');
+nuSelectAddEnglishOption('set_language');
 
 var d = nuDevMode();
 if (!d) {

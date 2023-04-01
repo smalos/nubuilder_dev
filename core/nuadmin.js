@@ -76,17 +76,27 @@ function nuDevMode(m) {
 
 function nuAddAdminButton(id, obj) {
 
-	title = nuDefine(obj.title);
+	const title = nuDefine(obj.title);
+	const inputId = `nu${id}Button`;
 
 	const button = `
-	<input id="nu${id}Button" type="button" title="${nuTranslate(obj.title)}" class="nuActionButton nuAdminButton" value="${nuTranslate(obj.value)}" onclick="${obj.func}">
+	<input id="${inputId}" type="button" title="${nuTranslate(obj.title)}" class="nuActionButton nuAdminButton" value="${nuTranslate(obj.value)}" onclick="${obj.func}">
   `;
-
+ 
 	$('#nuActionHolder').prepend(button);
+
+	const events = nuSERVERRESPONSE.events;
+	if (events) {
+		const eventName = id.slice(-2);
+		if (events[eventName]) {
+			$('#' + inputId).addClass('nuAdminButtonUsed')
+		}
+	}
 
 	return 1;
 
 }
+
 function nuAddAdminButtons() {
 
 	const adminButtons = {
@@ -126,6 +136,7 @@ function nuAddAdminButtons() {
 		return;
 
 	const {form_type, form_code} = nuCurrentProperties();
+	const formCode = form_code;
 
 	if (!form_type)
 		return;
@@ -136,24 +147,23 @@ function nuAddAdminButtons() {
 	const isLaunch = form_type.includes("launch");
 
 	if ((nuAdminButtons["nuDebug"] || devMode) && nuMainForm()) {
-		nuAddIconToBreadcrumbHolder('nuDebugButton', 'nuDebug Results', 'nuOpenNuDebug(2)', 'fa fa-bug', '0px');
+		nuAddIconToBreadcrumbHolder('nuDebugButton', 'nuDebug Results', 'nuOpenNuDebug(2)', 'fa fa-bug', '3px');
 	}
 
 	if (nuAdminButtons["nuRefresh"]) {
-		nuAddIconToBreadcrumbHolder('nuRefreshButton', 'Refresh', 'nuGetBreadcrumb()', 'fas fa-sync-alt', '7px');
+		nuAddIconToBreadcrumbHolder('nuRefreshButton', 'Refresh', 'nuGetBreadcrumb()', 'fas fa-sync-alt', '3px');
 	}
 
 	let buttonCount = 0;
-	const code = nuCurrentProperties().form_code;
 
-	if (!code.startsWith('nu') || devMode) {
+	if (!formCode.startsWith('nu') || devMode) {
 
 		if (nuAdminButtons["nuProperties"]) {
-			buttonCount += nuAddAdminButton('nuProperties', adminButtons['nuProperties']);
+			buttonCount += nuAddAdminButton('Properties', adminButtons['nuProperties']);
 		}
 
 		if (nuAdminButtons["nuObjects"]) {
-			buttonCount += nuAddAdminButton('nuObjects', adminButtons['nuObjects']);
+			buttonCount += nuAddAdminButton('Objects', adminButtons['nuObjects']);
 		}
 
 		if (nuAdminButtons["nuPHP"]) {
@@ -284,8 +294,8 @@ function nuOpenNuDebug(w) {
 function nuAddIconToBreadcrumbHolder(i, title, oClick, iClass, paddingLeft) {
 
 	const h = `
-	<div id="${i}" title="${title}" style="font-size: 17px; display: inline-block; cursor: pointer; padding-right: 12px; padding-left: ${paddingLeft}" onclick="${oClick}">
-		<i class="${iClass}"></i>
+	<div id="${i}" title="${title}" style="font-size: 17px; display: inline-block; cursor: pointer; padding-left: ${paddingLeft}" onclick="${oClick}">
+		<i class="${iClass} fa-fw"></i>
 	</div>
   `;
 	const fragment = nuCreateAppendHTML(h);

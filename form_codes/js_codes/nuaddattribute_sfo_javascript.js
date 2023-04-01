@@ -1,12 +1,13 @@
 /*
     0|autocomplete|
     1|accesskey|
-    2|data-something|
+    2|data-|
     3|maxlength|
     4|placeholder|
     5|spellcheck|
-    6|title
-    7|title
+    6|title|
+    7|value|
+    8|nu-label-position
 */
 
 nuHide('plh_value_select');
@@ -21,8 +22,8 @@ if (typeObj().val() !== 'input') {
 
 function onAttributeChanged(value) {
 
-    nuShow('plh_value_select', value === '0' || value === '5');
-    nuShow('plh_value_text', !(value === '0' || value === '5'));
+    nuShow('plh_value_select', value === '0' || value === '5' || value === '8');
+    nuShow('plh_value_text', !(value === '0' || value === '5' || value === '8'));
     nuShow('plh_attribute_name', value === '2');
     
     nuSetValue('plh_value_text','');
@@ -48,6 +49,9 @@ function onAttributeChanged(value) {
         nuSetPlaceholder('plh_value_text', 'Number value');
     }  else if (value === '7') {
         nuSetPlaceholder('plh_value_text', 'String');
+    }  else if (value === '8') {
+        $("#plh_value_select").empty();
+        addSelectOption('top', 'top');
     } 
 
 }

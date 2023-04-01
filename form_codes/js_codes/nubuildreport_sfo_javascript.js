@@ -25,7 +25,7 @@ function nuPickTableType(){
     
     if(i === ''){
         
-        nuMessage([nuTranslate('Table selected must be an SQL or Procedure')]);
+        nuMessage([nuTranslate('No table selected')]);
         return;
 
     }

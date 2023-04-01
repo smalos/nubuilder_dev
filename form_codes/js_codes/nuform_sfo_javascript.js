@@ -373,37 +373,11 @@ function nuUpdateAclCount() {
 }
 
 
-function nuSelectBrowseMainForm(e, t) {
-    // If a  button is clicked, don't open the Edit Screen.   
-    var col = $(e.target).attr('data-nu-column');
-    if (col !== '0' && typeof col !== "undefined") {
-        var r = $(e.target).attr('data-nu-primary-key');
-        nuForm('nuform', r, '', '', 0);
-    }
-
-    return false;
-}
-
-
-function nuSelectBrowseNew(e, t) {
-    if (nuMainForm()) {
-        nuSelectBrowseMainForm(e, t);
-    } else {
-        _nuSelectBrowse(e, t);
-    }
-}
-
-
 if (nuFormType() == 'browse') {
 
-    if (!nuMainForm()) {
+    if (!nuMainForm()) { // Hide Preview
         nuSetBrowseColumnSize(0, 0);
-    } // Hide Preview
-
-    var _nuSelectBrowse = window.nuSelectBrowse;
-    var nuSelectBrowse = function(e, t) {
-        nuSelectBrowseNew(e, t);
-    };
+    } 
 
     $("[data-nu-column='1']").addClass('nuCellColored');
 
@@ -414,7 +388,8 @@ function createButton(target, pk, formType) {
     var btn = $("<button id='nuPreviewButton' type='button' data-form-type='" + formType + "' class='nuActionButton'><i class='fa fa-search'></i>&nbsp;</button>");
 
     $(target).html(btn).attr('title', nuTranslate('Preview Form'));
-    btn.on('click', function() {
+    btn.on('click', function(e) {
+        e.stopPropagation();
         const ft = $(this).attr("data-form-type");
         const r = ft == 'launch' || ft == 'edit' || ft == 'subform' ? '-1' : '';
         nuForm(pk, r, '', '');

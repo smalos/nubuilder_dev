@@ -3,6 +3,7 @@ nuSetToolTip('sus_code', nuTranslate('E.g. Employee Id, Foreign Id etc. Leaving 
 nuSetToolTip('sus_language', nuTranslate('Leaving blank will use English'));
 if (nuIsNewRecord()) nuHide('sus_zzzzsys_access_id_open_button');
 $('#sus_zzzzsys_access_id_open_button').toggleClass('input_button nuButton nuLookupButton')
+nuSelectAddEnglishOption('sus_language');
 
 
 

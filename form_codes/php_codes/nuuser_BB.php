@@ -25,31 +25,19 @@ $sqlAccessLevel = function() {
 };
 
 
-$getEncodedJsonFromQuery = function($sql) {
-    $stmt = nuRunQuery($sql);
-    $data = [''];
-    while ($row = db_fetch_row($stmt)) {
-        $data[] = $row;
-    }
-    return base64_encode(json_encode($data));
-};
+$position = nuEncodeQueryRowResults($sqlPosition(), [], ['']);
+$team = nuEncodeQueryRowResults($sqlTeam(), [], ['']);
+$department = nuEncodeQueryRowResults($sqlDepartment(), [], ['']);
+$language = nuEncodeQueryRowResults($sqlLanguage(), [], ['']);
+$accessLevel = nuEncodeQueryRowResults($sqlAccessLevel(), [], ['']);
 
-
-$position = $getEncodedJsonFromQuery($sqlPosition());
-$team = $getEncodedJsonFromQuery($sqlTeam());
-$department = $getEncodedJsonFromQuery($sqlDepartment());
-$language = $getEncodedJsonFromQuery($sqlLanguage());
-$accessLevel = $getEncodedJsonFromQuery($sqlAccessLevel());
-
-$filterJS = " 
+$filterJS = "
     function getData(data) {
         return JSON.parse(atob(data));
     }
-   
     function getPosition() {
         return getData('$position');
     }
- 
     function getTeam() {
         return getData('$team');
     }
@@ -57,7 +45,6 @@ $filterJS = "
     function getDepartment() {
         return getData('$department');
     }
- 
     function getLanguage() {
         return getData('$language');
     }
@@ -70,7 +57,7 @@ $filterJS = "
 
 $addCode = $_SESSION['nubuilder_session_data']['USER_CODE_LABEL'] ?? '';
 
-$addCodeJS = " 
+$addCodeJS = "
 
     if ('$addCode' !== '') {
         $('#nusort_5').html('$addCode')

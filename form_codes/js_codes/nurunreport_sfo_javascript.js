@@ -5,10 +5,11 @@ $('#nuPrintButton').remove();
 
 function nuSelectBrowse(e) {
 
-    var r = $('#' + e.target.id).attr('data-nu-row');
-    var f = $('#nucell_' + r + '_0').html();
-    var p = $('#' + e.target.id).attr('data-nu-primary-key');
+    const cell = $(e.target).closest('div');
+    const row = cell.attr('data-nu-row');
+    const form = $('#nucell_' + row + '_0').html() || 'nublank';
+    const primaryKey = cell.attr('data-nu-primary-key');
 
-    nuGetReport(f, p);
+    nuGetReport(form, primaryKey);
 
 }

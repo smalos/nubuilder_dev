@@ -18,8 +18,10 @@ if (justPHP) {
 
     if (nuIsIframe()) {
         var ev = eventName(recordIdSuffix) ;
-        var formInfo = ev == 'After Browse' ? $('#sob_all_label', window.parent.document).val(): sph_form_code.value;
+        var formInfo = ev == 'After Browse' ? $('#sob_all_label', window.parent.document).val(): 
         $('#nuBreadcrumb0').html(ev + ' - ' + formInfo);
+    } else {
+       nuSetTitle(recordId);
     }
 
 

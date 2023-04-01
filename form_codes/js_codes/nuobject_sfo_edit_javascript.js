@@ -47,10 +47,28 @@ $('#sob_all_type_open_button').toggleClass('input_button nuButton nuLookupButton
 nuPreviewIcon('sob_input_icon_preview_html',nuGetValue('sob_input_icon'));
 
 
+var placeholderText = `1. SQL: A valid SQL query that returns 2 columns:
+SELECT table_id, description FROM table
+
+Or:
+
+2. List: A list delimited by a |:
+1|First|
+2|Second|
+3|Third
+
+Or:
+
+3. JSON/Array: if both the display and the bound value are identical:
+
+["value1", "value1", "value1"]
+`
+;
+
 $('#sob_select_sql').focus(function() {
-    $(this).attr('placeholder', '1. SQL: A valid SQL query that returns 2 columns:\n\n SELECT table_id, description FROM table\n\nOr:\n\n2. List: A list delimited by a |\n\n1|First|\n2|Second|\n3|Third');
+  $(this).prop('placeholder', placeholderText);
 }).blur(function() {
-    $(this).attr('placeholder', '');
+  $(this).prop('placeholder', '');
 });
 
 $('#nuTab8').click(function() {

@@ -2,21 +2,41 @@ function getDataType(t, i, selectMultiple) {
 
     let dt = 'VARCHAR(100)';
 
-    if (t == 'lookup') { dt = 'VARCHAR(25)'; }
-    if (t == 'select' && ! selectMultiple) { dt = 'VARCHAR(100)'; }
-    if (t == 'select' && selectMultiple) { dt = 'VARCHAR(1000)'; }
-    if (t == 'calc') { dt = 'DECIMAL(12,4)'; }
-    if (t == 'textarea') { dt = 'TEXT'; }
-    
+    if (t == 'lookup') {
+        dt = 'VARCHAR(25)';
+    }
+    if (t == 'select' && ! selectMultiple) {
+        dt = 'VARCHAR(100)';
+    }
+    if (t == 'select' && selectMultiple) {
+        dt = 'VARCHAR(1000)';
+    }
+    if (t == 'calc') {
+        dt = 'DECIMAL(12,4)';
+    }
+    if (t == 'textarea') {
+        dt = 'TEXT';
+    }
+
     if (t == 'input') {
-         let dtInput = '';
-         if (i == 'date' || i == 'nuDate') { dtInput = 'DATE'; }
-         if (i == 'number') { dtInput = 'INT'; }
-         if (i == 'nuAutoNumber') { dtInput = 'BIGINT UNSIGNED'; }
-         if (i == 'nuNumber') { dtInput = 'DECIMAL(12,4)'; }
-         if (i == 'file') { dtInput = 'LONGTEXT'; }
-         dt = dtInput != '' ? dtInput : 'VARCHAR(100)';
-         
+        let dtInput = '';
+        if (i == 'date' || i == 'nuDate') {
+            dtInput = 'DATE';
+        }
+        if (i == 'number') {
+            dtInput = 'INT';
+        }
+        if (i == 'nuAutoNumber') {
+            dtInput = 'BIGINT UNSIGNED';
+        }
+        if (i == 'nuNumber') {
+            dtInput = 'DECIMAL(12,4)';
+        }
+        if (i == 'file') {
+            dtInput = 'LONGTEXT';
+        }
+        dt = dtInput != '' ? dtInput: 'VARCHAR(100)';
+
     }
 
     return dt;
@@ -43,7 +63,13 @@ $('#sql_query').val(qry);
 nuAddActionButton('Run', 'Run', 'nuRunPHPHidden("NURUNADDDBCOLUMN")');
 
 $('#sql_query').addClass('sql');
-$('.sql').dblclick(function() { nuOpenAce('SQL', this.id); });
+$('.sql').dblclick(function() {
+    nuOpenAce('SQL', this.id);
+});
 
-nuSetProperty('sob_all_table',table);
+nuSetProperty('sob_all_table', table);
 nuRefreshSelectObject('sql_after_column');
+
+function nuSelectObjectRefreshed() {
+   nuHasBeenEdited();
+}

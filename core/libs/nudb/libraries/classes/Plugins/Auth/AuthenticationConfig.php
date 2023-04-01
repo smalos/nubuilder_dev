@@ -146,10 +146,10 @@ class AuthenticationConfig extends AuthenticationPlugin
         <tr>
             <td>' , "\n";
         echo '<a href="'
-            , Util::getScriptNameForOption($GLOBALS['cfg']['DefaultTabServer'], 'server')
-            , '" class="btn btn-primary mt-1 mb-1 disableAjax">'
-            , __('Retry to connect')
-            , '</a>' , "\n";
+        , Util::getScriptNameForOption($GLOBALS['cfg']['DefaultTabServer'], 'server')
+        , '" class="btn btn-primary mt-1 mb-1 disableAjax">'
+        , __('Retry to connect')
+        , '</a>' , "\n";
         echo '</td>
         </tr>' , "\n";
         if (count($GLOBALS['cfg']['Servers']) > 1) {

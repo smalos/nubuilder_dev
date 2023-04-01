@@ -191,7 +191,7 @@ class Import
         array &$sqlData = []
     ): void {
         global $import_run_buffer, $go_sql, $complete_query, $display_query, $sql_query, $msg,
-            $skip_queries, $executed_queries, $max_sql_len, $read_multiply, $sql_query_disabled, $run_query;
+        $skip_queries, $executed_queries, $max_sql_len, $read_multiply, $sql_query_disabled, $run_query;
         $read_multiply = 1;
         if (! isset($import_run_buffer)) {
             // Do we have something to push into buffer?

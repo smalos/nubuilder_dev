@@ -338,10 +338,11 @@ final class Collation
             case 'binary':
                 $name = _pgettext('Collation', 'Binary');
                 break;
-            // Unicode charsets
+                // Unicode charsets
             case 'utf8mb4':
                 $variant = 'UCA 4.0.0';
-            // Fall through to other unicode
+                // Fall through to other unicode
+                // no break
             case 'ucs2':
             case 'utf8':
             case 'utf8mb3':
@@ -352,7 +353,7 @@ final class Collation
                 $name = _pgettext('Collation', 'Unicode');
                 $unicode = true;
                 break;
-            // West European charsets
+                // West European charsets
             case 'ascii':
             case 'cp850':
             case 'dec8':
@@ -361,19 +362,19 @@ final class Collation
             case 'macroman':
                 $name = _pgettext('Collation', 'West European');
                 break;
-            // Central European charsets
+                // Central European charsets
             case 'cp1250':
             case 'cp852':
             case 'latin2':
             case 'macce':
                 $name = _pgettext('Collation', 'Central European');
                 break;
-            // Russian charsets
+                // Russian charsets
             case 'cp866':
             case 'koi8r':
                 $name = _pgettext('Collation', 'Russian');
                 break;
-            // Chinese charsets
+                // Chinese charsets
             case 'gb2312':
             case 'gbk':
                 $name = _pgettext('Collation', 'Simplified Chinese');
@@ -385,19 +386,19 @@ final class Collation
                 $name = _pgettext('Collation', 'Chinese');
                 $unicode = true;
                 break;
-            // Japanese charsets
+                // Japanese charsets
             case 'sjis':
             case 'ujis':
             case 'cp932':
             case 'eucjpms':
                 $name = _pgettext('Collation', 'Japanese');
                 break;
-            // Baltic charsets
+                // Baltic charsets
             case 'cp1257':
             case 'latin7':
                 $name = _pgettext('Collation', 'Baltic');
                 break;
-            // Other
+                // Other
             case 'armscii8':
             case 'armscii':
                 $name = _pgettext('Collation', 'Armenian');

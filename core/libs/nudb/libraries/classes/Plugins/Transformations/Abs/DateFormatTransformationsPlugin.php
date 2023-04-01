@@ -83,10 +83,10 @@ abstract class DateFormatTransformationsPlugin extends TransformationsPlugin
         if ($meta !== null && $meta->isType(FieldMetadata::TYPE_INT)) {
             $timestamp = $buffer;
 
-            // Detect TIMESTAMP(6 | 8 | 10 | 12 | 14)
-            // TIMESTAMP (2 | 4) not supported here.
-            // (Note: prior to MySQL 4.1, TIMESTAMP has a display size
-            // for example TIMESTAMP(8) means YYYYMMDD)
+        // Detect TIMESTAMP(6 | 8 | 10 | 12 | 14)
+        // TIMESTAMP (2 | 4) not supported here.
+        // (Note: prior to MySQL 4.1, TIMESTAMP has a display size
+        // for example TIMESTAMP(8) means YYYYMMDD)
         } else {
             if (preg_match('/^(\d{2}){3,7}$/', $buffer)) {
                 if (mb_strlen($buffer) == 14 || mb_strlen($buffer) == 8) {
@@ -114,8 +114,8 @@ abstract class DateFormatTransformationsPlugin extends TransformationsPlugin
                     );
                 }
 
-                // If all fails, assume one of the dozens of valid strtime() syntaxes
-                // (https://www.gnu.org/manual/tar-1.12/html_chapter/tar_7.html)
+            // If all fails, assume one of the dozens of valid strtime() syntaxes
+            // (https://www.gnu.org/manual/tar-1.12/html_chapter/tar_7.html)
             } else {
                 if (preg_match('/^[0-9]\d{1,9}$/', $buffer)) {
                     $timestamp = (int) $buffer;

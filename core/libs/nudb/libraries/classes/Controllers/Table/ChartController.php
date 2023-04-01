@@ -129,8 +129,8 @@ class ChartController extends AbstractController
         foreach (array_keys($keys) as $idx) {
             if (
                 isset($fields_meta[$idx]) && (
-                $fields_meta[$idx]->isType(FieldMetadata::TYPE_INT)
-                || $fields_meta[$idx]->isType(FieldMetadata::TYPE_REAL)
+                    $fields_meta[$idx]->isType(FieldMetadata::TYPE_INT)
+                    || $fields_meta[$idx]->isType(FieldMetadata::TYPE_REAL)
                 )
             ) {
                 $numericColumnFound = true;

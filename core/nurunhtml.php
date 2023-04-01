@@ -10,8 +10,8 @@ $s					= "SELECT deb_message AS json FROM zzzzsys_debug WHERE zzzzsys_debug_id =
 $t					= nuRunQuery($s, [$_GET['i']]);
 
 if (db_num_rows($t) == 0) {
-	print nuTranslate("Use the Print button to refresh the table.");
-	return;
+    print nuTranslate("Use the Print button to refresh the table.");
+    return;
 }
 
 $r					= db_fetch_object($t);
@@ -34,16 +34,18 @@ $class = [];
 
 
 
-for($col = 0 ; $col < $colCount ; $col++){
+for ($col = 0 ; $col < $colCount ; $col++) {
+    $wd		= ($c[$col]->width) . 'px';
 
-	$wd		= ($c[$col]->width) . 'px';
+    $align = 'left';
+    if ($c[$col]->align == 'r') {
+        $align = 'right';
+    }
+    if ($c[$col]->align == 'c') {
+        $align = 'center';
+    }
 
-	$align = 'left';
-	if($c[$col]->align == 'r'){$align = 'right';}
-	if($c[$col]->align == 'c'){$align = 'center';}
-
-	$class[$col]	= "style='font-size:12px;width:$wd;text-align:$align'";
-
+    $class[$col]	= "style='font-size:12px;width:$wd;text-align:$align'";
 }
 
 print "</style>\n";
@@ -51,37 +53,31 @@ print "</style>\n";
 print "<TABLE border=1; style='border-collapse: collapse'>\n";
 print "\n<TR>";
 
-for($col = 0 ; $col < $colCount ; $col++){
-
-	if(!($c[$col]->width == 0 && $includeHiddenColumns != true)) {
-		$st	= $class[$col];
-		print "<TH $st>";
-		print nuTranslate($c[$col]->title);
-		print "</TH>\n";
-	}
-
+for ($col = 0 ; $col < $colCount ; $col++) {
+    if (!($c[$col]->width == 0 && $includeHiddenColumns != true)) {
+        $st	= $class[$col];
+        print "<TH $st>";
+        print nuTranslate($c[$col]->title);
+        print "</TH>\n";
+    }
 }
 
 $h	= "</TR>";
 
 $t				= nuRunQuery($j->sql);
 
-while($r = db_fetch_array($t)){
+while ($r = db_fetch_array($t)) {
+    $h	.= "\n<TR>\n";
 
-	$h	.= "\n<TR>\n";
+    for ($col = 0 ; $col < $colCount ; $col++) {
+        if (!($c[$col]->width == 0 && $includeHiddenColumns != true)) {
+            $v = $c[$col]->display == 'null' || $c[$col]->display == '""' ? '' : $r[$c[$col]->display];
+            $st	= $class[$col];
+            $h	.= "<TD $st>" . $v . "</TD>\n";
+        }
+    }
 
-	for($col = 0 ; $col < $colCount ; $col++){
-
-		if(!($c[$col]->width == 0 && $includeHiddenColumns != true)) {
-			$v = $c[$col]->display == 'null' || $c[$col]->display == '""' ? '' : $r[$c[$col]->display];
-			$st	= $class[$col];
-			$h	.= "<TD $st>" . $v . "</TD>\n";
-		}
-
-	}
-
-	$h	.= "</TR>";
-
+    $h	.= "</TR>";
 }
 
 
@@ -93,5 +89,3 @@ nuRunQuery("DELETE FROM zzzzsys_debug WHERE zzzzsys_debug_id = ? ", [$_GET['i']]
 $hash = nuHash();
 nuRunQuery("DROP TABLE IF EXISTS " . $hash['browse_table_id']);
 unset($hash);
-
-?>

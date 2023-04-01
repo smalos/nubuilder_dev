@@ -202,9 +202,10 @@ class Font
         $count = 0;
 
         foreach ($charLists as $charList) {
-            $count += (mb_strlen($text)
+            $count += (
+                mb_strlen($text)
                 - mb_strlen(str_replace($charList['chars'], '', $text))
-                ) * $charList['modifier'];
+            ) * $charList['modifier'];
         }
 
         $text = str_replace(' ', '', $text);//remove the " "'s
@@ -220,18 +221,18 @@ class Font
             case 'arial':
             case 'sans-serif':
                 break;
-            /*
-             * .92 modifier for time, serif, brushscriptstd, and californian fb
-             */
+                /*
+                 * .92 modifier for time, serif, brushscriptstd, and californian fb
+                 */
             case 'times':
             case 'serif':
             case 'brushscriptstd':
             case 'californian fb':
                 $modifier = .92;
                 break;
-            /*
-             * 1.23 modifier for broadway
-             */
+                /*
+                 * 1.23 modifier for broadway
+                 */
             case 'broadway':
                 $modifier = 1.23;
                 break;

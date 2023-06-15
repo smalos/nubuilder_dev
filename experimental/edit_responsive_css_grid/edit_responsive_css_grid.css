@@ -1,18 +1,61 @@
+.nuSubformScrollDiv {
 
-.nuContainer {
 
+    height: 100vh!important;
+    overflow: hidden;
+}
+
+
+.nuGrid-container {
+
+
+    display: grid;
+    /*width: 100%;*/
+    grid-template-columns: repeat(12, 1fr);
+    background-color: grey;
+   /*// grid-auto-columns: 1fr 1fr 1fr 1fr 1fr;*/
+   /* grid-auto-rows: 1fr 1fr 1fr 1fr 1fr;*/
+    gap: 10px;
+    background: lightblue;
+    border-bottom-left-radius: 7px;
+    border-bottom-right-radius: 7px;
+    border: 1px solid var(--nu-border);
+    padding: 10px 15px 10px 10px;
+}
+
+
+[data-tab-index]:not([data-tab-index="0"]) {
+    display: none;
+}
+
+.nuSubform {
+    overflow: auto;
+    width: 95%;
+}
+
+
+
+.nuRECORD {
+    width: 98%;
     display: flex;
-    width: 95vw;
     border-radius: 5px;
     background-color: inherit;
     padding: 10px;
-    height: 100%;
     justify-content: center;
     align-items: flex-start;
     flex-wrap: wrap;
     box-sizing: border-box;
-    row-gap: 10px;
-    column-gap: 10px;
+    row-gap: 2px;
+
+}
+
+.nuTab-container {
+    background: #ededed;
+    padding: 5px;
+
+    width: 100%;
+    /*height: 80vh;*/
+    grid-row-gap: 5px;
 }
 
 label {
@@ -20,19 +63,49 @@ label {
     flex-shrink: 0;
 
 }
+
+
 input, select, textarea, .nuSubform , iframe, .nuImage, .nuHtml {
     order: 2;
-
+/*resize: both;*/
+/*overflow: auto;*/
 }
+/*.nuObjectWrapper{*/
+/*    resize: both;*/
+/*overflow: auto;*/
+/*}*/
+.nuObjectWrapper label {
+    flex-wrap: nowrap;
+    /*flex: 0.5;*/
+    align-items: flex-start;
+    justify-content: flex-start;
+    /*flex-basis: 0;*/
+    flex-wrap: nowrap;
+    margin-right: 10px;
+    width: min(120px);
+}
+
 
 .nuObjectWrapper>* {
     position: relative;
 }
 
-.nuObjectWrapper {
-    width: 45%;
-    display: flex;
-    flex-flow: row wrap;
+.nuResCheckbox {
+
+    width: 15% !important;
+    width: max-content;
+}
+
+
+.nuResCheckbox :nth-child(2) {
+
+    flex: 0.0001;
+
+}
+.nuResCheckbox label {
+
+    text-align: right!important;
+    align-self: center;
 }
 .nuObjectWrapper input , select, textarea, .nuSubform , iframe, .nuImage, .nuHtml, .select2 {
     flex: 3;
@@ -44,68 +117,59 @@ input, select, textarea, .nuSubform , iframe, .nuImage, .nuHtml {
 .nuHtml {
     flex: 3!important;
 }
-.input_checkbox {
-    flex: 0.5;
 
-}
 .nuObjectWrapper .select2 {
     order: 2;
 }
 .nuSubformWrapper {
     display: flex;
-    width: 90%;
-    height: 200px!important;
+    /*width: 90%;*/
+    /*height: 300px!important;*/
     flex-direction: column!important;
     padding: 0 10px;
     flex-flow: row wrap;
     overflow: auto;
+    /*grid-row: 1/25;*/
+    /*grid-column: 1/35;*/
 }
 .nuSubformWrapper label {
     display: flex;
-    flex: 1;
+    flex: 0.1;
     flex-direction: column;
     text-align: left;
-    height: 20px!important;
+    height: 10px;
 
 }
-.nuObjectWrapper label {
-    flex: 1;
-    align-items: flex-start;
-    justify-content: flex-start;
-    flex-basis: 0;
 
-    margin-right: 10px;
-}
-
-.nuObjectWrapper #sal_zzzzsys_form_id_open_button{
+.nuObjectWrapper #sal_zzzzsys_form_id_open_button {
     align-self: center;
-    width:100%;
-    
+    width: 20px;
+
 }
 .nuRespButton {
     color: red;
 }
 .nuLookupWrapper {
     display: flex;
-    width: 45%;
+    /*width: 50%;*/
     flex-flow: row nowrap;
     flex-shrink: 5;
 
 }
 
-.nuLookupWrapper label {
-    flex: 1;
-    align-items: flex-start;
-    justify-content: flex-start;
-    flex-flow: nowrap;
-    flex-shrink: 0;
-    order: 1;
-}
+/*.nuLookupWrapper label {*/
+/*    flex: 1;*/
+/*    align-items: flex-start;*/
+/*    justify-content: flex-start;*/
+/*    flex-flow: nowrap;*/
+/*    flex-shrink: 0;*/
+/*    order: 1;*/
+/*}*/
 
 .nuLookupWrapper>.nuLuWrapper {
     display: flex;
-    flex: 3;
-    height: 30px;
+    flex: 1;
+    height: 22px;
     order: 2;
     flex-shrink: 4;
 }
@@ -113,9 +177,9 @@ input, select, textarea, .nuSubform , iframe, .nuImage, .nuHtml {
 .nuLuWrapper> * {
     display: flex;
     position: relative;
-    flex: 1;
-    flex-shrink: 4;
-    flex: 0 1 auto;
+    /*flex: 1;*/
+    /*flex-shrink: 4;*/
+    /*flex: 0 1 auto;*/
 }
 
 
@@ -160,26 +224,22 @@ input, select, textarea, .nuSubform , iframe, .nuImage, .nuHtml {
 
 }
 .nuHomeRespButton {
+    display: flex;
     position: relative;
 
 
 }
-.nuHomeRespButton > :nth-child(1) {
-    width: 90%;
-
-    /*min-width:50%;*/
-    /*max-width: 90%;*/
-
+.input_button_left {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    flex: 1;
 }
-.nuHomeRespButton > :nth-child(2) {
-    min-width: 10%;
-    max-width: 10%;
-
-
-
+.input_button_right {
+        flex: 0.01;
 }
+
 .nuHomeRespButton .nuUserHomeButton,#run_filemanager {
-    width: 100%;
+    width: 100% !important;
 
 
 }
@@ -191,8 +251,8 @@ input, select, textarea, .nuSubform , iframe, .nuImage, .nuHtml {
 .nuHomeButtonWrapper {
 
     display: grid;
-    grid-template-columns: minmax(auto,300px) minmax(auto,300px) minmax(auto,300px);
-
+   grid-template-columns: repeat(3, 1fr);
+grid-column: span 12;
     flex-flow: row wrap;
     row-gap: 15px;
     column-gap: 15px;
@@ -211,7 +271,7 @@ input, select, textarea, .nuSubform , iframe, .nuImage, .nuHtml {
     border-left: 1px solid white;
 
 }
-.nuObjectWrapper .nuButton {
+.nuObjectWrapper.nuButton {
     width: 60%;
 }
 
@@ -222,38 +282,115 @@ input, select, textarea, .nuSubform , iframe, .nuImage, .nuHtml {
     overflow-x: none;
 
 }
-FIELDSET {
+
+.nuObjectWrapper {
+    /*width: 50%;*/
+    display: flex;
+    /*flex-flow: row wrap;*/
+    flex-direction: row;
+    gap: 5px;
+    /*row-gap: 10px;*/
+    flex-wrap: nowrap;
+}
+#contentbox {
+    /*grid-auto-columns: auto;*/
+    grid-column: 2/11;
+}
+.nuGrid-container> .nuContentBoxContainer {
     display: grid;
-    grid-auto-columns: auto;
+    grid-template-columns: repeat(12,1fr);
+    grid-column: span 12;
     gap: 10px;
     margin: 8px;
-       padding: 8px;
-   
+    padding: 10px;
+
     border-bottom-left-radius: 7px;
     border-bottom-right-radius: 7px;
     border: 1px solid var(--nu-border);
     background-color: #fff;
-    width:100%;
+    /*width: 100%;*/
+    z-index: 1!important;
+
 }
-LEGEND {
+.nuGrid-container .nuContentBox {
+
+    display: flex;
+    grid-template-columns: repeat(12,1fr);
+    /*grid-column: 1/12;*/
+    position: relative;
+    height: 15px;
+}
+.nuGrid-container>.nuContentBoxTitle {
     padding: 2px;
+
+}
+.nuContentBoxTitle {
+    height: 4px;
+    border-top-left-radius: 7px;
+    border-top-right-radius: 7px;
+    color: #333;
+    font-size: 14px;
+    font-weight: 700;
+    font-family: var(--nu-font-sans-serif);
+    display: block;
+    padding: 9px;
+    letter-spacing: 1.5px;
 }
 
 
-@media (max-width: 700px) {
+#sus_zzzzsys_access_id_open_button, #sal_zzzzsys_form_id_open_button {
+    order: 4;
+    width: 20px;
+}
+
+.nuGrid-container> .nuContentBoxTitle::after {
+    content: "-";
+}
+
+.nuGrid-container> .nuContentBoxTitle.open::after {
+    content: "+";
+}
+
+.nuGrid-container> .nuContentBoxTitle.open::after,
+.nuContentBoxTitle::after {
+    margin-left: 2px;
+}
+
+.nuContentBoxTitle-noText::after {
+    display: none;
+}
 
 
-    .nuContainer {
+
+@media (max-width: 800px) {
+
+
+    .nuRECORD {
         width: 95vw;
         padding: 5px;
 
+    }
+    .nuGrid-container>.nuContentBoxContainer {
+        display: flex;
+        flex-direction: column;
+        /*width: 85vw!important;*/
+    }
+
+    .nuGrid-container {
+        display: flex;
+        flex-direction: column;
     }
 
     .nuObjectWrapper {
         display: flex;
         width: 100%;
         flex-direction: column;
+        gap: 10px;
 
+    }
+
+    .nuObjectWrapper label, select {
+        line-height: 35px;
     }
     .nuHomeButtonWrapper {
         display: flex;
@@ -262,6 +399,8 @@ LEGEND {
         flex-direction: column;
 
     }
+
+
     .nuHomeRespButton {
         position: relative;
         display: flex;
@@ -291,18 +430,49 @@ LEGEND {
     }
     .nuLookupWrapper .nuLuWrapper {
         flex-shrink: 4;
-
+        width: 100%;
     }
+    .nuLookupWrapper>.nuLuWrapper :nth-child(3) {
+
+        width: 100%;
+    }
+
     .nuSubformWrapper {
         display: flex;
-        width: 100%;
-        height: 200px!important;
-        flex-direction: column!important;
+
+        /*height: 200px;*/
+
         padding: 0;
         flex-flow: row wrap;
-    }
-    .nuSubform {
 
-        left: 0!important;
+    }
+
+
+
+    .nuObjectWrapper > label {
+        font-size: 15px;
+        flex-wrap: nowrap;
+    }
+
+    /*.nuRECORD .nuTab-container> .nuGrid-container> .nuObjectWrapper> input[type="text"], input[type="password"],input[type="nuDate"], input[type="button"],select,.input_nuDate,.nuDate {*/
+    /*    padding: 0.1px 5px;*/
+    /*    line-height: 35px;*/
+
+
+    /*}*/
+.nuObjectWrapper input , select, textarea, .nuSubform , iframe, .nuImage, .nuHtml, .select2 {
+    line-height: 40px;
+}
+    .nuLuWrapper>* {
+        padding: 5px 5px;
+        line-height: 35px;
+        width: 100%;
+    }
+    .nuResCheckbox {
+        display: flex;
+        width: 100% !important;
+        max-width: 25%;
+        flex-direction: row;
+        flex-wrap: nowrap;
     }
 }

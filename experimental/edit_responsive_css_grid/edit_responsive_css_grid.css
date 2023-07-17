@@ -1,3 +1,32 @@
+/*default nuObjectWrapper size*/
+.nuObjectWrapper {
+    grid-column: 1/6;
+}
+.nuResCheckbox {
+    grid-column: 1/2;
+}
+.nuSubformWrapper {
+    grid-column: 1/12;
+    grid-row: span 30;
+}
+.nuRespButton {
+    grid-column: span 2;
+    /*justify-content: center;*/
+    /*justify-self: end;*/
+}
+
+.even{
+    grid-column: 1/6;
+}
+.odd{
+    grid-column: 6/12;
+}
+.nuRespSelect{
+    
+    /*flex-direction: row-reverse;*/
+}
+/*default  size setting ends here*/
+
 .nuSubformScrollDiv {
 
 
@@ -10,27 +39,24 @@
 
 
     display: grid;
-    /*width: 100%;*/
     grid-template-columns: repeat(12, 1fr);
-    background-color: grey;
-   /*// grid-auto-columns: 1fr 1fr 1fr 1fr 1fr;*/
-   /* grid-auto-rows: 1fr 1fr 1fr 1fr 1fr;*/
+    background-color: inherit;
     gap: 10px;
-    background: lightblue;
+    background: inherit;
     border-bottom-left-radius: 7px;
     border-bottom-right-radius: 7px;
-    border: 1px solid var(--nu-border);
-    padding: 10px 15px 10px 10px;
+    /*border: 1px solid var(--nu-border);*/
+    /*padding: 10px 15px 10px 10px;*/
 }
 
 
-[data-tab-index]:not([data-tab-index="0"]) {
+[data-nu-tab]:not([data-nu-tab="0"]) {
     display: none;
 }
 
 .nuSubform {
     overflow: auto;
-    width: 95%;
+    width: 100%;
 }
 
 
@@ -45,46 +71,44 @@
     align-items: flex-start;
     flex-wrap: wrap;
     box-sizing: border-box;
-    row-gap: 2px;
+
 
 }
 
 .nuTab-container {
-    background: #ededed;
+    background: inherit;
     padding: 5px;
 
     width: 100%;
-    /*height: 80vh;*/
     grid-row-gap: 5px;
 }
 
 label {
-    order: 1;
-    flex-shrink: 0;
+    /*order: 1;*/
+    flex-shrink: 1;
 
 }
 
 
 input, select, textarea, .nuSubform , iframe, .nuImage, .nuHtml {
     order: 2;
-/*resize: both;*/
-/*overflow: auto;*/
-}
-/*.nuObjectWrapper{*/
-/*    resize: both;*/
-/*overflow: auto;*/
-/*}*/
-.nuObjectWrapper label {
-    flex-wrap: nowrap;
-    /*flex: 0.5;*/
-    align-items: flex-start;
-    justify-content: flex-start;
-    /*flex-basis: 0;*/
-    flex-wrap: nowrap;
-    margin-right: 10px;
-    width: min(120px);
+
 }
 
+.nuObjectWrapper label {
+    flex-wrap: nowrap;
+
+    align-items: flex-start;
+    justify-content: flex-start;
+    flex-wrap: nowrap;
+
+    width: min(100px);
+    width: max(120px);
+
+}
+.nuObjectWrapper button {
+    width: 100%;
+}
 
 .nuObjectWrapper>* {
     position: relative;
@@ -92,15 +116,17 @@ input, select, textarea, .nuSubform , iframe, .nuImage, .nuHtml {
 
 .nuResCheckbox {
 
-    width: 15% !important;
+    /*width: 15% !important;*/
     width: max-content;
+
+
+
 }
 
 
 .nuResCheckbox :nth-child(2) {
-
-    flex: 0.0001;
-
+    min-width: 15px;
+    height: 15px;
 }
 .nuResCheckbox label {
 
@@ -110,6 +136,14 @@ input, select, textarea, .nuSubform , iframe, .nuImage, .nuHtml {
 .nuObjectWrapper input , select, textarea, .nuSubform , iframe, .nuImage, .nuHtml, .select2 {
     flex: 3;
 }
+.nuObjectWrapper>select {
+    width: 100%;
+    min-width: 50%;
+}
+.nuObjectWrapper>input, .nuLookupWrapper, .nuLuWrapper {
+    width: 100%;
+    min-width: 50%;
+}
 .nuWord {
     flex: 3;
     text-align: center!important;
@@ -118,19 +152,16 @@ input, select, textarea, .nuSubform , iframe, .nuImage, .nuHtml {
     flex: 3!important;
 }
 
-.nuObjectWrapper .select2 {
+.nuObjectWrapper.select2 {
     order: 2;
 }
 .nuSubformWrapper {
     display: flex;
-    /*width: 90%;*/
-    /*height: 300px!important;*/
     flex-direction: column!important;
     padding: 0 10px;
     flex-flow: row wrap;
-    overflow: auto;
-    /*grid-row: 1/25;*/
-    /*grid-column: 1/35;*/
+    /*overflow: auto;*/
+
 }
 .nuSubformWrapper label {
     display: flex;
@@ -147,24 +178,19 @@ input, select, textarea, .nuSubform , iframe, .nuImage, .nuHtml {
 
 }
 .nuRespButton {
-    color: red;
+    max-width: 100%;
+    align-self: center;
+
 }
 .nuLookupWrapper {
     display: flex;
-    /*width: 50%;*/
+
     flex-flow: row nowrap;
     flex-shrink: 5;
 
 }
 
-/*.nuLookupWrapper label {*/
-/*    flex: 1;*/
-/*    align-items: flex-start;*/
-/*    justify-content: flex-start;*/
-/*    flex-flow: nowrap;*/
-/*    flex-shrink: 0;*/
-/*    order: 1;*/
-/*}*/
+
 
 .nuLookupWrapper>.nuLuWrapper {
     display: flex;
@@ -177,9 +203,7 @@ input, select, textarea, .nuSubform , iframe, .nuImage, .nuHtml {
 .nuLuWrapper> * {
     display: flex;
     position: relative;
-    /*flex: 1;*/
-    /*flex-shrink: 4;*/
-    /*flex: 0 1 auto;*/
+
 }
 
 
@@ -215,7 +239,7 @@ input, select, textarea, .nuSubform , iframe, .nuImage, .nuHtml {
 
 }
 
-.nuObjectWrapper .input_button {
+.nuObjectWrapper.input_button {
 
     min-width: 30%;
     max-width: 50%;
@@ -235,7 +259,7 @@ input, select, textarea, .nuSubform , iframe, .nuImage, .nuHtml {
     flex: 1;
 }
 .input_button_right {
-        flex: 0.01;
+    flex: 0.01;
 }
 
 .nuHomeRespButton .nuUserHomeButton,#run_filemanager {
@@ -251,8 +275,8 @@ input, select, textarea, .nuSubform , iframe, .nuImage, .nuHtml {
 .nuHomeButtonWrapper {
 
     display: grid;
-   grid-template-columns: repeat(3, 1fr);
-grid-column: span 12;
+    grid-template-columns: repeat(3, 1fr);
+    grid-column: 1/13;
     flex-flow: row wrap;
     row-gap: 15px;
     column-gap: 15px;
@@ -284,16 +308,16 @@ grid-column: span 12;
 }
 
 .nuObjectWrapper {
-    /*width: 50%;*/
+
     display: flex;
-    /*flex-flow: row wrap;*/
+
     flex-direction: row;
     gap: 5px;
-    /*row-gap: 10px;*/
+
     flex-wrap: nowrap;
 }
 #contentbox {
-    /*grid-auto-columns: auto;*/
+    grid-auto-columns: auto;
     grid-column: 2/11;
 }
 .nuGrid-container> .nuContentBoxContainer {
@@ -302,21 +326,32 @@ grid-column: span 12;
     grid-column: span 12;
     gap: 10px;
     margin: 8px;
+    padding: 10px 12px;
+
+    border-bottom-left-radius: 7px;
+    border-bottom-right-radius: 7px;
+    border: 1px solid var(--nu-border);
+    background-color: rgb(253,252,248);
+
+    z-index: 1!important;
+
+}
+
+fieldset {
+    margin: 8px;
     padding: 10px;
 
     border-bottom-left-radius: 7px;
     border-bottom-right-radius: 7px;
     border: 1px solid var(--nu-border);
     background-color: #fff;
-    /*width: 100%;*/
-    z-index: 1!important;
+
+    z-index: -1;
 
 }
 .nuGrid-container .nuContentBox {
 
     display: flex;
-    grid-template-columns: repeat(12,1fr);
-    /*grid-column: 1/12;*/
     position: relative;
     height: 15px;
 }
@@ -324,16 +359,18 @@ grid-column: span 12;
     padding: 2px;
 
 }
-.nuContentBoxTitle {
-    height: 4px;
+.nuContentBoxTitle, legend {
+    grid-column: 1/2;
+    grid-row: 1/2;
+    /*height: 4px;*/
     border-top-left-radius: 7px;
     border-top-right-radius: 7px;
     color: #333;
     font-size: 14px;
     font-weight: 700;
     font-family: var(--nu-font-sans-serif);
-    display: block;
-    padding: 9px;
+    /*display: block;*/
+    /*padding: 9px;*/
     letter-spacing: 1.5px;
 }
 
@@ -360,20 +397,38 @@ grid-column: span 12;
     display: none;
 }
 
+.nuTaHolder {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 5px;
 
+}
+
+.nuActionHolder {
+    height: 2px;
+    height: auto;
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+}
+#nuSearchButton {
+    order: 1;
+}
 
 @media (max-width: 800px) {
 
 
     .nuRECORD {
-        width: 95vw;
+        width: 98%;
         padding: 5px;
 
     }
     .nuGrid-container>.nuContentBoxContainer {
         display: flex;
         flex-direction: column;
-        /*width: 85vw!important;*/
     }
 
     .nuGrid-container {
@@ -389,9 +444,6 @@ grid-column: span 12;
 
     }
 
-    .nuObjectWrapper label, select {
-        line-height: 35px;
-    }
     .nuHomeButtonWrapper {
         display: flex;
         min-width: 50vw;
@@ -410,13 +462,13 @@ grid-column: span 12;
     .nuHomeRespButton > :nth-child(2) {
         min-width: 10%;
     }
-    .nuObjectWrapper .nuButton {
+    .nuObjectWrapper.nuButton {
         width: 100%;
     }
 
     .nuObjectWrapper label {
         text-align: left;
-
+        width: 100% !important;
     }
 
     .nuLookupWrapper {
@@ -439,9 +491,7 @@ grid-column: span 12;
 
     .nuSubformWrapper {
         display: flex;
-
-        /*height: 200px;*/
-
+        height: 400px;
         padding: 0;
         flex-flow: row wrap;
 
@@ -450,29 +500,45 @@ grid-column: span 12;
 
 
     .nuObjectWrapper > label {
-        font-size: 15px;
+        font-size: 20px;
         flex-wrap: nowrap;
+        
     }
 
-    /*.nuRECORD .nuTab-container> .nuGrid-container> .nuObjectWrapper> input[type="text"], input[type="password"],input[type="nuDate"], input[type="button"],select,.input_nuDate,.nuDate {*/
-    /*    padding: 0.1px 5px;*/
-    /*    line-height: 35px;*/
+
+  .nuObjectWrapper>input,textarea{
+  line-height:55px;
+    font-size: 20px;
+}
 
 
-    /*}*/
-.nuObjectWrapper input , select, textarea, .nuSubform , iframe, .nuImage, .nuHtml, .select2 {
-    line-height: 40px;
+    .nuObjectWrapper>select, .select2.select2-container .select2-selection  {
+        line-height: 55px;
+        padding: 15px 2px;
+         font-size: 20px;
+         height: 55px !important;
+    }
+.nuRespSelect .select2-selection__arrow {
+    height: 55px !important;
 }
     .nuLuWrapper>* {
         padding: 5px 5px;
         line-height: 35px;
         width: 100%;
+         font-size: 20px;
     }
     .nuResCheckbox {
         display: flex;
-        width: 100% !important;
-        max-width: 25%;
+        max-width: max-content;
         flex-direction: row;
         flex-wrap: nowrap;
     }
+
+    #nuLogout,#nulink,.nuAdminButton {
+        display: none;
+    }
+    .nuContentBoxTitle, legend {
+        font-size: 20px;
+    }
+
 }

@@ -1,16 +1,17 @@
-function nuWrapInClass(element, element2, classes, containerclass) {
-  
-  if (element2) {
-    $(element).add(element2).wrapAll('<div class="' + classes + '"></div>');
-  } else {
-    $(element).wrap('<div  class="' + classes + '"></div>');
-  }
 
-  if (containerclass) {
-    var $wrapper = $('<div class="' + containerclass + '"></div>');
-    $('.' + classes).wrapAll($wrapper);
-  }
- 
+function nuWrapInClass(element, element2, classes, containerclass) {
+
+    if (element2) {
+        $(element).add(element2).wrapAll('<div class="' + classes + '"></div>');
+    } else {
+        $(element).wrap('<div  class="' + classes + '"></div>');
+    }
+
+    if (containerclass) {
+        var $wrapper = $('<div class="' + containerclass + '"></div>');
+        $('.' + classes).wrapAll($wrapper);
+    }
+
 }
 
 function nuMoveObjectsToGroup(sourceContainerId, targetGroupBoxId, objectIds) {
@@ -30,7 +31,7 @@ function nuMoveObjectsToGroup(sourceContainerId, targetGroupBoxId, objectIds) {
         // Move the objects to the target group box
         for (var i = 0; i < objectIds.length; i++) {
             var objectId = objectIds[i];
-            var objects = document.querySelectorAll("#" + objectId + ", ." + objectId);
+            var objects = document.querySelectorAll("#" + objectId + "_cid, ." + objectId);
 
             if (objects.length > 0) {
                 objects.forEach(function(object) {
@@ -44,7 +45,7 @@ function nuMoveObjectsToGroup(sourceContainerId, targetGroupBoxId, objectIds) {
         console.log('One or both"'+sourceContainer+'" or"'+targetGroupBox+'" elements not found');
     }
 }
- //use case of above function
+//use case of above function
 // //// Move objects with ID "myObject" and class "myClass" to the target group box
 // moveObjectsToGroup("sourceContainer", "targetGroupBox", ["myObject", "myClass"]);
 
@@ -58,17 +59,14 @@ function nuMoveObjectsToGroup(sourceContainerId, targetGroupBoxId, objectIds) {
 // moveObjectsToGroup("sourceContainer", "targetGroupBox", "myClass");
 
 
-
-
-
 function nuSetGridProperties(targetId, parentId) {
     var targetInput = document.getElementById(targetId);
     var parentDiv = document.getElementById(parentId);
-    var gridrow = 'grid-row';
     if (targetInput && parentDiv) {
         parentDiv.style.gridRow = targetInput.style.gridRow;
         parentDiv.style.gridColumn = targetInput.style.gridColumn;
         parentDiv.style.gap = targetInput.style.gap;
+        parentDiv.style.justifySelf = targetInput.style.justifySelf;
 
     }
 }
@@ -90,12 +88,6 @@ function observeGridChanges(targetId, parentId) {
         attributes: true
     });
 }
-
-
-
-
-
-
 
 
 function addToggle() {
@@ -124,7 +116,8 @@ function nuAddTabContentContainer() {
         var $tabContent = $('[data-nu-tab="' + tabIndex + '"]:not([data-nu-form!=""])'); //:not([data-nu-form!=""]) ,[data-nu-form-id]
 
         if (!tabContainers[tabIndex]) {
-            var $tabContainer = $('<div>').addClass('nuTab-container').attr('data-tab-index', tabIndex);
+            var $tabContainer = $('<div>').addClass('nuTab-container').attr('data-nu-tab', tabIndex);
+            $tabContainer.attr('data-nu-form'); //data-nu-tab //data-tab-index
             var $gridContainer = $('<div>').addClass('nuGrid-container').attr('id', 'nuGrid-Container' + tabIndex);
 
             $tabContainer.append($gridContainer);
@@ -143,9 +136,44 @@ function nuAddTabContentContainer() {
         });
 }
 
+function nuSetTab0Active() {
+    var tab0 = document.getElementById('nuTab0');
+    var $tabs = $('[data-nu-tab]:not([data-nu-form!=""],[data-nu-subform="true"])');
+    //   console.log($tabs);
+    if ($tabs) {
+        tab0.click();
+
+    }
+}
+
+function nuResetElementProperties(ids) {
+    $(ids).css({
+        'top': '',
+        'left': '',
+        'width': '',
+        'position': '',
+        'height': ''
+    });
+}
+
+function nuWrapElementWithDiv(id, className) {
+    var $element = $("#label_" + id+" ,#" + id+", #"+id+"_select2, #"+id+"_file,#"+id+"code, #"+id+"button,#"+id+"description");//, #"+id+"_select2
+    var $element2 = $("#"+id+"code, #"+id+"button,#"+id+"description");
+
+    $element.wrapAll('<div id="' + id + '_cid" class="' + className + '"></div>');
+
+    $element2.wrapAll('<div  class="nuLuWrapper"></div>');
+    $element2.appendTo(className);
+}
 
 
-
+function addOddEven(){
+    
+//     $('.nuObjectWrapper:odd').addClass('odd');
+// $('.nuObjectWrapper:even').addClass('even');
+$('.nuObjectWrapper:not(.nuRespButton):odd').addClass('odd');
+$('.nuObjectWrapper:not(.nuRespButton):even').addClass('even');
+}
 
 
 function nuOnLoad() {
@@ -153,36 +181,36 @@ function nuOnLoad() {
         $(document).ready(function() {
 
 
+
             function isResponsive() {
 
                 var f = window.nuFORM.getProperty('form_id');
-                return f.containsAny(['nuaccess', 'nuhomecompact', 'nuuser','5d0053b54f1df1a','60ff227479f9950']);
+
+                if (f !== 'nuhomecompact') {
+                    nuSetTab0Active();
+                }
+
+                return f.containsAny(['nuaccess', 'nuhomecompact', 'nuuser', '5d0053b54f1df1a', '60ff227479f9950', 'nuselect', '5ca2f87be839e65', '5ca15ca2410c298','5ca123935de96df','5ee831b67f41230']);
+
+
 
             }
 
 
 
+
             function nuHideInactiveTabContents() {
-                $(function() {
-                    // Add click event listener to the tab menu
-                    $('.nuTab').on('click', function() {
-                        // Get the index of the clicked tab
-                        var tabIndex = $(this).index();
 
-                        // Remove the active class from all tabs
-                        $('.nuTab').removeClass('active');
-                        // Add the active class to the clicked tab
-                        $(this).addClass('active');
+                $(document).on('click', '.nuTab', function() {
+                    var tabIndex = $(this).index();
+                    var tabClass = $('#nuTab'+ tabIndex).attr("class");
+                    var hasSelectedClass = tabClass.includes('nuTabSelected');
+                    if (hasSelectedClass) {
+                        $('.nuTab-container').hide();
 
-                        // Hide all content
-                        $('.nuTab-container').hide().removeClass('active');
-                        // Show the content corresponding to the clicked tab
-                        $('.nuTab-container[data-tab-index="' + tabIndex + '"]').show().addClass('active');
+                        $('.nuTab-container[data-nu-tab="' + tabIndex + '"]').show();
 
-                    });
-
-                    // Set the active .tab-container to display as grid
-                    $('.nuTab-container.active').css('display', 'grid !important');
+                    }
 
                 });
             }
@@ -205,14 +233,9 @@ function nuOnLoad() {
                 for (let i = 0; i < o.length; i++) {
                     let id = o[i].id;
                     let oType = o[i].type;
-                    var index = i;
 
-                    $("#"+id+",#label_"+id+",#"+id+"_file, .select2, span, .selection,.nuContentBox ").css({
-                        'top': '', 'left': '', 'width': '', 'position': '', 'height': ''
-                    });
-                    $("#"+id+"code,#"+id+"button,#"+id+"description").css({
-                        'top': '', 'left': '', 'width': '', 'position': '', 'height': ''
-                    });
+                    nuResetElementProperties("#"+id+",#label_"+id+",#"+id+"_file, .select2, span, .selection,.nuContentBox ");
+                    nuResetElementProperties("#"+id+"code,#"+id+"button,#"+id+"description");
                     $("#label_"+id).insertBefore($("#label_"+id).prev());
 
 
@@ -223,118 +246,108 @@ function nuOnLoad() {
 
 
                     if (oType == 'lookup') {
-
-                        $("#"+id+",#label_"+id+",#"+id+"code, #"+id+"button,#"+id+"description").wrapAll('<div id="'+id+'_cid" class="nuObjectWrapper  nuLookupWrapper "></div>');
-                        $("#"+id+"code, #"+id+"button,#"+id+"description , #sal_zzzzsys_form_id_open_button").wrapAll('<div class="nuLuWrapper"></div>'); //, #sal_zzzzsys_form_id_open_button
-
+                        nuWrapElementWithDiv(id, 'nuObjectWrapper  nuLookupWrapper');
+                        
                     }
 
                     if (o[i].input === 'checkbox') {
 
 
-                        $("#label_"+id+",#"+id).wrapAll('<div id="'+id+'_cid" class="nuObjectWrapper  nuResCheckbox "></div>'); //02/02/23 Added Class:nuRespButton .not('#sal_zzzzsys_form_id_open_button')
-
-
+                       
+                        nuWrapElementWithDiv(id, 'nuObjectWrapper  nuResCheckbox');
+                        
                     }
 
 
                     if (oType == 'file') {
 
 
-                        $("#label_"+id+",#"+id+",#"+id+"_file").wrapAll('<div id="'+id+'_cid" class="nuObjectWrapper nuFileWrapper  "></div>');
-
+                        
+                        nuWrapElementWithDiv(id, 'nuObjectWrapper  nuFileWrapper');
                     }
                     if (o[i].select2 == '1') {
 
 
-                        $("#label_"+id+",#"+id+", .select2").wrapAll('<div id="'+id+'_cid" class="nuObjectWrapper "></div>');
-
+                         //$("#label_"+id+",#"+id+",#"+id+"_select2").wrapAll('<div id="'+id+'_cid" class="nuObjectWrapper nuRespSelect "></div>');//, .select2,[data-select2-id],[data-nu-form-id='nuselect']
+                        nuWrapElementWithDiv(id, 'nuObjectWrapper nuRespSelect');
                     }
-                    if (o[i].input == 'button' || o[i].type == 'button') {
+                    if (o[i].input == 'button' || o[i].type == 'button' || o[i].type == 'run') {
 
 
-                        $("#"+id+"").not('#sal_zzzzsys_form_id_open_button').wrapAll('<div id="'+id+'_cid" class="nuObjectWrapper nuRespButton  "></div>'); //02/02/23 Added Class:nuRespButton .not('#sal_zzzzsys_form_id_open_button')
-
+                      
+                        nuWrapElementWithDiv(id, 'nuObjectWrapper nuRespButton');
 
                     }
                     if (oType == 'contentbox') {
 
-                        // $("#label_"+id).insertBefore($("#label_"+id).prev());
-
-                        // $("#label_"+id+",#"+id).hide();
+                        //to be reviewed
                     }
 
 
 
                     if (oType == 'subform') {
-                        //subforms in tab one only-responsive + scroll on small screens o[i].tab === 0 &&
 
-                        $("#label_"+id+",#"+id).wrapAll('<div id="'+id+'_cid" class="nuObjectWrapper nuSubformWrapper "></div>');
-                        $("#"+id+",#label_"+id).css({
-                            'top': '', 'left': '', 'position': '', 'width': '', 'height': ''
-
-                        });
+                        
+                        nuWrapElementWithDiv(id, 'nuObjectWrapper nuSubformWrapper');
+                        
                         $("#"+id).css({
                             'overflow': 'auto'
                         });
                     }
 
-                    if (o[i].read !== '2' && o[i].type !== 'subform' && o[i].type !== 'contentbox' && oType !== 'lookup' && o[i].input !== 'checkbox' && oType !== 'contentbox' && o[i].input !== 'button' && o[i].type !== 'button') {
+                    if (o[i].read !== '2' && o[i].type !== 'subform' && o[i].type !== 'contentbox' && oType !== 'lookup' && o[i].input !== 'checkbox' && oType !== 'contentbox' && o[i].input !== 'button' && o[i].type !== 'button' && o[i].type !== 'run' && o[i].select2 !== '1') {
 
-                        $('#'+ id + ",#label_"+id).wrapAll('<div id="'+id+'_cid" class="nuObjectWrapper "/></div>');
-
+                        nuWrapElementWithDiv(id, 'nuObjectWrapper');
                     }
 
-                    nuSetGridProperties(id, id+"_cid");
-                    
+                    nuSetGridProperties(id, id +"_cid");
+
                 }
 
                 $("#user_home,#run_user,edit_php, #menu_procedures, #user_add,#run_access,#run_setup, #menu_setup, #access_add,#form_button, #menu_forms,#object_button,#objects_add,#open_database, #menu_database,#run_filemanager,#run_sql, #sql_add,#run_file, #sql_file,#run_note, #notes_add,#edit_report, #menu_reports,#run_nucodesnippets, #nucodesnippets_add").unwrap();
-               
-                
-                 nuWrapInClass('#user_home','', 'nuHomeRespButton','nuHomeButtonWrapper');
-                 nuWrapInClass('#run_user','#user_add', 'nuHomeRespButton','nuHomeButtonWrapper');
-                 nuWrapInClass('#run_access', '#access_add', 'nuHomeRespButton','nuHomeButtonWrapper');
-                 nuWrapInClass('#form_button', '#menu_forms', 'nuHomeRespButton','nuHomeButtonWrapper');
-                 nuWrapInClass('#object_button','#objects_add', 'nuHomeRespButton','nuHomeButtonWrapper');
-                 nuWrapInClass('#open_database', '#menu_database', 'nuHomeRespButton','nuHomeButtonWrapper');
-                 nuWrapInClass('#run_setup', '#menu_setup', 'nuHomeRespButton','nuHomeButtonWrapper');
-                 nuWrapInClass('#run_filemanager','', 'nuHomeRespButton','nuHomeButtonWrapper');
-                 nuWrapInClass('#run_sql', '#sql_add', 'nuHomeRespButton','nuHomeButtonWrapper');
-                 nuWrapInClass('#run_file', '#sql_file', 'nuHomeRespButton','nuHomeButtonWrapper');
-                 nuWrapInClass('#run_note', '#notes_add', 'nuHomeRespButton','nuHomeButtonWrapper');
-                 nuWrapInClass('#edit_report','#menu_reports', 'nuHomeRespButton','nuHomeButtonWrapper');
-                 nuWrapInClass('#run_nucodesnippets', '#nucodesnippets_add', 'nuHomeRespButton','nuHomeButtonWrapper');
-                 nuWrapInClass('#edit_php', '#menu_procedures', 'nuHomeRespButton','nuHomeButtonWrapper');
-                 nuWrapInClass('#run_nuemailtempltates', '#run_nuemailtempltates_add', 'nuHomeRespButton','nuHomeButtonWrapper');
-                 nuMoveObjectsToGroup ('nuGrid-Container0', 'contentbox', 'nuHomeButtonWrapper');
-               
-               
+
+
+                nuWrapInClass('#user_home', '', 'nuHomeRespButton', 'nuHomeButtonWrapper');
+                nuWrapInClass('#run_user', '#user_add', 'nuHomeRespButton', 'nuHomeButtonWrapper');
+                nuWrapInClass('#run_access', '#access_add', 'nuHomeRespButton', 'nuHomeButtonWrapper');
+                nuWrapInClass('#form_button', '#menu_forms', 'nuHomeRespButton', 'nuHomeButtonWrapper');
+                nuWrapInClass('#object_button', '#objects_add', 'nuHomeRespButton', 'nuHomeButtonWrapper');
+                nuWrapInClass('#open_database', '#menu_database', 'nuHomeRespButton', 'nuHomeButtonWrapper');
+                nuWrapInClass('#run_setup', '#menu_setup', 'nuHomeRespButton', 'nuHomeButtonWrapper');
+                nuWrapInClass('#run_filemanager', '', 'nuHomeRespButton', 'nuHomeButtonWrapper');
+                nuWrapInClass('#run_sql', '#sql_add', 'nuHomeRespButton', 'nuHomeButtonWrapper');
+                nuWrapInClass('#run_file', '#sql_file', 'nuHomeRespButton', 'nuHomeButtonWrapper');
+                nuWrapInClass('#run_note', '#notes_add', 'nuHomeRespButton', 'nuHomeButtonWrapper');
+                nuWrapInClass('#edit_report', '#menu_reports', 'nuHomeRespButton', 'nuHomeButtonWrapper');
+                nuWrapInClass('#run_nucodesnippets', '#nucodesnippets_add', 'nuHomeRespButton', 'nuHomeButtonWrapper');
+                nuWrapInClass('#edit_php', '#menu_procedures', 'nuHomeRespButton', 'nuHomeButtonWrapper');
+                nuWrapInClass('#run_nuemailtempltates', '#run_nuemailtempltates_add', 'nuHomeRespButton', 'nuHomeButtonWrapper');
+                nuMoveObjectsToGroup ('nuGrid-Container0', 'contentbox', 'nuHomeButtonWrapper');
+
+
                 if (frmid == 'nuuser') {
                     $('.nuRespButton ').unwrap('.nuObjectWrapper');
                     $('#sus_zzzzsys_access_id_open_button').appendTo('.nuLuWrapper');
 
-                    var sourceContainerId = 'nuGrid-Container0';
-                    var targetGroupBoxId = 'contentbox_login';
-                    var objectIds = ['sus_name_cid',
-                        'sus_zzzzsys_access_id_cid',
-                        'sus_login_name_cid',
-                        'new_password_cid',
-                        'check_password_cid',
-                        'sus_language_cid',
-                        'sus_password_show_btn_cid'];
-                    var objectIds2 = ['sus_email_cid',
-                        'sus_code_cid',
-                        'sus_team_cid',
-                        'sus_department_cid',
-                        'sus_position_cid',
-                        'sus_additional1_cid',
-                        'sus_additional2_cid',
-                        'sus_expires_on_cid'];
+                    var objectIds = ['sus_name',
+                        'sus_zzzzsys_access_id',
+                        'sus_login_name',
+                        'new_password',
+                        'check_password',
+                        'sus_language',
+                        'sus_password_show_btn','sus_genpass_btn'];
+                    var objectIds2 = ['sus_email',
+                        'sus_code',
+                        'sus_team',
+                        'sus_department',
+                        'sus_position',
+                        'sus_additional1',
+                        'sus_additional2',
+                        'sus_expires_on'];
 
                     // Call the function to move the objects
-                    nuMoveObjectsToGroup (sourceContainerId, targetGroupBoxId, objectIds);
-                    nuMoveObjectsToGroup (sourceContainerId, 'contentbox_additional', objectIds2);
+                    nuMoveObjectsToGroup ('nuGrid-Container0', 'contentbox_login', objectIds);
+                    nuMoveObjectsToGroup ('nuGrid-Container0', 'contentbox_additional', objectIds2);
                 }
 
 
@@ -343,11 +356,11 @@ function nuOnLoad() {
                 if (frmid == 'nuaccess') {
                     $('.nuRespButton').unwrap('.nuObjectWrapper');
                     $('#sal_zzzzsys_form_id_open_button').appendTo('.nuLuWrapper');
-                    var objectIds3 = ['sal_zzzzsys_form_id_cid',
-                        'sal_code_cid',
-                        'sal_description_cid',
-                        'sal_group_cid',
-                        'sal_use_2fa_cid',
+                    var objectIds3 = ['sal_zzzzsys_form_id',
+                        'sal_code',
+                        'sal_description',
+                        'sal_group',
+                        'sal_use_2fa',
                     ];
 
                     nuMoveObjectsToGroup ('nuGrid-Container0', 'contentbox_user', objectIds3);
@@ -356,6 +369,7 @@ function nuOnLoad() {
                 }
 
                 nuHideInactiveTabContents();
+                addOddEven();
                 //addToggle();
                 $('div:empty').remove();
 
@@ -365,10 +379,12 @@ function nuOnLoad() {
 
 
 
-            // }
+          
         });
 
 
     }
+
+}
 
 }

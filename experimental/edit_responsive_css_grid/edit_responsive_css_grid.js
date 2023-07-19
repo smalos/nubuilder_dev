@@ -113,7 +113,7 @@ function nuAddTabContentContainer() {
     $tabs.each(function (index) {
         var tabIndex = $(this).data('nu-tab'); // Get the value of the data-nu-tab attribute
         //var $tabContent = $('[data-nu-tab="' + tabIndex + '"]'); // Get all elements with the matching data-nu-tab attribute
-        var $tabContent = $('[data-nu-tab="' + tabIndex + '"]:not([data-nu-form!=""])'); //:not([data-nu-form!=""]) ,[data-nu-form-id]
+        var $tabContent = $('[data-nu-tab="' + tabIndex + '"]:not([data-nu-form!=""])'); //:not([data-nu-form!=""]) ,[data-nu-form-id],[data-select2-id]
 
         if (!tabContainers[tabIndex]) {
             var $tabContainer = $('<div>').addClass('nuTab-container').attr('data-nu-tab', tabIndex);
@@ -175,12 +175,35 @@ $('.nuObjectWrapper:not(.nuRespButton):odd').addClass('odd');
 $('.nuObjectWrapper:not(.nuRespButton):even').addClass('even');
 }
 
+function nuTranfomSearchBox(){
+    $('#nuSearchField,#nuSearchButton,#nuFilter').wrapAll('<div id="nuSeachCombo"></div>') ;
+            $('#nuSearchField').on('input', function() {
+  if ($(this).val() !== '') {
+    $(this).addClass('has-value'); // Add a class if the field is not empty
+  } else {
+    $(this).removeClass('has-value'); // Remove the class if the field is empty
+  }
+  
+            });
+}
 
 function nuOnLoad() {
-    if (nuFormType() == 'edit') {
+    
+        
+        
+    
+    
+   
         $(document).ready(function() {
+           
+             if (nuFormType() == 'browse') {
+           
+                nuTranfomSearchBox();
 
 
+                 }
+
+            if (nuFormType() == 'edit') {
 
             function isResponsive() {
 
@@ -343,7 +366,8 @@ function nuOnLoad() {
                         'sus_position',
                         'sus_additional1',
                         'sus_additional2',
-                        'sus_expires_on'];
+                        'sus_expires_on',
+                        'sus_accessibility_features'];
 
                     // Call the function to move the objects
                     nuMoveObjectsToGroup ('nuGrid-Container0', 'contentbox_login', objectIds);
@@ -378,13 +402,14 @@ function nuOnLoad() {
 
 
 
-
+  }
           
         });
 
 
-    }
+  
 
+}
 }
 
 }

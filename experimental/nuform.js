@@ -1666,25 +1666,44 @@ function nuEDITOR(w, i, l, p, prop) {
 function nuCONTENTBOX(w, i, l, p, prop) {
 
 	const obj = prop.objects[i];
-	const id = p + obj.id;
+	var id = p + obj.id;
+	var ef = p + 'nuRECORD';							//-- Edit Form Id
+	var inp = document.createElement('fieldset'); //changing div to fieldset
 
-	const div =  nuCreateElementWithId('div', id, p + 'nuRECORD');
+	inp.setAttribute('id', id);
+
+	$('#' + ef).append(inp);
+	
+	//Add legend element
+	const legend = document.createElement('legend');
+	legend.setAttribute('id','label_'+ id);
+    legend.textContent = (obj.label);
+    
+    // Append the legend to the fieldset
+    inp.appendChild(legend);
 
 	nuAddDataTab(id, obj.tab, p);
 
-	nuSetObjectBounds(div, obj.top, obj.left, obj.width, obj.height).css('z-index', '-1')
-		.attr('data-nu-object-id', w.objects[i].object_id)
-		.attr('data-nu-prefix', p)
-		.addClass('nuContentBoxContainer').html(w.objects[i].html);
+	const $id = $('#' + id);
 
-	if (nuGlobalAccess()) {
-		$('#label_' + id).attr('ondblclick', 'nuOptionsListAction("nuobject", "' + obj.object_id + '")');
-	}
+	$id.css({
+		'top': Number(obj.top),
+		'left': Number(obj.left),
+		'width': Number(obj.width),
+		'height': Number(obj.height),
+		'position': 'absolute',
+		'z-index': '-1'
+	}).attr('data-nu-object-id', w.objects[i].object_id)
+		.attr('data-nu-prefix', p)
+		.addClass('nuContentBoxContainer');//.html(w.objects[i].html);
+
+	if (nuGlobalAccess()) $('#label_' + id).attr('ondblclick', 'nuOptionsListAction("nuobject", "' + obj.object_id + '")');
 
 	nuSetAccess(id, obj.read);
+
 	nuAddStyle(id, obj);
 
-	return Number($(div).width());
+	return Number($id.width());
 
 }
 

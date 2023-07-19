@@ -15,14 +15,14 @@
     /*justify-self: end;*/
 }
 
-.even{
+.even {
     grid-column: 1/6;
 }
-.odd{
+.odd {
     grid-column: 6/12;
 }
-.nuRespSelect{
-    
+.nuRespSelect {
+
     /*flex-direction: row-reverse;*/
 }
 /*default  size setting ends here*/
@@ -414,8 +414,43 @@ fieldset {
     flex-wrap: wrap;
     gap: 5px;
 }
-#nuSearchButton {
+#nuSeachCombo {
+    display: flex;
+    gap: 0;
+    order: 2;
+}
+
+
+.nuSearch {
+    height: 26px;
+    padding: 0 0 0 10px;
+    border-radius: 10px 0 0 10px;
+    /* margin-right: 5px; */
+    margin-left: 10px;
+    transition: border-color .2s ease;
+    vertical-align: middle!important;
     order: 1;
+    margin-right: 0;
+    
+}
+#nuSearchField:empty{
+  width: 40%; 
+}
+
+#nuSearchButton {
+    border-radius: 0 10px 10px 0;
+    margin-left: 0;
+    height: 26px;
+    /*border: 1px solid #e3e3e3;*/
+order: 2;
+width:28%;
+}
+#nuFilter{
+    order:3;
+}
+
+#nuSearchField.has-value, #nuSearchField:focus {
+  width: 70%; /* Width when focused and not empty */
 }
 
 @media (max-width: 800px) {
@@ -499,33 +534,39 @@ fieldset {
 
 
 
-    .nuObjectWrapper > label {
+    .nuObjectWrapper>label {
         font-size: 20px;
         flex-wrap: nowrap;
+
+    }
+
+
+    .nuObjectWrapper>input,textarea {
+        line-height: 55px;
+        font-size: 20px;
+    }
+
+
+    .nuRespSelect>.select2.select2-container .select2-selection {
+        /*line-height: 55px;*/
+        padding: 15px 2px;
+        font-size: 20px;
+        height: 55px !important;
+    }
+    .nuObjectWrapper>select{
+        padding: 15px 2px;
+        font-size: 20px;
+        height: 55px !important;
+    }
+    .nuRespSelect .select2-selection__arrow {
+      height: 55px !important;
         
     }
-
-
-  .nuObjectWrapper>input,textarea{
-  line-height:55px;
-    font-size: 20px;
-}
-
-
-    .nuObjectWrapper>select, .select2.select2-container .select2-selection  {
-        line-height: 55px;
-        padding: 15px 2px;
-         font-size: 20px;
-         height: 55px !important;
-    }
-.nuRespSelect .select2-selection__arrow {
-    height: 55px !important;
-}
     .nuLuWrapper>* {
         padding: 5px 5px;
         line-height: 35px;
         width: 100%;
-         font-size: 20px;
+        font-size: 20px;
     }
     .nuResCheckbox {
         display: flex;
@@ -534,11 +575,11 @@ fieldset {
         flex-wrap: nowrap;
     }
 
-    #nuLogout,#nulink,.nuAdminButton {
+    #nuLogout,#nulink,#nuRefreshButton,#nuDebugButton,.nuAdminButton {
         display: none;
     }
-    .nuContentBoxTitle, legend {
-        font-size: 20px;
-    }
+    .nuGrid-container legend {
+    font-size: 20px;
+}
 
 }
